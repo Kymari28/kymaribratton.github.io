@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Page Not Found | Kymari Bratton</title>
+    <meta
+      name="description"
+      content="The page you were looking for could not be found on Kymari Bratton's portfolio."
+    />
+    <meta name="theme-color" content="#f8f6f2" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=Lora:wght@500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-glow page-glow-one" aria-hidden="true"></div>
+    <div class="page-glow page-glow-two" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="brand" href="./" aria-label="Go to home">Kymari Bratton</a>
+
+      <nav class="nav" aria-label="Primary">
+        <a href="./#projects">Projects</a>
+        <a href="./about/">About</a>
+        <a href="./contact/">Contact</a>
+      </nav>
+    </header>
+
+    <main class="subpage-main">
+      <section class="shell subpage-hero subpage-hero-compact">
+        <div class="subpage-copy" data-reveal>
+          <p class="eyebrow">404</p>
+          <h1 class="subpage-title">This page wandered off.</h1>
+          <p class="subpage-lead">
+            The link you followed does not point to an active page on the site right now.
+          </p>
+          <p class="subpage-summary">
+            You can head back to the homepage, browse the case studies, or jump straight to the
+            contact page.
+          </p>
+
+          <div class="subpage-actions">
+            <a class="button button-primary" href="./">Back home</a>
+            <a class="button button-secondary" href="./contact/">Contact</a>
+          </div>
+        </div>
+
+        <div class="subpage-visual" data-reveal>
+          <article class="card contact-highlight">
+            <div class="experience-card">
+              <p class="project-label">Try these pages</p>
+              <ul class="subpage-stack-list">
+                <li><strong>Homepage.</strong> View featured work and current portfolio highlights.</li>
+                <li><strong>About.</strong> Learn more about Kymari's approach and background.</li>
+                <li><strong>Contact.</strong> Reach out about roles, freelance work, or collaborations.</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer shell">
+      <p>Built as custom code for KymariBratton.com.</p>
+      <p>&copy; <span id="year"></span> Kymari Bratton</p>
+    </footer>
+
+    <script src="./script.js"></script>
+  </body>
+</html>
