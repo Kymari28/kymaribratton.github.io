@@ -1,75 +1,56 @@
-# Kymari Bratton Portfolio
+# kymaribratton.com
 
-This is a lightweight static portfolio site built to replace a Figma-hosted portfolio with something you fully own.
+Static portfolio site: plain HTML, CSS, and JavaScript. No build step, no
+framework, no dependencies. Edit the files and push.
 
-## Files
+## Structure
 
-- `index.html` - page structure and content
-- `styles.css` - all visual styling and responsive layout
-- `script.js` - reveal animations and project filters
-- `about/`, `contact/`, `case-study/` - routed portfolio pages
-- `assets/` - images and custom type assets used by the live site
-- `404.html`, `robots.txt`, `sitemap.xml` - deploy-ready site support files
+```
+index.html            homepage
+styles.css            all styling (design tokens at the top)
+script.js             sticky header, scroll reveal, footer year
+assets/               images, fonts, project covers, favicon
+about/                about page
+contact/              contact page
+case-study/<slug>/    one folder per project
+404.html  robots.txt  sitemap.xml  CNAME
+```
 
 ## Local preview
-
-From this folder, run:
 
 ```bash
 python3 -m http.server 8000
 ```
 
-Then open:
+Then open http://localhost:8000. Use a server rather than opening the files
+directly, since paths are root-absolute (`/styles.css`), so `file://` will not
+resolve them.
 
-```text
-http://localhost:8000
-```
+## Editing
 
-## Deploy-ready package
+**Colours and type** live in the `:root` block at the top of `styles.css`.
+Change a token there and it updates everywhere.
 
-After cleanup, the simplest upload-friendly bundle is:
+Text colours are deliberately darker than the brand pastels. `--sage` and
+`--blush` are surface colours only; they do not have enough contrast for
+small text. Use `--sage-deep` and `--rose-deep` for coloured text, and dark
+`--ink` on top of sage or blush fills.
 
-- `deploy/kymaribratton.com/` - clean folder containing only the live website files
-- `deploy/kymaribratton.com.zip` - zipped version of the same bundle for easy upload or sharing
+**Adding a project:** copy the closest existing folder in `case-study/`,
+update the content, then add a card to the work grid in `index.html` and a
+`<url>` entry to `sitemap.xml`.
 
-These are prepared so you do not need to include old Figma export files.
+**Project status badges:** `.status--live` (documented), `.status--progress`
+(case study being written), `.status--ongoing` (project not finished). These
+mean different things: a finished project can still have a case study in
+progress.
 
-## Recommended free hosting path
+## Adding a resume
 
-The cleanest free option for this site is a static host like Netlify, Cloudflare Pages, or GitHub Pages.
+Save the PDF to `assets/kymari-bratton-resume.pdf`, then uncomment the resume
+line in the footer of `index.html`.
 
-### Option 1: Netlify Drop
+## Deploying
 
-1. Go to [Netlify Drop](https://app.netlify.com/drop).
-2. Drag this whole folder into the browser window.
-3. Netlify will publish a free temporary site.
-4. In the Netlify dashboard, add `kymaribratton.com` as a custom domain.
-5. Netlify will show the exact DNS records it needs.
-6. In Porkbun, open `Domain Management` for `kymaribratton.com`, then `DNS`.
-7. Add the records Netlify gives you exactly as shown.
-8. Wait for DNS to propagate and SSL to finish.
-
-### Option 2: Cloudflare Pages
-
-1. Create a Cloudflare account.
-2. Create a new Pages project and upload this site.
-3. Add `kymaribratton.com` as a custom domain.
-4. Copy the DNS records Cloudflare gives you into Porkbun DNS.
-
-### Option 3: GitHub Pages
-
-1. Create a GitHub repository and upload these files to the repository root.
-2. Turn on GitHub Pages in the repo settings.
-3. Add `kymaribratton.com` as the custom domain in GitHub Pages settings.
-4. Update Porkbun DNS with the records GitHub Pages requires.
-
-## Porkbun note
-
-No matter which free host you choose, the host should tell you the exact DNS records to place in Porkbun. That is better than guessing generic records, because the required setup can vary by provider.
-
-## Suggested next improvements
-
-- Add a real resume PDF and link it in the hero
-- Add deeper case-study pages for 2-3 flagship projects
-- Add professional headshot or brand photography if desired
-- Add LinkedIn and email footer links
+The repo is `kymaribratton.github.io`, so GitHub Pages serves it from the
+root. `CNAME` points at kymaribratton.com. Push to `main` and Pages rebuilds.

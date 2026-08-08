@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="ts-sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FAECEE"/><stop offset="1" stop-color="#F0F5EF"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#ts-sky)"/>
+  <circle cx="618" cy="150" r="78" fill="#E8AEB7" opacity=".55"/>
+  <circle cx="618" cy="150" r="78" fill="none" stroke="#C97D8C" stroke-width="2" opacity=".5"/>
+  <path d="M-20 300 Q 200 250 400 300 T 820 300 L820 500 L-20 500 Z" fill="#A9C6A5" opacity=".38"/>
+  <path d="M-20 348 Q 210 296 400 348 T 820 348 L820 500 L-20 500 Z" fill="#A9C6A5" opacity=".42"/>
+  <path d="M-20 400 Q 220 348 400 400 T 820 400 L820 500 L-20 500 Z" fill="#7FA57A" opacity=".38"/>
+  <g fill="none" stroke="#8E4356" stroke-width="3" stroke-linecap="round" opacity=".75">
+    <path d="M120 262 Q 300 120 470 210" stroke-dasharray="10 12"/>
+  </g>
+  <g fill="#8E4356">
+    <circle cx="120" cy="262" r="11"/><circle cx="470" cy="210" r="11"/>
+  </g>
+  <circle cx="120" cy="262" r="20" fill="none" stroke="#8E4356" stroke-width="2" opacity=".45"/>
+  <g fill="#7FA57A" opacity=".5">
+    <circle cx="92" cy="96" r="5"/><circle cx="250" cy="70" r="4"/><circle cx="742" cy="300" r="4"/>
+  </g>
+</svg>

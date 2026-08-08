@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="gw-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#EDF4EC"/><stop offset="1" stop-color="#FAF2EF"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#gw-bg)"/>
+  <circle cx="400" cy="250" r="196" fill="#A9C6A5" opacity=".26"/>
+  <circle cx="400" cy="250" r="140" fill="#fff" opacity=".45"/>
+  <g stroke="#7FA57A" stroke-width="2.6" opacity=".8" fill="none">
+    <path d="M400 250 L246 150"/><path d="M400 250 L246 350"/>
+    <path d="M400 250 L554 150"/><path d="M400 250 L554 350"/>
+    <path d="M400 250 L400 92"/><path d="M400 250 L400 408"/>
+    <path d="M246 150 L400 92"/><path d="M400 92 L554 150"/>
+    <path d="M246 350 L400 408"/><path d="M400 408 L554 350"/>
+    <path d="M246 150 L246 350"/><path d="M554 150 L554 350"/>
+  </g>
+  <g fill="#7FA57A">
+    <circle cx="246" cy="150" r="15"/><circle cx="554" cy="150" r="15"/>
+    <circle cx="246" cy="350" r="15"/><circle cx="554" cy="350" r="15"/>
+  </g>
+  <g fill="#C97D8C">
+    <circle cx="400" cy="92" r="17"/><circle cx="400" cy="408" r="17"/>
+  </g>
+  <circle cx="400" cy="250" r="36" fill="#fffdfa" stroke="#8E4356" stroke-width="3.5"/>
+  <circle cx="400" cy="250" r="14" fill="#8E4356"/>
+  <g fill="#7FA57A" opacity=".5">
+    <circle cx="88" cy="80" r="6"/><circle cx="716" cy="424" r="6"/><circle cx="730" cy="82" r="5"/>
+  </g>
+</svg>
