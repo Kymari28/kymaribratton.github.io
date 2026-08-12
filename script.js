@@ -81,7 +81,7 @@
           roleNode.textContent = roles[roleIndex];
           roleNode.classList.remove("is-swapping");
         }, 220);
-      }, 2600);
+      }, 4200);
     }
   }
 })();
