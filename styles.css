@@ -2420,4 +2420,13 @@ main[data-case] .detail-list li {
   }
 }
 
+/* ---------- 24. Work With Me page ------------------------------------------ */
+
+/* Five process steps: the base .grid-3 minmax(16rem) only fits 4 across,
+   leaving the fifth stranded alone on its own row. A narrower minmax lets
+   all five sit together at desktop widths and still wrap cleanly below. */
+.grid-3--five {
+  grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
+}
+
 
