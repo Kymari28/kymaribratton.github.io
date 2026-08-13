@@ -78,7 +78,7 @@
   --shell: min(1140px, 100% - (var(--gutter) * 2));
 
   /* Spacing scale. Section rhythm is driven from here so pages stay in step. */
-  --space-section: clamp(2.5rem, 4.5vw, 3.75rem);
+  --space-section: clamp(3.25rem, 6.5vw, 6rem);
   --space-head: clamp(1.5rem, 2.5vw, 2rem);
   --space-card: clamp(1.5rem, 2.4vw, 1.85rem);
   --header-h: 4.75rem;
@@ -212,7 +212,7 @@ ul {
 }
 
 .section-head {
-  max-width: 46rem;
+  max-width: 54ch;
   margin-bottom: var(--space-head);
 }
 
@@ -234,7 +234,7 @@ ul {
 }
 
 .section-intro {
-  max-width: 42rem;
+  max-width: 62ch;
   margin-top: 0.9rem;
   color: var(--muted);
   font-size: 1.02rem;
@@ -731,19 +731,17 @@ ul {
 
 /* ---------- 12. Work grid -------------------------------------------------- */
 
-/* Flex (not grid) so a trailing partial row centres instead of
-   leaving a lopsided gap. */
+/* Grid, not flex: every card is the same width and every row shares the same
+   left and right edge as the section heading above it. A short final row sits
+   flush left rather than centring itself. */
 .work-grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1.6rem;
   list-style: none;
 }
 
 .work-grid > li {
-  flex: 1 1 21rem;
-  max-width: 24.5rem;
   display: flex;
 }
 
@@ -878,11 +876,6 @@ ul {
 }
 
 /* Earlier work: deliberately lighter weight than current work */
-.work-grid--earlier > li {
-  flex: 1 1 24rem;
-  max-width: 27rem;
-}
-
 .work-card--compact .work-cover {
   aspect-ratio: 16 / 9;
 }
@@ -1418,10 +1411,6 @@ a.contact-method:hover {
   .hero-note {
     left: -0.5rem;
   }
-
-  .work-grid > li {
-    flex: 1 1 18.5rem;
-  }
 }
 
 /* Tablet: stack, but stay LEFT aligned. Centring everything is what makes
@@ -1488,6 +1477,10 @@ a.contact-method:hover {
   .contact-actions .button {
     flex: 1 1 12rem;
   }
+
+  .work-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* Mobile */
@@ -1511,10 +1504,9 @@ a.contact-method:hover {
   }
 
   .topbar-inner {
-    flex-direction: column;
-    justify-content: center;
-    gap: 0.15rem;
-    padding-block: 0.6rem;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.75rem;
+    padding-block: 0.65rem;
   }
 
   .nav {
@@ -1524,7 +1516,7 @@ a.contact-method:hover {
   }
 
   .nav a {
-    padding-inline: 0.6rem;
+    padding-inline: 0.45rem;
     font-size: 0.92rem;
   }
 
@@ -1556,10 +1548,8 @@ a.contact-method:hover {
     gap: 1.25rem;
   }
 
-  .work-grid > li,
-  .work-grid--earlier > li {
-    flex: 1 1 100%;
-    max-width: 100%;
+  .work-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .work-body {
@@ -2136,7 +2126,8 @@ main[data-case] .section-title {
 
 /* Case-study pages run long, so they use a tighter section rhythm than the
    marketing pages and a controlled measure for body copy. */
-main[data-case] .section {
+main[data-case] .section,
+main[data-case] .band {
   padding-block: clamp(2.5rem, 4.5vw, 3.75rem);
 }
 
