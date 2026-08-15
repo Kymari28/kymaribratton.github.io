@@ -6,7 +6,8 @@
       "Bash(sips -Z 1000 ~/Downloads/\"flower image.jpg\" --out contact-photo-full.jpg)",
       "Bash(sips -g pixelWidth -g pixelHeight contact-photo-full.jpg)",
       "Bash(sips -s format png -Z 900 contact-photo-full.jpg --out contact-photo.png)",
-      "Bash(sips -g pixelWidth -g pixelHeight contact-photo.png)"
+      "Bash(sips -g pixelWidth -g pixelHeight contact-photo.png)",
+      "Bash(grep -n \"^\\\\.band\\\\b\\\\|^\\\\.band[,{ ]\\\\|\\\\.band {\" /Users/a3/Documents/GitHub/kymaribratton.github.io/styles.css)"
     ]
   }
 }

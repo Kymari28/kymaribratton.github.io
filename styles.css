@@ -549,7 +549,7 @@ ul {
 
 .hero-pill-word {
   display: inline-block;
-  min-width: 11.5ch;
+  min-width: 13.5ch;
   text-align: center;
   transition:
     opacity 220ms ease,
@@ -714,12 +714,32 @@ ul {
   grid-column: 4 / span 2;
 }
 
+/* Same alternating-gradient, hover-lift treatment as .value-card, so the
+   capability cards read as one visual language with the rest of the site. */
 .capability {
+  position: relative;
+  overflow: hidden;
   height: 100%;
   padding: var(--space-card);
   border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--surface-veil);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(170deg, var(--blush-wash), rgba(255, 255, 255, 0.5));
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    border-color 200ms ease;
+}
+
+.capability:nth-child(2),
+.capability:nth-child(4) {
+  background: linear-gradient(170deg, rgba(255, 255, 255, 0.6), var(--sage-wash));
+}
+
+.capability:hover,
+.capability:focus-within {
+  transform: translateY(-4px);
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-lift);
 }
 
 .capability h3 {
@@ -1435,9 +1455,15 @@ a.contact-method:hover {
   }
 
   .capability-grid > li,
-  .capability-grid > li:nth-child(4),
-  .capability-grid > li:nth-child(5) {
+  .capability-grid > li:nth-child(4) {
     grid-column: span 2;
+  }
+
+  /* Fifth card would otherwise sit alone in a row, left-aligned with empty
+     space beside it. Span it full-width instead of centring it, to stay
+     consistent with the left-aligned tablet layout used elsewhere. */
+  .capability-grid > li:nth-child(5) {
+    grid-column: span 4;
   }
 
   .hero,
@@ -1656,6 +1682,13 @@ a.contact-method:hover {
   max-width: 52rem;
   margin-inline: auto;
   text-align: center;
+}
+
+/* .section-intro's own max-width (narrower than this container at most
+   widths) needs its own auto margins, or the box sticks to the left edge
+   even though its text is centred. */
+.section-head--center .section-intro {
+  margin-inline: auto;
 }
 
 .eyebrow--rule {
