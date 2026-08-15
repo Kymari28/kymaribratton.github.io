@@ -404,6 +404,10 @@ ul {
   margin-top: 2rem;
 }
 
+.button-row--center {
+  justify-content: center;
+}
+
 /* ---------- 8. Cards + status badges -------------------------------------- */
 
 .card {
@@ -617,9 +621,7 @@ ul {
   padding: 0.85rem 1.05rem;
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
-  background: rgba(255, 253, 249, 0.9);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--surface);
   box-shadow: var(--shadow);
 }
 
@@ -1935,14 +1937,23 @@ a.contact-method:hover {
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   background: linear-gradient(170deg, var(--blush-wash), rgba(255, 255, 255, 0.5));
+  transition:
+    transform 200ms ease,
+    box-shadow 200ms ease,
+    border-color 200ms ease;
 }
 
-.value-card:nth-child(2) {
+.value-card:hover,
+.value-card:focus-within {
+  transform: translateY(-4px);
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-lift);
+}
+
+/* Odd cards use the base blush gradient above; even cards alternate to sage,
+   so any row length (3, 5, ...) reads as a clean pink/green/pink/green run. */
+.value-card:nth-child(2n) {
   background: linear-gradient(170deg, rgba(255, 255, 255, 0.6), var(--sage-wash));
-}
-
-.value-card:nth-child(3) {
-  background: linear-gradient(170deg, var(--sage-wash), rgba(255, 255, 255, 0.5));
 }
 
 .value-num {
