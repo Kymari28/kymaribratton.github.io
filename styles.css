@@ -917,6 +917,16 @@ ul {
   font-size: 1.4rem;
 }
 
+/* Base column count for the new project-card gallery (section 25). Defined
+   here, before the responsive breakpoints below, so those media queries
+   can actually win the cascade at equal specificity. */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.75rem;
+  list-style: none;
+}
+
 /* ---------- 13. Contact ---------------------------------------------------- */
 
 .contact-card {
@@ -1523,6 +1533,12 @@ a.contact-method:hover {
   .work-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  /* Column count only for now — the intentional tablet/mobile composition
+     redesign is a separate follow-up phase. */
+  .project-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* Mobile */
@@ -1592,6 +1608,11 @@ a.contact-method:hover {
 
   .work-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .project-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
   }
 
   .work-body {
@@ -2485,6 +2506,521 @@ main[data-case] .detail-list li {
    all five sit together at desktop widths and still wrap cleanly below. */
 .grid-3--five {
   grid-template-columns: repeat(auto-fit, minmax(12.5rem, 1fr));
+}
+
+/* ==========================================================================
+   25. Work section: project gallery cards (desktop/laptop)
+   Shared system: every card uses the same stage ratio, safe area, type
+   scale, radius, and hover physics. Each project scopes its own colour
+   pair, composition, and motif through [data-project="..."] below so the
+   cards feel like one gallery without being visually identical.
+   ========================================================================== */
+
+:root {
+  --motion-duration: 350ms;
+  --motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.project-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
+  transition:
+    border-color var(--motion-duration) var(--motion-ease),
+    box-shadow var(--motion-duration) var(--motion-ease);
+}
+
+.project-card:hover,
+.project-card:focus-within {
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-lift);
+}
+
+.project-stage-link {
+  display: block;
+}
+
+.project-stage-link:focus-visible {
+  outline: 3px solid var(--sage-deep);
+  outline-offset: -3px;
+}
+
+.project-stage {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: linear-gradient(165deg, var(--project-bg-a), var(--project-bg-b));
+}
+
+/* 6% internal safe area: the frame everything else composes within */
+.project-stage-inner {
+  position: absolute;
+  inset: 6%;
+}
+
+/* Layer order is fixed site-wide: motif behind both devices, primary
+   device behind the smaller device, which always sits in front. */
+.project-motif {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: visible;
+  color: var(--project-accent);
+  opacity: 0.55;
+  transition: opacity var(--motion-duration) var(--motion-ease);
+}
+
+.project-card:hover .project-motif,
+.project-card:focus-within .project-motif {
+  opacity: 0.9;
+}
+
+.project-media {
+  position: absolute;
+  display: block;
+  width: 62%;
+  filter: saturate(0.85);
+  transition:
+    transform var(--motion-duration) var(--motion-ease),
+    filter var(--motion-duration) var(--motion-ease);
+}
+
+.project-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.project-media--primary {
+  z-index: 2;
+}
+
+.project-media--secondary {
+  z-index: 3;
+  width: 30%;
+  filter: saturate(0.85) drop-shadow(0 10px 22px rgba(30, 24, 18, 0.16));
+}
+
+.project-card:hover .project-media,
+.project-card:focus-within .project-media {
+  filter: saturate(1.05);
+}
+
+.project-card:hover .project-media--secondary,
+.project-card:focus-within .project-media--secondary {
+  filter: saturate(1.05) drop-shadow(0 14px 26px rgba(30, 24, 18, 0.2));
+}
+
+.project-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: var(--space-card);
+}
+
+.project-meta {
+  margin: 0;
+  color: var(--project-accent-deep);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.project-title {
+  margin-top: 0.5rem;
+  font-family: var(--font-serif);
+  font-size: 1.6rem;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.project-title a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.project-title a:hover,
+.project-title a:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.project-arrow {
+  display: inline-block;
+  font-size: 1.05rem;
+  color: var(--project-accent-deep);
+  transition: transform var(--motion-duration) var(--motion-ease);
+}
+
+.project-card:hover .project-arrow {
+  transform: translate(3px, -3px);
+}
+
+.project-desc {
+  margin-top: 0.65rem;
+  color: var(--muted);
+  font-size: 0.94rem;
+  line-height: 1.68;
+}
+
+.project-status {
+  margin-top: 0.9rem;
+}
+
+.project-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1.1rem;
+  margin-top: auto;
+  padding-top: 1.1rem;
+}
+
+/* ---- Per-project theme: colour, composition, motif, hover choreography --- */
+
+/* GRC: information becoming clearer. Impact screen leads, Events tablet
+   overlaps the lower-right corner. Motif: small ascending bars. */
+[data-project="gateway"] {
+  --project-bg-a: #f3efe2;
+  --project-bg-b: #dfe3cd;
+  --project-accent: #7c8a52;
+  --project-accent-deep: #5a6538;
+}
+
+[data-project="gateway"] .project-media--primary {
+  top: 4%;
+  left: 2%;
+  width: 74%;
+}
+
+[data-project="gateway"] .project-media--secondary {
+  right: 0%;
+  bottom: 0%;
+  width: 28%;
+  transform: rotate(4deg);
+}
+
+[data-project="gateway"] .project-card:hover .project-media--primary,
+[data-project="gateway"] .project-card:focus-within .project-media--primary {
+  transform: scale(1.015);
+}
+
+[data-project="gateway"] .project-card:hover .project-media--secondary,
+[data-project="gateway"] .project-card:focus-within .project-media--secondary {
+  transform: rotate(2deg) translate(-3px, -8px);
+}
+
+[data-project="gateway"] .project-motif .bar {
+  transition: transform var(--motion-duration) var(--motion-ease);
+  transform-origin: bottom;
+}
+
+[data-project="gateway"] .project-card:hover .project-motif .bar,
+[data-project="gateway"] .project-card:focus-within .project-motif .bar {
+  transform: scaleY(1.18);
+}
+
+/* TripTag: playful travel + budgeting. Dashboard leads, phone peeks up from
+   the lower-right, tilted. Motif: a dotted route with small stops. */
+[data-project="triptag"] {
+  --project-bg-a: #f2e6cf;
+  --project-bg-b: #e3c9a0;
+  --project-accent: #6f9a5a;
+  --project-accent-deep: #4c6f3c;
+}
+
+[data-project="triptag"] .project-media--primary {
+  top: 6%;
+  left: 0%;
+  width: 68%;
+}
+
+[data-project="triptag"] .project-media--secondary {
+  right: 8%;
+  bottom: 0%;
+  width: 28%;
+  transform: rotate(-7deg);
+}
+
+[data-project="triptag"] .project-card:hover .project-media--primary,
+[data-project="triptag"] .project-card:focus-within .project-media--primary {
+  transform: scale(1.015);
+}
+
+[data-project="triptag"] .project-card:hover .project-media--secondary,
+[data-project="triptag"] .project-card:focus-within .project-media--secondary {
+  transform: rotate(-3deg) translate(-3px, -8px);
+}
+
+[data-project="triptag"] .project-motif .route {
+  stroke-dasharray: 4 7;
+  stroke-dashoffset: 24;
+  opacity: 0;
+  transition:
+    stroke-dashoffset var(--motion-duration) var(--motion-ease),
+    opacity var(--motion-duration) var(--motion-ease);
+}
+
+[data-project="triptag"] .project-card:hover .project-motif .route,
+[data-project="triptag"] .project-card:focus-within .project-motif .route {
+  stroke-dashoffset: 0;
+  opacity: 1;
+}
+
+/* Brightside: connections + systems. Graph leads, help tablet sits behind
+   the lower-left corner. Motif: node network, low behind the devices. */
+[data-project="brightside"] {
+  --project-bg-a: #e3f3f2;
+  --project-bg-b: #bfe4e1;
+  --project-accent: #2f8f8a;
+  --project-accent-deep: #1f6b67;
+}
+
+[data-project="brightside"] .project-motif {
+  z-index: 1;
+}
+
+[data-project="brightside"] .project-motif circle {
+  transition: transform var(--motion-duration) var(--motion-ease);
+}
+
+[data-project="brightside"] .project-card:hover .project-motif .node-a,
+[data-project="brightside"] .project-card:focus-within .project-motif .node-a {
+  transform: translate(2px, -3px);
+}
+
+[data-project="brightside"] .project-card:hover .project-motif .node-b,
+[data-project="brightside"] .project-card:focus-within .project-motif .node-b {
+  transform: translate(-3px, 2px);
+}
+
+[data-project="brightside"] .project-card:hover .project-motif .node-c,
+[data-project="brightside"] .project-card:focus-within .project-motif .node-c {
+  transform: translate(2px, 3px);
+}
+
+[data-project="brightside"] .project-motif line {
+  transition: opacity var(--motion-duration) var(--motion-ease);
+  opacity: 0.4;
+}
+
+[data-project="brightside"] .project-card:hover .project-motif line,
+[data-project="brightside"] .project-card:focus-within .project-motif line {
+  opacity: 0.85;
+}
+
+[data-project="brightside"] .project-media--secondary {
+  left: 0%;
+  bottom: 0%;
+  width: 28%;
+  transform: rotate(-3deg);
+}
+
+[data-project="brightside"] .project-media--primary {
+  top: 4%;
+  left: 22%;
+  width: 72%;
+}
+
+[data-project="brightside"] .project-card:hover .project-media--primary,
+[data-project="brightside"] .project-card:focus-within .project-media--primary {
+  transform: scale(1.015);
+}
+
+[data-project="brightside"] .project-card:hover .project-media--secondary,
+[data-project="brightside"] .project-card:focus-within .project-media--secondary {
+  transform: rotate(-1deg) translate(4px, -8px);
+}
+
+/* Immigrants Rising: trust + clarity. Review screen leads, mobile stays
+   small and quiet. Motif: a short progress sequence. Most restrained
+   animation of the set. */
+[data-project="immigrants-rising"] {
+  --project-bg-a: #eaf5f7;
+  --project-bg-b: #cfe6ec;
+  --project-accent: #2f6f8f;
+  --project-accent-deep: #1f5570;
+}
+
+[data-project="immigrants-rising"] .project-media--primary {
+  top: 5%;
+  right: 2%;
+  width: 72%;
+}
+
+[data-project="immigrants-rising"] .project-media--secondary {
+  left: 4%;
+  bottom: 0%;
+  width: 26%;
+}
+
+[data-project="immigrants-rising"] .project-card:hover .project-media--primary,
+[data-project="immigrants-rising"] .project-card:focus-within .project-media--primary {
+  transform: scale(1.008);
+}
+
+[data-project="immigrants-rising"] .project-card:hover .project-media--secondary,
+[data-project="immigrants-rising"] .project-card:focus-within .project-media--secondary {
+  transform: translate(2px, -6px);
+}
+
+[data-project="immigrants-rising"] .project-motif .step-line {
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--motion-duration) var(--motion-ease);
+}
+
+[data-project="immigrants-rising"] .project-card:hover .project-motif .step-line,
+[data-project="immigrants-rising"] .project-card:focus-within .project-motif .step-line {
+  transform: scaleX(1);
+}
+
+/* 24Seven: cinematic cruise travel. Desktop bleeds toward the edges, phone
+   overlaps the top-right (not the usual lower corner). Motif: a thin gold
+   route line low across the stage. */
+[data-project="24seven"] {
+  --project-bg-a: #efe6d2;
+  --project-bg-b: #d8b978;
+  --project-accent: #7a2230;
+  --project-accent-deep: #5c1a24;
+}
+
+[data-project="24seven"] .project-stage {
+  background: linear-gradient(165deg, #2b2926, #55231f);
+}
+
+[data-project="24seven"] .project-meta,
+[data-project="24seven"] .project-arrow {
+  color: var(--project-accent-deep);
+}
+
+[data-project="24seven"] .project-media--primary {
+  top: 2%;
+  left: 0%;
+  width: 76%;
+}
+
+[data-project="24seven"] .project-media--secondary {
+  right: 2%;
+  top: 0%;
+  width: 26%;
+  transform: rotate(5deg);
+}
+
+[data-project="24seven"] .project-card:hover .project-media--primary,
+[data-project="24seven"] .project-card:focus-within .project-media--primary {
+  transform: scale(1.015);
+}
+
+[data-project="24seven"] .project-card:hover .project-media--secondary,
+[data-project="24seven"] .project-card:focus-within .project-media--secondary {
+  transform: rotate(2deg) translate(-3px, 6px);
+}
+
+[data-project="24seven"] .project-motif .wave {
+  opacity: 0;
+  transform: translateY(4px);
+  transition:
+    opacity var(--motion-duration) var(--motion-ease),
+    transform var(--motion-duration) var(--motion-ease);
+}
+
+[data-project="24seven"] .project-card:hover .project-motif .wave,
+[data-project="24seven"] .project-card:focus-within .project-motif .wave {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Mindfulness: calm + editorial warmth. The photography leads; the phone is
+   a quiet accent. Motif: a soft breathing ring. */
+[data-project="mindfulness"] {
+  --project-bg-a: #eef2e6;
+  --project-bg-b: #cddcc0;
+  --project-accent: #3f5c3f;
+  --project-accent-deep: #2c452c;
+}
+
+[data-project="mindfulness"] .project-media--primary {
+  top: 3%;
+  left: 4%;
+  width: 76%;
+}
+
+[data-project="mindfulness"] .project-media--secondary {
+  right: 0%;
+  bottom: 0%;
+  width: 26%;
+}
+
+[data-project="mindfulness"] .project-card:hover .project-media--primary,
+[data-project="mindfulness"] .project-card:focus-within .project-media--primary {
+  transform: scale(1.01);
+}
+
+[data-project="mindfulness"] .project-card:hover .project-media--secondary,
+[data-project="mindfulness"] .project-card:focus-within .project-media--secondary {
+  transform: translate(-3px, -8px);
+}
+
+[data-project="mindfulness"] .project-motif .breathe {
+  transform: scale(1);
+  transform-origin: center;
+  transition: transform 500ms var(--motion-ease);
+}
+
+[data-project="mindfulness"] .project-card:hover .project-motif .breathe,
+[data-project="mindfulness"] .project-card:focus-within .project-motif .breathe {
+  transform: scale(1.12);
+}
+
+/* We Are One: community + care. Desktop leads on the right, phone is a
+   small accent lower-left. Motif: connected modular blocks. */
+[data-project="we-are-one"] {
+  --project-bg-a: #f4ecd8;
+  --project-bg-b: #ddbf94;
+  --project-accent: #8a4a34;
+  --project-accent-deep: #6b3624;
+}
+
+[data-project="we-are-one"] .project-media--primary {
+  top: 4%;
+  right: 0%;
+  width: 74%;
+}
+
+[data-project="we-are-one"] .project-media--secondary {
+  left: 2%;
+  bottom: 0%;
+  width: 28%;
+  transform: rotate(-4deg);
+}
+
+[data-project="we-are-one"] .project-card:hover .project-media--primary,
+[data-project="we-are-one"] .project-card:focus-within .project-media--primary {
+  transform: scale(1.012);
+}
+
+[data-project="we-are-one"] .project-card:hover .project-media--secondary,
+[data-project="we-are-one"] .project-card:focus-within .project-media--secondary {
+  transform: rotate(-2deg) translate(3px, -8px);
+}
+
+[data-project="we-are-one"] .project-motif rect {
+  transition: transform var(--motion-duration) var(--motion-ease);
+}
+
+[data-project="we-are-one"] .project-card:hover .project-motif rect:nth-child(2),
+[data-project="we-are-one"] .project-card:focus-within .project-motif rect:nth-child(2) {
+  transform: translate(2px, -2px);
 }
 
 
