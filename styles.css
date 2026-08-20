@@ -2571,7 +2571,7 @@ main[data-case] .detail-list li {
   inset: 0;
   overflow: visible;
   color: var(--project-accent);
-  opacity: 0.55;
+  opacity: 0.7;
   transition: opacity var(--motion-duration) var(--motion-ease);
 }
 
@@ -2698,25 +2698,25 @@ main[data-case] .detail-list li {
 
 [data-project="gateway"] .project-media--primary {
   top: 4%;
-  left: 2%;
+  left: 8%;
   width: 74%;
 }
 
 [data-project="gateway"] .project-media--secondary {
-  right: 0%;
+  right: 8%;
   bottom: 0%;
-  width: 28%;
+  width: 34%;
   transform: rotate(4deg);
 }
 
 [data-project="gateway"] .project-card:hover .project-media--primary,
 [data-project="gateway"] .project-card:focus-within .project-media--primary {
-  transform: scale(1.015);
+  transform: scale(1.01);
 }
 
 [data-project="gateway"] .project-card:hover .project-media--secondary,
 [data-project="gateway"] .project-card:focus-within .project-media--secondary {
-  transform: rotate(2deg) translate(-3px, -8px);
+  transform: rotate(2deg) translate(-2px, -7px);
 }
 
 [data-project="gateway"] .project-motif .bar {
@@ -2740,25 +2740,25 @@ main[data-case] .detail-list li {
 
 [data-project="triptag"] .project-media--primary {
   top: 6%;
-  left: 0%;
+  left: 7%;
   width: 68%;
 }
 
 [data-project="triptag"] .project-media--secondary {
-  right: 8%;
+  right: 11%;
   bottom: 0%;
-  width: 28%;
+  width: 34%;
   transform: rotate(-7deg);
 }
 
 [data-project="triptag"] .project-card:hover .project-media--primary,
 [data-project="triptag"] .project-card:focus-within .project-media--primary {
-  transform: scale(1.015);
+  transform: scale(1.01);
 }
 
 [data-project="triptag"] .project-card:hover .project-media--secondary,
 [data-project="triptag"] .project-card:focus-within .project-media--secondary {
-  transform: rotate(-3deg) translate(-3px, -8px);
+  transform: rotate(-3deg) translate(-2px, -7px);
 }
 
 [data-project="triptag"] .project-motif .route {
@@ -2819,26 +2819,26 @@ main[data-case] .detail-list li {
 }
 
 [data-project="brightside"] .project-media--secondary {
-  left: 0%;
+  left: 10%;
   bottom: 0%;
-  width: 28%;
+  width: 34%;
   transform: rotate(-3deg);
 }
 
 [data-project="brightside"] .project-media--primary {
   top: 4%;
-  left: 22%;
-  width: 72%;
+  left: 20%;
+  width: 70%;
 }
 
 [data-project="brightside"] .project-card:hover .project-media--primary,
 [data-project="brightside"] .project-card:focus-within .project-media--primary {
-  transform: scale(1.015);
+  transform: scale(1.01);
 }
 
 [data-project="brightside"] .project-card:hover .project-media--secondary,
 [data-project="brightside"] .project-card:focus-within .project-media--secondary {
-  transform: rotate(-1deg) translate(4px, -8px);
+  transform: rotate(-1deg) translate(2px, -7px);
 }
 
 /* Immigrants Rising: trust + clarity. Review screen leads, mobile stays
@@ -2853,24 +2853,24 @@ main[data-case] .detail-list li {
 
 [data-project="immigrants-rising"] .project-media--primary {
   top: 5%;
-  right: 2%;
+  right: 8%;
   width: 72%;
 }
 
 [data-project="immigrants-rising"] .project-media--secondary {
-  left: 4%;
+  left: 8%;
   bottom: 0%;
-  width: 26%;
+  width: 32%;
 }
 
 [data-project="immigrants-rising"] .project-card:hover .project-media--primary,
 [data-project="immigrants-rising"] .project-card:focus-within .project-media--primary {
-  transform: scale(1.008);
+  transform: scale(1.01);
 }
 
 [data-project="immigrants-rising"] .project-card:hover .project-media--secondary,
 [data-project="immigrants-rising"] .project-card:focus-within .project-media--secondary {
-  transform: translate(2px, -6px);
+  transform: translate(2px, -7px);
 }
 
 [data-project="immigrants-rising"] .project-motif .step-line {
@@ -2885,8 +2885,8 @@ main[data-case] .detail-list li {
 }
 
 /* 24Seven: cinematic cruise travel. Desktop bleeds toward the edges, phone
-   overlaps the top-right (not the usual lower corner). Motif: a thin gold
-   route line low across the stage. */
+   overlaps the lower-right corner and hangs slightly below the laptop for
+   a more editorial, dramatic feel. Motif: a thin gold route line. */
 [data-project="24seven"] {
   --project-bg-a: #efe6d2;
   --project-bg-b: #d8b978;
@@ -2905,25 +2905,25 @@ main[data-case] .detail-list li {
 
 [data-project="24seven"] .project-media--primary {
   top: 2%;
-  left: 0%;
+  left: 6%;
   width: 76%;
 }
 
 [data-project="24seven"] .project-media--secondary {
-  right: 2%;
-  top: 0%;
-  width: 26%;
+  right: 6%;
+  bottom: 0%;
+  width: 32%;
   transform: rotate(5deg);
 }
 
 [data-project="24seven"] .project-card:hover .project-media--primary,
 [data-project="24seven"] .project-card:focus-within .project-media--primary {
-  transform: scale(1.015);
+  transform: scale(1.01);
 }
 
 [data-project="24seven"] .project-card:hover .project-media--secondary,
 [data-project="24seven"] .project-card:focus-within .project-media--secondary {
-  transform: rotate(2deg) translate(-3px, 6px);
+  transform: rotate(3deg) translate(-2px, -7px);
 }
 
 [data-project="24seven"] .project-motif .wave {
@@ -2951,14 +2951,14 @@ main[data-case] .detail-list li {
 
 [data-project="mindfulness"] .project-media--primary {
   top: 3%;
-  left: 4%;
+  left: 9%;
   width: 76%;
 }
 
 [data-project="mindfulness"] .project-media--secondary {
-  right: 0%;
+  right: 9%;
   bottom: 0%;
-  width: 26%;
+  width: 32%;
 }
 
 [data-project="mindfulness"] .project-card:hover .project-media--primary,
@@ -2968,7 +2968,7 @@ main[data-case] .detail-list li {
 
 [data-project="mindfulness"] .project-card:hover .project-media--secondary,
 [data-project="mindfulness"] .project-card:focus-within .project-media--secondary {
-  transform: translate(-3px, -8px);
+  transform: translate(-2px, -7px);
 }
 
 [data-project="mindfulness"] .project-motif .breathe {
@@ -2993,25 +2993,25 @@ main[data-case] .detail-list li {
 
 [data-project="we-are-one"] .project-media--primary {
   top: 4%;
-  right: 0%;
+  right: 6%;
   width: 74%;
 }
 
 [data-project="we-are-one"] .project-media--secondary {
-  left: 2%;
+  left: 6%;
   bottom: 0%;
-  width: 28%;
+  width: 32%;
   transform: rotate(-4deg);
 }
 
 [data-project="we-are-one"] .project-card:hover .project-media--primary,
 [data-project="we-are-one"] .project-card:focus-within .project-media--primary {
-  transform: scale(1.012);
+  transform: scale(1.01);
 }
 
 [data-project="we-are-one"] .project-card:hover .project-media--secondary,
 [data-project="we-are-one"] .project-card:focus-within .project-media--secondary {
-  transform: rotate(-2deg) translate(3px, -8px);
+  transform: rotate(-2deg) translate(2px, -7px);
 }
 
 [data-project="we-are-one"] .project-motif rect {
