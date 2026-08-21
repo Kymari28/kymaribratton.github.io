@@ -1572,6 +1572,50 @@ main[data-case] .button--primary {
   transform: none;
 }
 
+/* Sequential reveal: pair with data-reveal on the same element so the
+   existing observer still drives it, but the children stagger in one at a
+   time instead of the whole block arriving as one fade. Used for lists that
+   are genuinely a sequence (a set of contributions, a set of audiences), not
+   applied generally, since most content should stay put and readable. */
+.reveal-ready [data-reveal-sequence] > * {
+  transition:
+    opacity 480ms var(--motion-ease, ease),
+    transform 480ms var(--motion-ease, ease);
+}
+
+.reveal-ready [data-reveal-sequence]:not(.is-visible) > * {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.reveal-ready [data-reveal-sequence].is-visible > *:nth-child(1) {
+  transition-delay: 0ms;
+}
+.reveal-ready [data-reveal-sequence].is-visible > *:nth-child(2) {
+  transition-delay: 70ms;
+}
+.reveal-ready [data-reveal-sequence].is-visible > *:nth-child(3) {
+  transition-delay: 140ms;
+}
+.reveal-ready [data-reveal-sequence].is-visible > *:nth-child(4) {
+  transition-delay: 210ms;
+}
+.reveal-ready [data-reveal-sequence].is-visible > *:nth-child(5) {
+  transition-delay: 280ms;
+}
+.reveal-ready [data-reveal-sequence].is-visible > *:nth-child(6) {
+  transition-delay: 350ms;
+}
+.reveal-ready [data-reveal-sequence].is-visible > *:nth-child(7) {
+  transition-delay: 420ms;
+}
+.reveal-ready [data-reveal-sequence].is-visible > *:nth-child(8) {
+  transition-delay: 490ms;
+}
+.reveal-ready [data-reveal-sequence].is-visible > *:nth-child(9) {
+  transition-delay: 560ms;
+}
+
 /* ---------- 17. Responsive -------------------------------------------------- */
 
 /* Laptop: pull the hero in before the portrait starts crowding the copy */
@@ -1819,6 +1863,12 @@ main[data-case] .button--primary {
   .reveal-ready [data-reveal] {
     opacity: 1;
     transform: none;
+  }
+
+  .reveal-ready [data-reveal-sequence] > * {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0ms;
   }
 }
 
@@ -4471,38 +4521,6 @@ main[data-case="gateway"] .case-hero--gateway .button--secondary {
   animation: gateway-secondary-settle 900ms var(--motion-ease) both 270ms;
 }
 
-.gateway-butterfly-field {
-  position: absolute;
-  z-index: 2;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.gateway-butterfly {
-  position: absolute;
-  display: block;
-  height: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 7px 8px rgba(26, 42, 76, 0.2));
-}
-
-.gateway-butterfly--one {
-  top: 0.35rem;
-  right: 0.85rem;
-  width: 8.5rem;
-  opacity: 0.9;
-  animation: gateway-butterfly-drift-one 6.8s ease-in-out infinite alternate;
-}
-
-.gateway-butterfly--two {
-  bottom: 0.15rem;
-  left: 46.5%;
-  width: 5.4rem;
-  opacity: 0.76;
-  animation: gateway-butterfly-drift-two 5.4s ease-in-out infinite alternate-reverse;
-}
-
 @keyframes gateway-grid-reveal {
   from {
     opacity: 0;
@@ -4544,24 +4562,6 @@ main[data-case="gateway"] .case-hero--gateway .button--secondary {
   to {
     opacity: 1;
     transform: translateY(0) rotate(2deg) scale(1);
-  }
-}
-
-@keyframes gateway-butterfly-drift-one {
-  from {
-    transform: translate3d(0, 3px, 0) rotate(-8deg);
-  }
-  to {
-    transform: translate3d(-8px, -7px, 0) rotate(2deg);
-  }
-}
-
-@keyframes gateway-butterfly-drift-two {
-  from {
-    transform: translate3d(0, 2px, 0) rotate(9deg) scaleX(-1);
-  }
-  to {
-    transform: translate3d(7px, -5px, 0) rotate(-1deg) scaleX(-1);
   }
 }
 
@@ -4858,11 +4858,6 @@ main[data-case="gateway"] .gateway-ownership .section-title {
     mask-image: linear-gradient(180deg, transparent, #000 35%);
   }
 
-  .gateway-butterfly--two {
-    right: 2rem;
-    bottom: 1.25rem;
-    left: auto;
-  }
 }
 
 @media (max-width: 900px) {
@@ -4889,19 +4884,6 @@ main[data-case="gateway"] .gateway-ownership .section-title {
     font-size: clamp(3rem, 14vw, 4rem);
   }
 
-  .gateway-butterfly--one {
-    top: 0.2rem;
-    right: -1rem;
-    width: 6.2rem;
-    opacity: 0.7;
-  }
-
-  .gateway-butterfly--two {
-    right: -0.25rem;
-    bottom: -0.35rem;
-    width: 4.2rem;
-    opacity: 0.58;
-  }
 
   .case-hero--gateway .subpage-frame {
     padding: 0.65rem;
