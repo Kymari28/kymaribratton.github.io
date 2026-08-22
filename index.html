@@ -27,7 +27,7 @@
       href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles.css?v=20260815a" />
+    <link rel="stylesheet" href="/styles.css?v=20260821g" />
   </head>
 
   <body>
@@ -130,189 +130,278 @@
             </p>
           </div>
 
-          <ul class="work-grid">
-            <li>
-              <article class="work-card" data-reveal>
-                <figure class="work-cover work-cover--contain">
-                  <picture>
-                    <source srcset="/assets/brightside.webp" type="image/webp" />
+          <ul class="project-grid">
+            <li class="project-card" data-project="brightside" data-reveal>
+              <a
+                class="project-stage-link"
+                href="/case-study/brightside/"
+                aria-label="View Brightside Health case study"
+              >
+                <div class="project-stage">
+                  <picture class="project-media project-media--secondary">
+                    <source srcset="/assets/brightside-tablet.webp" type="image/webp" />
                     <img
-                      src="/assets/brightside.png"
-                      alt="Brightside Health knowledge graph interface"
+                      src="/assets/brightside-tablet.png"
+                      alt=""
                       width="900"
-                      height="650"
+                      height="1200"
                       loading="lazy"
                       decoding="async"
                     />
                   </picture>
-                </figure>
-                <div class="work-body">
-                  <p class="work-label">Healthcare AI</p>
-                  <h3>Brightside Health</h3>
-                  <p class="work-summary">
-                    Led front-end UX direction for a mental health knowledge graph, focused on
-                    making complex relationships easier to explore and read.
-                  </p>
-                  <div class="work-actions">
-                    <a class="action action--fill" href="/case-study/brightside/"
-                      >View case study</a
-                    >
-                    <a
-                      class="action action--ghost"
-                      href="https://github.com/rishikasrinivas/KnowledgeGraphMentalHealth"
-                      target="_blank"
-                      rel="noopener"
-                      >View code</a
-                    >
-                  </div>
-                </div>
-              </article>
-            </li>
-
-            <li>
-              <article class="work-card" data-reveal>
-                <figure class="work-cover work-cover--contain">
-                  <picture>
-                    <source srcset="/assets/immigrants-rising.webp" type="image/webp" />
+                  <picture class="project-media project-media--primary">
+                    <source srcset="/assets/brightside-desktop.webp" type="image/webp" />
                     <img
-                      src="/assets/immigrants-rising.png"
-                      alt="Immigrants Rising tuition tool redesign"
-                      width="900"
-                      height="650"
+                      src="/assets/brightside-desktop.png"
+                      alt="Brightside Health knowledge graph interface, with a supporting help panel on tablet"
+                      width="1600"
+                      height="1000"
                       loading="lazy"
                       decoding="async"
                     />
                   </picture>
-                </figure>
-                <div class="work-body">
-                  <p class="work-label">Social Impact</p>
-                  <h3>Immigrants Rising</h3>
-                  <p class="work-summary">
-                    Redesigned California's In-State Tuition Tool with Develop for Good, leading
-                    research synthesis and the review page for a high-stakes eligibility process.
-                  </p>
-                  <div class="work-actions">
-                    <a class="action action--fill" href="/case-study/immigrants-rising/"
-                      >View case study</a
-                    >
-                    <a
-                      class="action action--ghost"
-                      href="https://istt.immigrantsrising.org/"
-                      target="_blank"
-                      rel="noopener"
-                      >Live view</a
-                    >
-                  </div>
                 </div>
-              </article>
+              </a>
+              <div class="project-body">
+                <p class="project-meta">UX Direction &middot; Knowledge Graph &middot; Healthcare AI</p>
+                <p class="project-title">
+                  <a href="/case-study/brightside/"
+                    >Brightside Health <span class="project-arrow" aria-hidden="true">&#8599;</span></a
+                  >
+                </p>
+                <p class="project-desc">
+                  Led front-end UX direction for a mental health knowledge graph, focused on making
+                  complex relationships easier to explore and read.
+                </p>
+                <div class="project-actions">
+                  <a
+                    class="link link--external"
+                    href="https://github.com/rishikasrinivas/KnowledgeGraphMentalHealth"
+                    target="_blank"
+                    rel="noopener"
+                    >View code</a
+                  >
+                </div>
+              </div>
             </li>
 
-            <li>
-              <article class="work-card" data-reveal>
-                <figure class="work-cover work-cover--contain">
-                  <img
-                    src="/assets/mindfulness.png"
-                    alt="Mindfulness with Desiree website on laptop and phone"
-                    width="900"
-                    height="650"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </figure>
-                <div class="work-body">
-                  <p class="work-label">Wellness &middot; Digital Strategy</p>
-                  <h3>Mindfulness with Desiree</h3>
-                  <p class="work-summary">
-                    Website strategy and information architecture for a wellness practice, giving
-                    1:1 clients, a group program, and corporate bookings each a clear path forward.
-                  </p>
-                  <div class="status-row work-status">
-                    <span class="status status--progress">Case study in progress</span>
-                  </div>
-                  <div class="work-actions">
-                    <a class="action action--fill" href="/case-study/mindfulness-with-desiree/"
-                      >View case study</a
-                    >
-                    <a
-                      class="action action--ghost"
-                      href="https://mindfulnesswithdes.wixsite.com/site"
-                      target="_blank"
-                      rel="noopener"
-                      >Current client site</a
-                    >
-                  </div>
+            <li class="project-card" data-project="immigrants-rising" data-reveal>
+              <a
+                class="project-stage-link"
+                href="/case-study/immigrants-rising/"
+                aria-label="View Immigrants Rising case study"
+              >
+                <div class="project-stage">
+                  <picture class="project-media project-media--secondary">
+                    <source srcset="/assets/immigrants-rising-mobile.webp" type="image/webp" />
+                    <img
+                      src="/assets/immigrants-rising-mobile.png"
+                      alt=""
+                      width="650"
+                      height="800"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
+                  <picture class="project-media project-media--primary">
+                    <source srcset="/assets/immigrants-rising-desktop.webp" type="image/webp" />
+                    <img
+                      src="/assets/immigrants-rising-desktop.png"
+                      alt="Immigrants Rising tuition tool review screen, with the mobile eligibility flow alongside"
+                      width="1600"
+                      height="1000"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
                 </div>
-              </article>
+              </a>
+              <div class="project-body">
+                <p class="project-meta">UX Research &middot; Review Flow &middot; Social Impact</p>
+                <p class="project-title">
+                  <a href="/case-study/immigrants-rising/"
+                    >Immigrants Rising <span class="project-arrow" aria-hidden="true">&#8599;</span></a
+                  >
+                </p>
+                <p class="project-desc">
+                  Redesigned California's In-State Tuition Tool with Develop for Good, leading
+                  research synthesis and the review page for a high-stakes eligibility process.
+                </p>
+                <div class="project-actions">
+                  <a
+                    class="link link--external"
+                    href="https://istt.immigrantsrising.org/"
+                    target="_blank"
+                    rel="noopener"
+                    >Live view</a
+                  >
+                </div>
+              </div>
             </li>
 
-            <li>
-              <article class="work-card" data-reveal>
-                <figure class="work-cover work-cover--contain">
-                  <img
-                    src="/assets/24seven.png"
-                    alt="24Seven Escapes website on laptop and phone"
-                    width="900"
-                    height="650"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </figure>
-                <div class="work-body">
-                  <p class="work-label">Client UX &middot; Travel</p>
-                  <h3>24Seven Escapes</h3>
-                  <p class="work-summary">
-                    UX research, usability testing, and responsive site work for a cruise travel
-                    advisor, building separate journeys for solo, group, and first-time travelers.
-                  </p>
-                  <div class="status-row work-status">
-                    <span class="status status--progress">Case study in progress</span>
-                  </div>
-                  <div class="work-actions">
-                    <a class="action action--fill" href="/case-study/24seven-escapes/"
-                      >View case study</a
-                    >
-                    <a
-                      class="action action--ghost"
-                      href="https://www.24sevenescapes.com/"
-                      target="_blank"
-                      rel="noopener"
-                      >Live view</a
-                    >
-                  </div>
+            <li class="project-card" data-project="mindfulness" data-reveal>
+              <a
+                class="project-stage-link"
+                href="/case-study/mindfulness-with-desiree/"
+                aria-label="View Mindfulness with Desiree case study"
+              >
+                <div class="project-stage">
+                  <picture class="project-media project-media--secondary">
+                    <source srcset="/assets/mindfulness-mobile.webp" type="image/webp" />
+                    <img
+                      src="/assets/mindfulness-mobile.png"
+                      alt=""
+                      width="650"
+                      height="800"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
+                  <picture class="project-media project-media--primary">
+                    <source srcset="/assets/mindfulness-desktop.webp" type="image/webp" />
+                    <img
+                      src="/assets/mindfulness-desktop.png"
+                      alt="Mindfulness with Desiree website on laptop, with the mobile booking flow alongside"
+                      width="1600"
+                      height="1000"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
                 </div>
-              </article>
+              </a>
+              <div class="project-body">
+                <p class="project-meta">Website Strategy &middot; IA &middot; Wellness</p>
+                <p class="project-title">
+                  <a href="/case-study/mindfulness-with-desiree/"
+                    >Mindfulness with Desiree
+                    <span class="project-arrow" aria-hidden="true">&#8599;</span></a
+                  >
+                </p>
+                <p class="project-desc">
+                  Website strategy and information architecture for a wellness practice, giving 1:1
+                  clients, a group program, and corporate bookings each a clear path forward.
+                </p>
+                <div class="status-row project-status">
+                  <span class="status status--progress">Case study in progress</span>
+                </div>
+                <div class="project-actions">
+                  <a
+                    class="link link--external"
+                    href="https://mindfulnesswithdes.wixsite.com/site"
+                    target="_blank"
+                    rel="noopener"
+                    >Current client site</a
+                  >
+                </div>
+              </div>
             </li>
 
-            <li>
-              <article class="work-card" data-reveal>
-                <figure class="work-cover work-cover--contain">
-                  <img
-                    src="/assets/cover-gateway.svg"
-                    alt=""
-                    width="800"
-                    height="500"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                </figure>
-                <div class="work-body">
-                  <p class="work-label">Community Impact</p>
-                  <h3>Gateway Regional Council</h3>
-                  <p class="work-summary">
-                    Organizing community programs, resources, and organizational information into
-                    one clearer digital experience for residents, partners, and funders.
-                  </p>
-                  <div class="status-row work-status">
-                    <span class="status status--ongoing">Ongoing project</span>
-                    <span class="status status--progress">Case study in progress</span>
-                  </div>
-                  <div class="work-actions">
-                    <a class="action action--fill" href="/case-study/gateway-regional-council/"
-                      >View case study</a
-                    >
-                  </div>
+            <li class="project-card" data-project="24seven" data-reveal>
+              <a
+                class="project-stage-link"
+                href="/case-study/24seven-escapes/"
+                aria-label="View 24Seven Escapes case study"
+              >
+                <div class="project-stage">
+                  <picture class="project-media project-media--primary">
+                    <source srcset="/assets/24seven-desktop.webp" type="image/webp" />
+                    <img
+                      src="/assets/24seven-desktop.png"
+                      alt="24Seven Escapes cruise travel website on laptop, with the mobile booking flow alongside"
+                      width="1600"
+                      height="1000"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
+                  <picture class="project-media project-media--secondary">
+                    <source srcset="/assets/24seven-mobile.webp" type="image/webp" />
+                    <img
+                      src="/assets/24seven-mobile.png"
+                      alt=""
+                      width="650"
+                      height="800"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
                 </div>
-              </article>
+              </a>
+              <div class="project-body">
+                <p class="project-meta">UX Research &middot; Responsive Design &middot; Travel</p>
+                <p class="project-title">
+                  <a href="/case-study/24seven-escapes/"
+                    >24Seven Escapes <span class="project-arrow" aria-hidden="true">&#8599;</span></a
+                  >
+                </p>
+                <p class="project-desc">
+                  UX research, usability testing, and responsive site work for a cruise travel
+                  advisor, building separate journeys for solo, group, and first-time travelers.
+                </p>
+                <div class="status-row project-status">
+                  <span class="status status--progress">Case study in progress</span>
+                </div>
+                <div class="project-actions">
+                  <a
+                    class="link link--external"
+                    href="https://www.24sevenescapes.com/"
+                    target="_blank"
+                    rel="noopener"
+                    >Live view</a
+                  >
+                </div>
+              </div>
+            </li>
+
+            <li class="project-card" data-project="gateway" data-reveal>
+              <a
+                class="project-stage-link"
+                href="/case-study/gateway-regional-council/"
+                aria-label="View Gateway Regional Council case study"
+              >
+                <div class="project-stage">
+                  <picture class="project-media project-media--primary">
+                    <source srcset="/assets/gateway-desktop.webp" type="image/webp" />
+                    <img
+                      src="/assets/gateway-desktop.png"
+                      alt="Gateway Regional Council funding impact dashboard on laptop, with the events calendar on tablet"
+                      width="1600"
+                      height="1000"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
+                  <picture class="project-media project-media--secondary">
+                    <source srcset="/assets/gateway-tablet.webp" type="image/webp" />
+                    <img
+                      src="/assets/gateway-tablet.png"
+                      alt=""
+                      width="900"
+                      height="1200"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
+                </div>
+              </a>
+              <div class="project-body">
+                <p class="project-meta">UX/UI &middot; Information Architecture &middot; Community Impact</p>
+                <p class="project-title">
+                  <a href="/case-study/gateway-regional-council/"
+                    >Gateway Regional Council
+                    <span class="project-arrow" aria-hidden="true">&#8599;</span></a
+                  >
+                </p>
+                <p class="project-desc">
+                  Organizing community programs, resources, and organizational information into one
+                  clearer digital experience for residents, partners, and funders.
+                </p>
+                <div class="status-row project-status">
+                  <span class="status status--ongoing">Ongoing project</span>
+                  <span class="status status--progress">Case study in progress</span>
+                </div>
+              </div>
             </li>
           </ul>
         </div>
@@ -328,77 +417,109 @@
           </p>
         </div>
 
-        <ul class="work-grid work-grid--earlier">
-          <li>
-            <article class="work-card work-card--compact" data-reveal>
-              <figure class="work-cover work-cover--contain">
-                <picture>
-                  <source srcset="/assets/triptag.webp" type="image/webp" />
+        <ul class="project-grid project-grid--earlier">
+          <li class="project-card" data-project="triptag" data-reveal>
+            <a class="project-stage-link" href="/case-study/triptag/" aria-label="View TripTag case study">
+              <div class="project-stage">
+                <picture class="project-media project-media--primary">
+                  <source srcset="/assets/triptag-desktop.webp" type="image/webp" />
                   <img
-                    src="/assets/triptag.png"
-                    alt="TripTag travel budgeting concept screens"
-                    width="900"
-                    height="650"
+                    src="/assets/triptag-desktop.png"
+                    alt="TripTag travel budgeting concept dashboard, with the mobile chat screen alongside"
+                    width="1600"
+                    height="1000"
                     loading="lazy"
                     decoding="async"
                   />
                 </picture>
-              </figure>
-              <div class="work-body">
-                <p class="work-label">Concept &middot; Travel Tech</p>
-                <h3>TripTag</h3>
-                <p class="work-summary">
-                  A self-initiated concept exploring how travel budgeting could feel collaborative
-                  and less stressful, from research through high-fidelity design.
-                </p>
-                <div class="work-actions">
-                  <a class="action action--fill" href="/case-study/triptag/">View case study</a>
-                  <a
-                    class="action action--ghost"
-                    href="https://www.figma.com/proto/d4O5IwuybELWCGE6BoJ6k5/Travel-Banking-App---Google-UX-cert.--?node-id=2071-1233&t=2JUPdqe8VeJHOOWe-1&scaling=scale-down&content-scaling=fixed&page-id=300%3A1315&starting-point-node-id=2071%3A1233&show-proto-sidebar=1"
-                    target="_blank"
-                    rel="noopener"
-                    >View prototype</a
-                  >
-                </div>
+                <picture class="project-media project-media--secondary">
+                  <source srcset="/assets/triptag-mobile.webp" type="image/webp" />
+                  <img
+                    src="/assets/triptag-mobile.png"
+                    alt=""
+                    width="650"
+                    height="800"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </picture>
               </div>
-            </article>
+            </a>
+            <div class="project-body">
+              <p class="project-meta">UX/UI Design &middot; Concept &middot; Travel Tech</p>
+              <p class="project-title">
+                <a href="/case-study/triptag/"
+                  >TripTag <span class="project-arrow" aria-hidden="true">&#8599;</span></a
+                >
+              </p>
+              <p class="project-desc">
+                A self-initiated concept exploring how travel budgeting could feel collaborative and
+                less stressful, from research through high-fidelity design.
+              </p>
+              <div class="project-actions">
+                <a
+                  class="link link--external"
+                  href="https://www.figma.com/proto/d4O5IwuybELWCGE6BoJ6k5/Travel-Banking-App---Google-UX-cert.--?node-id=2071-1233&t=2JUPdqe8VeJHOOWe-1&scaling=scale-down&content-scaling=fixed&page-id=300%3A1315&starting-point-node-id=2071%3A1233&show-proto-sidebar=1"
+                  target="_blank"
+                  rel="noopener"
+                  >View prototype</a
+                >
+              </div>
+            </div>
           </li>
 
-          <li>
-            <article class="work-card work-card--compact" data-reveal>
-              <figure class="work-cover work-cover--contain">
-                <picture>
-                  <source srcset="/assets/we-are-one.webp" type="image/webp" />
+          <li class="project-card" data-project="we-are-one" data-reveal>
+            <a
+              class="project-stage-link"
+              href="/case-study/we-are-one/"
+              aria-label="View We Are One Housing case study"
+            >
+              <div class="project-stage">
+                <picture class="project-media project-media--primary">
+                  <source srcset="/assets/we-are-one-desktop.webp" type="image/webp" />
                   <img
-                    src="/assets/we-are-one.png"
-                    alt="We Are One Housing website concept screens"
-                    width="900"
-                    height="650"
+                    src="/assets/we-are-one-desktop.png"
+                    alt="We Are One Housing concept homepage, with the mobile screens alongside"
+                    width="1600"
+                    height="1000"
                     loading="lazy"
                     decoding="async"
                   />
                 </picture>
-              </figure>
-              <div class="work-body">
-                <p class="work-label">Concept &middot; Social Impact</p>
-                <h3>We Are One Housing</h3>
-                <p class="work-summary">
-                  A client website concept for a supportive housing organization, designed to feel
-                  warm and trustworthy for people navigating major transitions.
-                </p>
-                <div class="work-actions">
-                  <a class="action action--fill" href="/case-study/we-are-one/">View case study</a>
-                  <a
-                    class="action action--ghost"
-                    href="https://www.figma.com/proto/3oCsiesyn42N1IE0m9QHi4/We-Are-One-LLC?node-id=28-900&p=f&t=uyRSBvOwHnLoDgnz-1&scaling=scale-down&content-scaling=fixed&page-id=28%3A898&starting-point-node-id=28%3A900"
-                    target="_blank"
-                    rel="noopener"
-                    >View prototype</a
-                  >
-                </div>
+                <picture class="project-media project-media--secondary">
+                  <source srcset="/assets/we-are-one-mobile.webp" type="image/webp" />
+                  <img
+                    src="/assets/we-are-one-mobile.png"
+                    alt=""
+                    width="650"
+                    height="800"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </picture>
               </div>
-            </article>
+            </a>
+            <div class="project-body">
+              <p class="project-meta">UX/UI Design &middot; Concept &middot; Social Impact</p>
+              <p class="project-title">
+                <a href="/case-study/we-are-one/"
+                  >We Are One Housing <span class="project-arrow" aria-hidden="true">&#8599;</span></a
+                >
+              </p>
+              <p class="project-desc">
+                A client website concept for a supportive housing organization, designed to feel
+                warm and trustworthy for people navigating major transitions.
+              </p>
+              <div class="project-actions">
+                <a
+                  class="link link--external"
+                  href="https://www.figma.com/proto/3oCsiesyn42N1IE0m9QHi4/We-Are-One-LLC?node-id=28-900&p=f&t=uyRSBvOwHnLoDgnz-1&scaling=scale-down&content-scaling=fixed&page-id=28%3A898&starting-point-node-id=28%3A900"
+                  target="_blank"
+                  rel="noopener"
+                  >View prototype</a
+                >
+              </div>
+            </div>
           </li>
         </ul>
       </section>
@@ -438,6 +559,6 @@
       </div>
     </footer>
 
-    <script src="/script.js" defer></script>
+    <script src="/script.js?v=20260820a" defer></script>
   </body>
 </html>
