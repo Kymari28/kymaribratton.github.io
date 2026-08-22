@@ -6703,32 +6703,12 @@ main[data-case="triptag"] .triptag-product-map li {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  main[data-case="triptag"] .triptag-intro-card:hover,
-  main[data-case="triptag"] .triptag-details-card:hover,
-  main[data-case="triptag"] .triptag-problem-card:hover,
-  main[data-case="triptag"] .triptag-context-card:hover,
-  main[data-case="triptag"] .triptag-method-card:hover,
-  main[data-case="triptag"] .triptag-audience-card:hover,
-  main[data-case="triptag"] .triptag-decisions-card:hover,
-  main[data-case="triptag"] .triptag-final-card:hover,
-  main[data-case="triptag"] .triptag-impact-card:hover,
-  main[data-case="triptag"] .triptag-reflection-card:hover {
-    transform: translate3d(0, -4px, 0);
-  }
-
   main[data-case="triptag"] .triptag-intro-card:hover .triptag-product-map li:nth-child(odd) {
     transform: translate3d(4px, -2px, 0);
   }
 
   main[data-case="triptag"] .triptag-intro-card:hover .triptag-product-map li:nth-child(even) {
     transform: translate3d(-2px, -2px, 0);
-  }
-
-  main[data-case="triptag"] .triptag-details-card .detail-card:hover,
-  main[data-case="triptag"] .triptag-finance-snapshot .stat:hover,
-  main[data-case="triptag"] .triptag-insight-grid .stat:hover,
-  main[data-case="triptag"] .triptag-quote-grid .quote:hover {
-    transform: translate3d(0, -5px, 0);
   }
 
   main[data-case="triptag"] .triptag-finance-snapshot .stat:hover strong,
@@ -6999,26 +6979,6 @@ main[data-case="triptag"] .triptag-product-map li {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  main[data-case="triptag"] .triptag-intro-card:hover,
-  main[data-case="triptag"] .triptag-details-card:hover,
-  main[data-case="triptag"] .triptag-problem-card:hover,
-  main[data-case="triptag"] .triptag-context-card:hover,
-  main[data-case="triptag"] .triptag-method-card:hover,
-  main[data-case="triptag"] .triptag-audience-card:hover,
-  main[data-case="triptag"] .triptag-decisions-card:hover,
-  main[data-case="triptag"] .triptag-final-card:hover,
-  main[data-case="triptag"] .triptag-impact-card:hover,
-  main[data-case="triptag"] .triptag-reflection-card:hover {
-    transform: translate3d(0, -4px, 0);
-  }
-
-  main[data-case="triptag"] .triptag-details-card .detail-card:hover,
-  main[data-case="triptag"] .triptag-finance-snapshot .stat:hover,
-  main[data-case="triptag"] .triptag-insight-grid .stat:hover,
-  main[data-case="triptag"] .triptag-quote-grid .quote:hover {
-    transform: translate3d(0, -5px, 0);
-  }
-
   main[data-case="triptag"] .case-hero--world:hover .case-device--primary {
     transform: translate3d(-10px, -9px, 0) scale(1.02);
   }
@@ -7680,16 +7640,6 @@ main[data-case="we-are-one"] .case-hero--immersive .case-device--secondary {
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .case-study--immersive .panel:hover,
-  .case-study--immersive .callout:hover,
-  .case-study--immersive .stat:hover,
-  .case-study--immersive .quote:hover,
-  .case-study--immersive .detail-card:hover,
-  .case-study--immersive .gateway-interface:hover,
-  .case-study--immersive .gateway-ownership-list li:hover {
-    transform: translate3d(0, -4px, 0);
-  }
-
   .case-study--immersive .gateway-interface:hover {
     border-color: var(--case-line);
     box-shadow: 0 14px 34px rgba(78, 71, 60, 0.08);
