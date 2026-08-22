@@ -2126,7 +2126,133 @@ main[data-case="24seven"] > .section--tint:last-of-type .status {
 
 main[data-case="24seven"] > .section--tint:last-of-type .button--secondary {
   border-color: rgba(255, 249, 239, 0.48);
+  background: transparent;
   color: #fff9ef;
+}
+
+main[data-case="24seven"] > .section--tint:last-of-type .button--secondary:hover {
+  border-color: #fff9ef;
+  background: rgba(255, 249, 239, 0.1);
+}
+
+/* A full-bleed editorial break using the same ocean photo as the hero, in a
+   different crop and a warmer overlay, so the page gets a second moment of
+   color rhythm (cream, dark photography, cream) instead of three cream
+   sections in a row. The quote is the client's own real tagline, not
+   invented copy. */
+.seven-editorial {
+  position: relative;
+  overflow: hidden;
+  color: #fff9ef;
+  background:
+    linear-gradient(115deg, rgba(29, 20, 23, 0.94) 0%, rgba(47, 22, 29, 0.86) 55%, rgba(63, 27, 33, 0.7) 100%),
+    url("/assets/24seven-ocean-atmosphere.jpg") center 62% / cover no-repeat;
+}
+
+.seven-editorial .eyebrow {
+  color: #dfc27f;
+}
+
+.seven-editorial-quote {
+  margin: 1.1rem 0 1.4rem;
+  padding: 0;
+  border: 0;
+}
+
+.seven-editorial-quote p {
+  margin: 0;
+  max-width: 18ch;
+  font-family: var(--font-serif);
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  font-weight: 600;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+}
+
+.seven-editorial-quote cite {
+  display: block;
+  margin-top: 0.9rem;
+  color: #dfc27f;
+  font-size: 0.8rem;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.seven-editorial-note {
+  max-width: 46rem;
+  color: rgba(255, 249, 239, 0.82);
+  font-size: 1.02rem;
+  line-height: 1.75;
+}
+
+/* A thin gold line draws in under the interface heading once, echoing the
+   hairline in the hero and the real site's own gold nav underline. One
+   signature accent, not applied to every heading on the page. */
+main[data-case="24seven"] .case-screen-head .section-title {
+  position: relative;
+  padding-bottom: 0.85rem;
+}
+
+main[data-case="24seven"] .case-screen-head .section-title::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 3.5rem;
+  height: 2px;
+  background: linear-gradient(90deg, var(--case-accent-2, #b08a43), transparent);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+
+.reveal-ready main[data-case="24seven"] .case-screen-head[data-reveal].is-visible .section-title::after {
+  transform: scaleX(1);
+  transition: transform 900ms var(--motion-ease) 380ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-case="24seven"] .case-screen-head .section-title::after {
+    transform: scaleX(1);
+  }
+}
+
+/* Hero curtain: on load, a solid panel wipes away to reveal the ocean photo
+   underneath, a single slower "story motion" moment matching 24Seven's more
+   expensive pacing. A real element (not a pseudo-element) because both
+   ::before and ::after on this hero are already used for the existing
+   highlight glow and gold arc decoration. Sits above the photo, below the
+   copy (z-index 2). */
+main[data-case="24seven"] .case-hero-curtain {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: #1d1417;
+  animation: seven-hero-curtain 1500ms var(--motion-ease) 120ms both;
+}
+
+@keyframes seven-hero-curtain {
+  from {
+    clip-path: inset(0 0 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 100%);
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  main[data-case="24seven"] .case-hero-curtain {
+    animation: none;
+    clip-path: inset(0 0 0 100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-case="24seven"] .case-hero-curtain {
+    animation: none;
+    clip-path: inset(0 0 0 100%);
+  }
 }
 
 /* TripTag: playful travel planning with receipt and route language. */
@@ -2230,6 +2356,113 @@ main[data-case="immigrants-rising"] .stat strong {
   color: #1c5b70;
 }
 
+/* A real 5-step flow (Instructions, Personal Information, Calculating
+   Eligibility, Review, Eligibility Results), recreated from the tool's own
+   sidebar navigation. Restrained by design: no photography, no big color
+   moment, matching the brief's instruction that this project's sophistication
+   should come from clarity rather than visual intensity. */
+main[data-case="immigrants-rising"] .immigrants-steps {
+  display: flex;
+  flex-wrap: wrap;
+  margin: var(--space-head) 0 1.25rem;
+  padding: 0;
+  list-style: none;
+}
+
+main[data-case="immigrants-rising"] .immigrants-step {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 8rem;
+  padding-top: 1.6rem;
+  text-align: center;
+}
+
+main[data-case="immigrants-rising"] .immigrants-step::before {
+  content: "";
+  position: absolute;
+  top: 1.05rem;
+  left: -50%;
+  z-index: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--case-line);
+}
+
+main[data-case="immigrants-rising"] .immigrants-step:first-child::before {
+  display: none;
+}
+
+main[data-case="immigrants-rising"] .immigrants-step-index {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  margin: 0 auto 0.6rem;
+  border: 1.5px solid var(--case-line);
+  border-radius: 50%;
+  background: var(--case-surface);
+  color: var(--case-muted);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+main[data-case="immigrants-rising"] .immigrants-step-label {
+  display: block;
+  color: var(--case-muted);
+  font-size: 0.8rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+main[data-case="immigrants-rising"] .immigrants-step--highlight::before,
+main[data-case="immigrants-rising"] .immigrants-step--highlight .immigrants-step-index {
+  border-color: var(--case-accent);
+  background: var(--case-accent);
+}
+
+main[data-case="immigrants-rising"] .immigrants-step--highlight .immigrants-step-index {
+  color: #fff;
+}
+
+main[data-case="immigrants-rising"] .immigrants-step--highlight .immigrants-step-label {
+  color: var(--case-ink);
+}
+
+main[data-case="immigrants-rising"] .immigrants-flow-note {
+  max-width: 42rem;
+  color: var(--case-muted);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+@media (max-width: 640px) {
+  main[data-case="immigrants-rising"] .immigrants-steps {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+
+  main[data-case="immigrants-rising"] .immigrants-step {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding-top: 0;
+    text-align: left;
+  }
+
+  main[data-case="immigrants-rising"] .immigrants-step-index {
+    margin: 0;
+  }
+
+  main[data-case="immigrants-rising"] .immigrants-step::before {
+    display: none;
+  }
+}
+
 /* Brightside: layered technical depth and visible relationships. */
 main[data-case="brightside"] {
   --case-bg: #f5fbfa;
@@ -2303,6 +2536,107 @@ main[data-case="brightside"] .case-hero--world .button--secondary {
 
 main[data-case="brightside"] .stat {
   border-top: 3px solid #5bb6b3;
+}
+
+/* An illustrative relationship diagram, not real clinical data. Edges draw
+   in and nodes fade once when scrolled into view; visible in full by
+   default so nothing depends on JS running. Nodes glow gently on hover,
+   echoing "selected relationships glow" without pointer-proximity tracking. */
+main[data-case="brightside"] .brightside-graph-section {
+  background: var(--case-bg-alt);
+}
+
+main[data-case="brightside"] .brightside-graph-wrap {
+  max-width: 40rem;
+  margin: var(--space-head) auto 0;
+}
+
+main[data-case="brightside"] .brightside-graph {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+main[data-case="brightside"] .brightside-graph-edge {
+  fill: none;
+  stroke-width: 1.75;
+  stroke-dasharray: 168;
+  stroke-dashoffset: 0;
+}
+
+main[data-case="brightside"] .brightside-graph-node--center {
+  fill: var(--case-surface);
+  stroke: var(--case-accent);
+  stroke-width: 2;
+}
+
+main[data-case="brightside"] .brightside-graph-center-label {
+  fill: var(--case-ink);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+main[data-case="brightside"] .brightside-graph-label {
+  fill: var(--case-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+main[data-case="brightside"] .brightside-graph-node {
+  transition: r 220ms ease;
+}
+
+.reveal-ready main[data-case="brightside"] .brightside-graph-wrap[data-reveal] .brightside-graph-edge {
+  stroke-dashoffset: 168;
+}
+
+.reveal-ready main[data-case="brightside"] .brightside-graph-wrap[data-reveal] .brightside-graph-node,
+.reveal-ready main[data-case="brightside"] .brightside-graph-wrap[data-reveal] .brightside-graph-label {
+  opacity: 0;
+}
+
+.reveal-ready main[data-case="brightside"] .brightside-graph-wrap[data-reveal].is-visible .brightside-graph-edge {
+  animation: brightside-edge-draw 900ms ease forwards;
+}
+
+.reveal-ready main[data-case="brightside"] .brightside-graph-wrap[data-reveal].is-visible .brightside-graph-node,
+.reveal-ready main[data-case="brightside"] .brightside-graph-wrap[data-reveal].is-visible .brightside-graph-label {
+  animation: brightside-node-fade 500ms ease forwards;
+}
+
+@keyframes brightside-edge-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes brightside-node-fade {
+  to {
+    opacity: 1;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  main[data-case="brightside"] .brightside-graph-node:not(.brightside-graph-node--center):hover {
+    r: 12;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-case="brightside"] .brightside-graph-edge,
+  main[data-case="brightside"] .brightside-graph-node,
+  main[data-case="brightside"] .brightside-graph-label {
+    animation: none !important;
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  main[data-case="brightside"] .brightside-graph-label {
+    font-size: 9px;
+  }
 }
 
 /* Mindfulness with Desiree: editorial calm with one breathing form. */
@@ -2382,6 +2716,156 @@ main[data-case="mindfulness"] .case-hero--world .button--secondary {
   color: #fffaf0;
 }
 
+/* A quiet resonance ripple, once on load: two rings expand and fade outward
+   from the same point as the existing static ring decoration, echoing sound
+   moving outward from a bowl. Real elements, not the hero's ::before/::after
+   pseudo-elements, since both are already claimed by the existing ring and
+   glow decoration. Slow and singular, matching Desiree's calmer pacing. */
+main[data-case="mindfulness"] .mindfulness-ripple {
+  position: absolute;
+  top: 50%;
+  right: -5rem;
+  z-index: -1;
+  width: 25rem;
+  aspect-ratio: 1;
+  border: 1px solid rgba(236, 220, 181, 0.4);
+  border-radius: 50%;
+  opacity: 0;
+  transform: translateY(-50%) scale(0.7);
+  animation: mindfulness-ripple-out 3400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+main[data-case="mindfulness"] .mindfulness-ripple--two {
+  animation-delay: 950ms;
+}
+
+@keyframes mindfulness-ripple-out {
+  0% {
+    opacity: 0;
+    transform: translateY(-50%) scale(0.7);
+  }
+
+  28% {
+    opacity: 0.45;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-50%) scale(1.3);
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  main[data-case="mindfulness"] .mindfulness-ripple {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-case="mindfulness"] .mindfulness-ripple {
+    display: none;
+  }
+}
+
+/* A full-bleed editorial break using the same sound-bowl photo as the hero,
+   in a different crop, with the practice's own real tagline as a pull-quote.
+   The photo reveals through a soft blur-to-sharp mask on scroll instead of
+   the hard curtain used for 24Seven, matching Desiree's gentler pacing. */
+.mindfulness-editorial {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  color: #fffaf0;
+}
+
+.mindfulness-editorial::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background:
+    linear-gradient(120deg, rgba(28, 41, 30, 0.93) 0%, rgba(42, 58, 43, 0.87) 55%, rgba(58, 72, 55, 0.72) 100%),
+    url("/assets/mindfulness-sound-bowls.jpg") center 30% / cover no-repeat;
+  filter: blur(16px);
+  opacity: 0;
+  transform: scale(1.06);
+  transition:
+    opacity 1400ms ease,
+    filter 1400ms ease,
+    transform 1800ms var(--motion-ease);
+}
+
+.reveal-ready .mindfulness-editorial[data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+
+.reveal-ready .mindfulness-editorial[data-reveal].is-visible::before {
+  opacity: 1;
+  filter: blur(0);
+  transform: scale(1);
+}
+
+.mindfulness-editorial .eyebrow {
+  color: #ead6a4;
+}
+
+.mindfulness-editorial-quote {
+  margin: 1.1rem 0 1.4rem;
+  padding: 0;
+  border: 0;
+}
+
+.mindfulness-editorial-quote p {
+  margin: 0;
+  max-width: 18ch;
+  font-family: var(--font-serif);
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  font-weight: 600;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+}
+
+.mindfulness-editorial-quote cite {
+  display: block;
+  margin-top: 0.9rem;
+  color: #ead6a4;
+  font-size: 0.8rem;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.mindfulness-editorial-note {
+  max-width: 46rem;
+  color: rgba(255, 250, 240, 0.85);
+  font-size: 1.02rem;
+  line-height: 1.75;
+}
+
+.mindfulness-editorial-rings {
+  position: absolute;
+  top: 50%;
+  right: 8%;
+  z-index: -1;
+  width: 22rem;
+  aspect-ratio: 1;
+  transform: translateY(-50%);
+  opacity: 0.5;
+  background:
+    radial-gradient(circle, transparent 60%, rgba(236, 220, 181, 0.14) 61%, rgba(236, 220, 181, 0.14) 62%, transparent 63%),
+    radial-gradient(circle, transparent 74%, rgba(236, 220, 181, 0.1) 75%, rgba(236, 220, 181, 0.1) 76%, transparent 77%),
+    radial-gradient(circle, transparent 88%, rgba(236, 220, 181, 0.07) 89%, rgba(236, 220, 181, 0.07) 90%, transparent 91%);
+  border-radius: 50%;
+}
+
+@media (max-width: 900px) {
+  .mindfulness-editorial-rings {
+    display: none;
+  }
+}
+
 /* We Are One Housing: warm, modular, and community-led. */
 main[data-case="we-are-one"] {
   --case-bg: #fbf6ed;
@@ -2402,6 +2886,55 @@ main[data-case="we-are-one"] {
   --case-focus: #8b4828;
   color: var(--case-ink);
   background: var(--case-bg);
+}
+
+/* A full-bleed editorial break with the founder's own real tagline, over a
+   second crop of the real accessible-home photo. Calmer than 24Seven's
+   curtain or Mindfulness's soft mask: just a quiet crossfade via the shared
+   reveal system, matching this project's warmth-over-spectacle brief. */
+main[data-case="we-are-one"] .we-are-one-editorial {
+  color: #fdf6ec;
+  background:
+    linear-gradient(120deg, rgba(60, 30, 22, 0.92) 0%, rgba(88, 40, 30, 0.85) 55%, rgba(122, 48, 56, 0.68) 100%),
+    url("/assets/we-are-one-accessible-home.jpg") center 38% / cover no-repeat;
+}
+
+main[data-case="we-are-one"] .we-are-one-editorial .eyebrow {
+  color: #ecc48f;
+}
+
+main[data-case="we-are-one"] .we-are-one-editorial-quote {
+  margin: 1.1rem 0 1.4rem;
+  padding: 0;
+  border: 0;
+}
+
+main[data-case="we-are-one"] .we-are-one-editorial-quote p {
+  margin: 0;
+  max-width: 20ch;
+  font-family: var(--font-serif);
+  font-size: clamp(2.2rem, 5.6vw, 3.8rem);
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+main[data-case="we-are-one"] .we-are-one-editorial-quote cite {
+  display: block;
+  margin-top: 0.9rem;
+  color: #ecc48f;
+  font-size: 0.8rem;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+main[data-case="we-are-one"] .we-are-one-editorial-note {
+  max-width: 46rem;
+  color: rgba(253, 246, 236, 0.85);
+  font-size: 1.02rem;
+  line-height: 1.75;
 }
 
 main[data-case="we-are-one"] .case-hero--world::before {
@@ -3411,6 +3944,90 @@ main[data-case] .detail-list li {
     opacity: 0;
     transform: translate(-50%, -50%) translate(49px, 6px) rotate(10deg);
   }
+}
+
+/* ---------- 23b. Case-study hover words -----------------------------------
+   A lighter, reusable version of the About page's word-hover system, for
+   dropping one delighted-discovery word into a case-study heading. Inherits
+   the surrounding heading's own type (no hardcoded font-size, unlike the
+   About page version), and reuses the existing particle-burst keyframe and
+   .particle/.particle--star/.particle--diamond shapes where a project's
+   palette already fits. Purely a hover bonus: the heading reads completely
+   normally if nobody hovers it, and nothing here is required to understand
+   the page. */
+.hover-word {
+  position: relative;
+  display: inline-block;
+  cursor: default;
+}
+
+.hover-word-text {
+  position: relative;
+  z-index: 2;
+}
+
+.hover-word:hover .hover-word-text {
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: word-gradient-sweep 2.6s ease-in-out infinite;
+}
+
+.hover-word-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.hover-word:hover .particle {
+  animation: particle-burst 1.2s ease-out both;
+  animation-delay: var(--delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce), (hover: none), (pointer: coarse) {
+  .hover-word:hover .hover-word-text {
+    animation: none;
+    background: none;
+    -webkit-text-fill-color: currentColor;
+    color: currentColor;
+  }
+
+  .hover-word .particle {
+    display: none;
+  }
+}
+
+/* GRC: green-to-gold sweep, small real butterfly particles (same asset as
+   the hero and the Impact/Events guide butterfly) instead of generic stars. */
+main[data-case="gateway"] .hover-word:hover .hover-word-text {
+  background-image: linear-gradient(100deg, #60713b, #df8734, #60713b);
+}
+
+main[data-case="gateway"] .particle--butterfly {
+  width: 17px;
+  height: 12px;
+  background: url("/assets/grc-blue-butterfly.png") center / contain no-repeat;
+}
+
+/* Mindfulness: green-to-cream sweep, small expanding rings on demand (the
+   same resonance idea as the hero ripple, but user-triggered this time). */
+main[data-case="mindfulness"] .hover-word:hover .hover-word-text {
+  background-image: linear-gradient(100deg, #4b6448, #ead6a4, #4b6448);
+}
+
+main[data-case="mindfulness"] .particle--ring {
+  width: 10px;
+  height: 10px;
+  background: none;
+  border: 1.5px solid #ead6a4;
+  border-radius: 50%;
+}
+
+/* 24Seven: burgundy-to-gold sweep, reusing the existing gold star/diamond
+   particle shapes as-is since they're already this project's own gold. */
+main[data-case="24seven"] .hover-word:hover .hover-word-text {
+  background-image: linear-gradient(100deg, #77303a, #dfc27f, #77303a);
 }
 
 /* ---------- 24. Work With Me page ------------------------------------------ */
@@ -4805,6 +5422,281 @@ main[data-case="gateway"] .gateway-ownership .section-title {
   color: #994b17;
 }
 
+/* A themed green band gives the page a moment of color rhythm between the
+   cream reading sections. The total and tabs sit directly on that green;
+   the chart itself lives on a light panel so its real product colors
+   (the actual GRC brand blue/green/gold/purple/orange used on the live
+   Impact page) read the way they do on the real site, not reinterpreted
+   into the case-study palette. */
+.gateway-data-story {
+  color: #fffdf7;
+  background: linear-gradient(150deg, #3d4a26, #58652f);
+}
+
+.gateway-data-story .gateway-section-intro {
+  color: rgba(255, 253, 247, 0.82);
+}
+
+.gateway-impact {
+  margin-top: var(--space-head);
+}
+
+.gateway-chart-total {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.6rem 0.9rem;
+  margin-bottom: 1.75rem;
+}
+
+.gateway-chart-total-value {
+  font-family: var(--font-serif);
+  font-size: clamp(2.4rem, 6vw, 3.4rem);
+  font-weight: 700;
+  line-height: 1;
+  color: #f2b96a;
+}
+
+.gateway-chart-total-label {
+  font-size: 0.92rem;
+  color: rgba(255, 253, 247, 0.78);
+}
+
+.gateway-impact-period {
+  margin: 0 0 1.75rem;
+  color: rgba(255, 253, 247, 0.68);
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.gateway-impact-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin-bottom: 1.75rem;
+}
+
+.gateway-impact-tab {
+  min-height: 2.5rem;
+  padding: 0.5rem 1.05rem;
+  border: 1.5px solid rgba(255, 253, 247, 0.45);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 253, 247, 0.08);
+  color: #fffdf7;
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.2;
+  cursor: pointer;
+  transition:
+    color 200ms ease,
+    background-color 200ms ease,
+    border-color 200ms ease;
+}
+
+.gateway-impact-tab:hover {
+  border-color: rgba(255, 253, 247, 0.75);
+  background: rgba(255, 253, 247, 0.16);
+}
+
+.gateway-impact-tab.is-active {
+  border-color: #4f4d63;
+  background: #4f4d63;
+  color: #fffdf7;
+}
+
+.gateway-impact-tab:focus-visible {
+  outline: 3px solid rgba(255, 253, 247, 0.55);
+  outline-offset: 2px;
+}
+
+.gateway-impact-panel {
+  padding: clamp(1.25rem, 2.6vw, 2rem);
+  border-radius: var(--radius-lg);
+  background: #fffdf7;
+  box-shadow: var(--shadow-lift);
+}
+
+.gateway-impact-chart-title {
+  margin: 0 0 1.1rem;
+  color: var(--case-ink, #2c3027);
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.gateway-impact-chart-desktop svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+  font-family: var(--font-body);
+}
+
+.gateway-impact-grid-line {
+  stroke: rgba(44, 48, 39, 0.12);
+  stroke-width: 1;
+}
+
+.gateway-impact-baseline {
+  stroke: rgba(44, 48, 39, 0.4);
+  stroke-width: 1.25;
+}
+
+.gateway-impact-axis-unit,
+.gateway-impact-axis-label {
+  fill: #5d6257;
+  font-size: 12px;
+}
+
+.gateway-impact-axis-unit {
+  font-weight: 600;
+}
+
+.gateway-impact-year-label,
+.gateway-impact-value-label {
+  fill: #2c3027;
+  font-size: 12px;
+  text-anchor: middle;
+}
+
+.gateway-impact-value-label {
+  font-weight: 500;
+}
+
+.gateway-impact-year-label.is-highlight,
+.gateway-impact-value-label.is-highlight {
+  font-weight: 700;
+}
+
+.gateway-impact-highlight-label {
+  fill: #2c3027;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  text-anchor: middle;
+  text-transform: uppercase;
+}
+
+.gateway-impact-bar {
+  animation: gateway-impact-bar-reveal 480ms var(--motion-ease, ease) both;
+  transition: opacity 180ms ease;
+}
+
+.gateway-impact-bar:hover {
+  opacity: 0.85;
+}
+
+@keyframes gateway-impact-bar-reveal {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.gateway-impact-chart-mobile {
+  display: none;
+}
+
+.gateway-impact-mobile-list {
+  display: grid;
+  gap: 1.1rem;
+}
+
+.gateway-impact-mobile-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+
+.gateway-impact-mobile-year {
+  color: var(--case-ink, #2c3027);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.gateway-impact-mobile-value {
+  color: var(--case-ink, #2c3027);
+  font-size: 0.92rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.gateway-impact-mobile-row.is-highlight .gateway-impact-mobile-year,
+.gateway-impact-mobile-row.is-highlight .gateway-impact-mobile-value {
+  font-weight: 700;
+}
+
+.gateway-impact-mobile-track {
+  position: relative;
+  width: 100%;
+  height: 1.65rem;
+  overflow: hidden;
+  border-radius: 0.4rem;
+  background: rgba(44, 48, 39, 0.08);
+}
+
+.gateway-impact-mobile-bar {
+  width: 0;
+  min-width: 6px;
+  height: 100%;
+  border-radius: 0.4rem;
+  transition: width 480ms var(--motion-ease, ease);
+}
+
+.gateway-impact-mobile-note {
+  margin-top: 0.35rem;
+  color: var(--case-ink, #2c3027);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.gateway-chart-caption {
+  margin-top: 1.5rem;
+  max-width: 42rem;
+  color: rgba(255, 253, 247, 0.82);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.gateway-impact-source {
+  margin-top: 0.6rem;
+  color: rgba(255, 253, 247, 0.55);
+  font-size: 0.78rem;
+}
+
+@media (max-width: 640px) {
+  .gateway-impact-chart-desktop {
+    display: none;
+  }
+
+  .gateway-impact-chart-mobile {
+    display: block;
+  }
+
+  .gateway-impact-panel {
+    padding: 1.1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gateway-impact-bar {
+    animation: none;
+  }
+
+  .gateway-impact-mobile-bar {
+    transition: none;
+  }
+}
+
 .gateway-progress {
   border-bottom: 1px solid var(--case-line);
 }
@@ -5305,6 +6197,156 @@ main[data-case="triptag"] .triptag-finance-snapshot .stat:nth-child(3) {
 main[data-case="triptag"] .triptag-finance-snapshot .stat strong,
 main[data-case="triptag"] .triptag-finance-snapshot .stat span {
   color: #203a31;
+}
+
+main[data-case="triptag"] .triptag-stats-source {
+  margin: 0.9rem 0 0;
+  color: var(--case-muted);
+  font-size: 0.82rem;
+}
+
+/* Recreated from the concept's own spending screen: real percentages
+   (Hotel 50 / Misc 24 / Transport 18 / Food 9) and real progress
+   ($2,401 of $3,200). Playful colors match the concept's own chart rather
+   than the case-study palette, same choice made for GRC and 24Seven. */
+main[data-case="triptag"] .triptag-spend-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 0.62fr) minmax(0, 1fr);
+  gap: clamp(1.75rem, 4vw, 3rem);
+  align-items: center;
+  margin-top: var(--space-head);
+  padding: clamp(1.5rem, 3vw, 2.25rem);
+  border: 1px solid var(--case-line);
+  border-radius: var(--radius-lg);
+  background: var(--case-surface);
+  box-shadow: var(--shadow-card);
+}
+
+main[data-case="triptag"] .triptag-spend-chart {
+  display: flex;
+  justify-content: center;
+}
+
+main[data-case="triptag"] .triptag-pie {
+  display: block;
+  width: min(100%, 13rem);
+  height: auto;
+  overflow: visible;
+}
+
+main[data-case="triptag"] .triptag-pie-slice {
+  stroke: var(--case-surface);
+  stroke-width: 1.5;
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 200ms ease;
+}
+
+main[data-case="triptag"] .triptag-pie-slice:hover {
+  transform: scale(1.035);
+}
+
+main[data-case="triptag"] .triptag-spend-legend {
+  display: grid;
+  gap: 0.55rem;
+  margin: 0 0 1.4rem;
+  padding: 0;
+  list-style: none;
+}
+
+main[data-case="triptag"] .triptag-spend-legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--case-ink);
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+main[data-case="triptag"] .triptag-spend-swatch {
+  width: 0.7rem;
+  height: 0.7rem;
+  border-radius: 50%;
+}
+
+main[data-case="triptag"] .triptag-spend-pct {
+  margin-left: auto;
+  color: var(--case-muted);
+  font-weight: 700;
+}
+
+main[data-case="triptag"] .triptag-spend-progress-track {
+  height: 0.6rem;
+  overflow: hidden;
+  border-radius: var(--radius-pill);
+  background: var(--case-panel-tint);
+}
+
+main[data-case="triptag"] .triptag-spend-progress-bar {
+  width: 75.03%;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--case-accent-2);
+}
+
+main[data-case="triptag"] .triptag-spend-progress-label {
+  margin: 0.6rem 0 0;
+  color: var(--case-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.reveal-ready main[data-case="triptag"] .triptag-spend-panel[data-reveal] .triptag-pie-slice {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.reveal-ready main[data-case="triptag"] .triptag-spend-panel[data-reveal] .triptag-spend-progress-bar {
+  width: 0;
+  transition: width 900ms var(--motion-ease);
+}
+
+.reveal-ready main[data-case="triptag"] .triptag-spend-panel[data-reveal].is-visible .triptag-pie-slice {
+  animation: triptag-slice-pop 480ms var(--motion-ease) forwards;
+}
+
+.reveal-ready main[data-case="triptag"] .triptag-spend-panel[data-reveal].is-visible .triptag-spend-progress-bar {
+  width: 75.03%;
+}
+
+@keyframes triptag-slice-pop {
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-case="triptag"] .triptag-pie-slice {
+    animation: none !important;
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  main[data-case="triptag"] .triptag-spend-progress-bar {
+    transition: none;
+    width: 75.03%;
+  }
+}
+
+@media (max-width: 640px) {
+  main[data-case="triptag"] .triptag-spend-panel {
+    grid-template-columns: minmax(0, 1fr);
+    text-align: center;
+  }
+
+  main[data-case="triptag"] .triptag-spend-legend li {
+    justify-content: center;
+  }
+
+  main[data-case="triptag"] .triptag-spend-pct {
+    margin-left: 0.4rem;
+  }
 }
 
 .triptag-research-grid {
@@ -6824,13 +7866,6 @@ main[data-case="we-are-one"] .case-hero--immersive .case-device--secondary {
     padding: 1.4rem;
   }
 
-  main[data-case="gateway"] .gateway-butterfly--one {
-    width: 5.5rem;
-  }
-
-  main[data-case="gateway"] .gateway-butterfly--two {
-    width: 3.8rem;
-  }
 }
 
 @media (hover: none), (pointer: coarse) {
@@ -6962,10 +7997,15 @@ main[data-case="we-are-one"] .case-hero--immersive .case-device--secondary {
   background-size: cover;
 }
 
+/* No real Brightside-specific photography exists (a generic "person typing"
+   stock photo was here before, misleadingly implying it depicted the actual
+   project or Kymari herself). An abstract node field replaces it, matching
+   the real relationship-diagram content added further down this page. */
 main[data-case="brightside"].case-study--showcase.case-study--immersive {
   --immersive-hero-bg:
-    linear-gradient(90deg, rgba(4, 34, 47, 0.99) 0%, rgba(6, 44, 57, 0.96) 42%, rgba(9, 52, 65, 0.52) 100%),
-    url("/assets/brightside-mental-health-tech.jpg") center / cover no-repeat;
+    radial-gradient(circle, rgba(158, 223, 216, 0.22) 0 2px, transparent 3px) 4px 4px / 52px 52px,
+    radial-gradient(circle, rgba(158, 223, 216, 0.12) 0 1.5px, transparent 2.5px) 30px 28px / 52px 52px,
+    linear-gradient(125deg, #04222f 0%, #0a3646 55%, #12495a 100%);
 }
 
 main[data-case="gateway"].case-study--showcase.case-study--immersive {
@@ -7216,6 +8256,43 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
   background: transparent;
 }
 
+/* A single real butterfly (grc-blue-butterfly.png, matching the motif already
+   on GRC's live Events calendar) drifts in once, crossing from the Impact
+   card toward Events, then settles. A quiet discovery, not a decoration. */
+.gateway-interface-grid {
+  position: relative;
+}
+
+.gateway-butterfly {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  background: url("/assets/grc-blue-butterfly.png") center / contain no-repeat;
+  filter: drop-shadow(0 10px 16px rgba(20, 30, 12, 0.22));
+  opacity: 0.85;
+  transform: rotate(4deg);
+}
+
+.gateway-butterfly--one {
+  top: -1.4rem;
+  right: clamp(6.5rem, 21%, 11rem);
+  width: clamp(3.75rem, 6vw, 5.25rem);
+  aspect-ratio: 640 / 426;
+}
+
+.reveal-ready .gateway-butterfly[data-reveal] {
+  opacity: 0;
+  transform: translate3d(-20px, -14px, 0) rotate(-10deg) scale(0.8);
+}
+
+.reveal-ready .gateway-butterfly[data-reveal].is-visible {
+  opacity: 0.85;
+  transform: translate3d(0, 0, 0) rotate(4deg) scale(1);
+  transition:
+    opacity 900ms ease 420ms,
+    transform 1150ms var(--motion-ease) 420ms;
+}
+
 .reveal-ready .case-study--showcase .case-screen-head[data-reveal] > * {
   opacity: 0;
   transform: translate3d(0, 20px, 0);
@@ -7302,6 +8379,10 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
 
   .case-screen-card--tablet .case-screen-media img {
     width: min(70%, 24rem);
+  }
+
+  .gateway-butterfly {
+    display: none;
   }
 }
 
