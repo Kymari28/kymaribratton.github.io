@@ -6423,7 +6423,10 @@ main[data-case="gateway"] .gateway-ownership .section-title {
    Purple (the project's smaller accent) marks it as its own moment without
    turning it into another saturated field. */
 .gateway-grants {
-  background: var(--case-bg);
+  /* Was flat --case-bg -- one of six cream sections in a row with no
+     relief. A soft, unsaturated orange tint gives Grant Writers its own
+     identity without touching its pacing or adding motion. */
+  background: color-mix(in srgb, var(--case-accent-2) 12%, var(--case-bg));
 }
 
 .gateway-grants-layout {
@@ -6445,7 +6448,7 @@ main[data-case="gateway"] .gateway-ownership .section-title {
   font-family: var(--font-serif);
   font-size: clamp(1.7rem, 3.4vw, 2.3rem);
   font-weight: 600;
-  color: var(--case-accent-3);
+  color: var(--case-accent-2);
 }
 
 .gateway-grants-stat-label {
@@ -6465,7 +6468,7 @@ main[data-case="gateway"] .gateway-ownership .section-title {
 .gateway-grants-insight {
   margin-top: 1.5rem;
   padding-left: 1rem;
-  border-left: 3px solid var(--case-accent-3);
+  border-left: 3px solid var(--case-accent-2);
   color: var(--case-muted);
   font-size: 0.92rem;
   line-height: 1.65;
@@ -6936,12 +6939,6 @@ main[data-case="gateway"] .gateway-ownership .section-title {
   color: #fffdf7;
 }
 
-.gateway-demo-card-icon svg {
-  width: 2.1rem;
-  height: 2.1rem;
-  opacity: 0.85;
-}
-
 .gateway-demo-card-badge {
   position: absolute;
   top: 0.7rem;
@@ -6949,8 +6946,8 @@ main[data-case="gateway"] .gateway-ownership .section-title {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 1.9rem;
-  height: 1.9rem;
+  width: 2.1rem;
+  height: 2.1rem;
   border-radius: 50%;
   background: rgba(255, 253, 247, 0.28);
 }
@@ -7004,9 +7001,12 @@ main[data-case="gateway"] .gateway-ownership .section-title {
    interactive, since it genuinely isn't. */
 .gateway-demo-card-cta {
   display: inline-block;
-  margin-top: 0.75rem;
-  color: var(--case-accent-2);
-  font-size: 0.8rem;
+  margin-top: 0.85rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius-pill);
+  background: var(--case-accent-2);
+  color: #fffdf7;
+  font-size: 0.78rem;
   font-weight: 700;
 }
 
