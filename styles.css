@@ -5916,6 +5916,7 @@ main[data-case="gateway"] {
      color swap -- green stays the anchor. */
   --case-blue: #5593bb;
   --case-purple: #6b6693;
+  --case-purple-dark: #4f4c6e;
   --case-purple-soft: #c9c3e3;
   --case-gold: #c99a1e;
   --case-today: #2d3717;
@@ -6239,7 +6240,7 @@ main[data-case="gateway"] .section-title {
 
 .gateway-ownership {
   color: #fffdf7;
-  background: linear-gradient(135deg, #4f622f, #687942);
+  background: linear-gradient(135deg, var(--case-purple-dark), var(--case-purple));
 }
 
 .gateway-ownership-layout {
@@ -10818,31 +10819,23 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
 }
 
 /* Ownership list: stronger hover/focus states without recoloring the list
-   at rest. Each card picks up a thin accent edge that cycles through the
-   page's wider palette on interaction only -- discovery, not decoration
-   sitting there unearned. */
+   at rest. Now that the section itself carries the confident purple
+   accent, every card picks up the same light-purple edge on interaction
+   -- one accent, not a cycle through the wider palette. */
 .gateway-ownership-list li {
   border-left: 3px solid transparent;
 }
 
 @media (hover: hover) and (pointer: fine) {
   .gateway-ownership-list li:hover {
-    border-left-color: var(--case-accent-2);
+    border-left-color: var(--case-purple-soft);
     background: rgba(255, 253, 247, 0.14);
     transform: translateY(-2px);
-  }
-
-  .gateway-ownership-list li:nth-child(3n+2):hover {
-    border-left-color: #5593bb;
-  }
-
-  .gateway-ownership-list li:nth-child(3n+3):hover {
-    border-left-color: #c9c3e3;
   }
 }
 
 .gateway-ownership-list li:focus-within {
-  border-left-color: var(--case-highlight);
+  border-left-color: var(--case-purple-soft);
   background: rgba(255, 253, 247, 0.14);
 }
 
