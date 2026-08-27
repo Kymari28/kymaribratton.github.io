@@ -58,6 +58,25 @@
     }, 2000);
   }
 
+  /* ---- Pre-hide the GRC/Mindfulness GSAP hero entrance ----
+     case-immersion.js drives this entrance, but it waits on two external
+     GSAP CDN scripts to download before it can even run. Without this,
+     the browser paints the hero fully visible first (default CSS), then
+     case-immersion.js finally loads and snaps everything to invisible
+     before tweening it back in, an out-of-order flash where the photo can
+     look "done" while the title is still catching up. Adding this class
+     here (a small local script, not a CDN fetch) hides the same elements
+     immediately so GSAP's tween starts from a state that's already
+     correct, and the fallback below guarantees they still show up if GSAP
+     never loads at all. */
+  var gsapHeroNodes = document.querySelectorAll("[data-gsap-hero]");
+  if (gsapHeroNodes.length && !prefersReducedMotion) {
+    document.documentElement.classList.add("gsap-hero-ready");
+    window.setTimeout(function () {
+      document.documentElement.classList.remove("gsap-hero-ready");
+    }, 2500);
+  }
+
   /* ---- Project-stage pointer depth ----
      The approved card hover transforms stay on the picture wrappers. Pointer
      response lives only on the inner device images, so the card, copy, and
@@ -206,6 +225,362 @@
     }
   }
 
+  /* ---- Project entry transition: Match & Move Entry System ----
+     One configurable controller, two families (motion/responsive handoff
+     §3.1/§4.1) instead of bespoke per-project transitions:
+
+       interface-led (Gateway Regional Council): the real screenshot is the
+       only thing that moves. It is never cropped and never fills the
+       viewport — it settles into the real framed rect inside the
+       destination hero. That rect can only be measured on the destination
+       page itself (the two case studies don't share a layout engine across
+       navigations), so the departure side plays a modest, non-full-bleed
+       push and the arrival side does the precise part: it measures the
+       real `.subpage-frame` the instant the destination page has laid out,
+       and eases the veil down onto that exact rect before dissolving.
+
+       media-led (Mindfulness with Desiree, default for every other
+       project): the real photo crops open toward full-bleed, exactly as
+       this system worked before this rewrite.
+
+     A future project's entry is added by giving it a family and an accent
+     pair below, not by writing new transition code — see
+     PROJECT_ENTRY_FAMILY / PROJECT_ENTRY_ACCENTS.
+
+     Entirely additive: without JS, with sessionStorage blocked, or with
+     prefers-reduced-motion, every project link behaves like a normal link
+     for navigation purposes. prefers-reduced-motion still gets a same-
+     composition crossfade (no transform) at the tokened reduced duration,
+     never nothing at all, never a lingering dissolve. */
+  var PROJECT_ENTRY_ACCENTS = {
+    gateway: ["#4c6329", "#d68033"],
+    mindfulness: ["#354a36", "#ead6a4"],
+    "24seven": ["#2b1a1d", "#f2c66f"],
+    brightside: ["#123238", "#a9eee6"],
+    "immigrants-rising": ["#0b2b49", "#ffd1a3"],
+    triptag: ["#2c4f3f", "#f0ae63"],
+    "we-are-one": ["#4d1f2b", "#ffd48b"],
+  };
+  var PROJECT_ENTRY_FAMILY = {
+    gateway: "interface-led",
+    mindfulness: "media-led",
+  };
+  var PROJECT_ENTRY_KEY = "kb-enter-transition";
+  var PROJECT_WASH_EASE = "cubic-bezier(0.6, 0, 0.9, 0.2)"; /* back-loaded: color arrives in the final stretch, not evenly */
+
+  /* Design tokens from styles.css §4.7, mirrored here since inline-style
+     transitions need numeric ms/easing strings, not custom properties. */
+  var ENTRY_TOKENS = {
+    "interface-led": {
+      desktop: 760,
+      tablet: 650,
+      mobile: 450,
+      ease: "cubic-bezier(0.65, 0, 0.35, 1)",
+      reduced: 130,
+    },
+    "media-led": {
+      desktop: 840,
+      tablet: 720,
+      mobile: 520,
+      ease: "cubic-bezier(0.22, 1, 0.36, 1)", // PROJECT_ZOOM_EASE
+      reduced: 150,
+    },
+  };
+
+  var getEntryBreakpoint = function () {
+    if (window.matchMedia("(max-width: 640px), (pointer: coarse)").matches) return "mobile";
+    if (window.matchMedia("(max-width: 1024px)").matches) return "tablet";
+    return "desktop";
+  };
+
+  var getProjectEntryVeil = function () {
+    var veil = document.getElementById("page-transition-veil");
+    if (!veil) {
+      veil = document.createElement("div");
+      veil.id = "page-transition-veil";
+      veil.setAttribute("aria-hidden", "true");
+
+      var wash = document.createElement("div");
+      wash.id = "page-transition-wash";
+
+      var image = document.createElement("div");
+      image.id = "page-transition-image";
+
+      veil.appendChild(wash);
+      veil.appendChild(image);
+      document.body.appendChild(veil);
+    }
+    return veil;
+  };
+
+  var projectEntryLinks = document.querySelectorAll(".project-stage-link");
+
+  projectEntryLinks.forEach(function (link) {
+    link.addEventListener("click", function (event) {
+      if (event.defaultPrevented || event.button !== 0) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+      var card = link.closest(".project-card");
+      var slug = card ? card.getAttribute("data-project") : null;
+      var colors = slug ? PROJECT_ENTRY_ACCENTS[slug] : null;
+      var thumb = card && (card.querySelector(".project-media--primary img") || card.querySelector(".project-stage img"));
+      if (!colors || !thumb) return;
+
+      event.preventDefault();
+      var href = link.href;
+      var family = (slug && PROJECT_ENTRY_FAMILY[slug]) || "media-led";
+      var tokens = ENTRY_TOKENS[family];
+      var breakpoint = getEntryBreakpoint();
+
+      try {
+        sessionStorage.setItem(
+          PROJECT_ENTRY_KEY,
+          JSON.stringify({
+            src: thumb.currentSrc || thumb.src,
+            c1: colors[0],
+            c2: colors[1],
+            t: Date.now(),
+            family: family,
+            breakpoint: breakpoint,
+          })
+        );
+      } catch (e) {}
+
+      if (prefersReducedMotion) {
+        /* Same-composition crossfade, no transform: a brief color+image
+           flash rather than a plain instant jump, then navigate. */
+        var reducedVeil = getProjectEntryVeil();
+        var reducedWash = document.getElementById("page-transition-wash");
+        reducedVeil.style.transition = "none";
+        reducedVeil.style.display = "block";
+        reducedVeil.style.opacity = "0";
+        reducedWash.style.transition = "none";
+        reducedWash.style.background = "linear-gradient(135deg, " + colors[0] + ", " + colors[1] + ")";
+        reducedWash.style.opacity = "1";
+        document.getElementById("page-transition-image").style.opacity = "0";
+        reducedVeil.getBoundingClientRect();
+        window.requestAnimationFrame(function () {
+          reducedVeil.style.transition = "opacity " + tokens.reduced + "ms ease";
+          reducedVeil.style.opacity = "1";
+        });
+        window.setTimeout(function () {
+          window.location.href = href;
+        }, tokens.reduced);
+        return;
+      }
+
+      var rect = thumb.getBoundingClientRect();
+      var durationMs = tokens[breakpoint];
+      var washMs = Math.round(durationMs * (family === "interface-led" ? 0.6 : 0.65));
+      var navDelay = Math.round(durationMs * (family === "interface-led" ? 0.35 : 0.3));
+
+      var veil = getProjectEntryVeil();
+      var wash = document.getElementById("page-transition-wash");
+      var image = document.getElementById("page-transition-image");
+
+      veil.style.display = "block";
+      veil.style.opacity = "1";
+      wash.style.transition = "none";
+      wash.style.background = "linear-gradient(135deg, " + colors[0] + ", " + colors[1] + ")";
+      wash.style.opacity = "0";
+      image.style.transition = "none";
+      image.style.backgroundImage = "url('" + (thumb.currentSrc || thumb.src) + "')";
+      image.style.top = rect.top + "px";
+      image.style.left = rect.left + "px";
+      image.style.width = rect.width + "px";
+      image.style.height = rect.height + "px";
+      image.style.transformOrigin = "center center";
+      image.style.transform = "translate(0px, 0px) scale(1)";
+      image.style.opacity = "1";
+
+      veil.getBoundingClientRect();
+
+      var boxCenterX = rect.left + rect.width / 2;
+      var boxCenterY = rect.top + rect.height / 2;
+
+      window.requestAnimationFrame(function () {
+        image.style.transition = "transform " + durationMs + "ms " + tokens.ease;
+        wash.style.transition = "opacity " + washMs + "ms " + PROJECT_WASH_EASE;
+        wash.style.opacity = "0.5";
+
+        if (family === "media-led") {
+          /* Uniform scale only (never non-uniform X/Y), so the photo crops
+             to fill the viewport like a lens pushing in rather than
+             stretching. */
+          var scale = Math.max(window.innerWidth / rect.width, window.innerHeight / rect.height) * 1.02;
+          var dx = window.innerWidth / 2 - boxCenterX;
+          var dy = window.innerHeight / 2 - boxCenterY;
+          image.style.transform = "translate(" + dx + "px, " + dy + "px) scale(" + scale + ")";
+        } else {
+          /* interface-led departure: a modest, deliberately non-full-bleed
+             push toward the upper-right of the viewport (roughly where the
+             framed hero panel will sit) — the precise "stays framed" match
+             happens on arrival, once the real rect exists to measure. */
+          var modestScale = breakpoint === "mobile" ? 1.08 : 1.32;
+          var targetCenterX = breakpoint === "mobile" ? window.innerWidth / 2 : window.innerWidth * 0.62;
+          var targetCenterY = window.innerHeight * (breakpoint === "mobile" ? 0.38 : 0.46);
+          var idx = targetCenterX - boxCenterX;
+          var idy = targetCenterY - boxCenterY;
+          image.style.transform = "translate(" + idx + "px, " + idy + "px) scale(" + modestScale + ")";
+        }
+      });
+
+      /* Navigate before the push finishes (real page-load latency overlaps
+         with the tail of the motion) rather than waiting the full duration
+         out, so click-to-next-page time is the nav delay, not the full
+         decorative animation. */
+      window.setTimeout(function () {
+        window.location.href = href;
+      }, navDelay);
+    });
+  });
+
+  var rawEntryTransition;
+  try {
+    rawEntryTransition = sessionStorage.getItem(PROJECT_ENTRY_KEY);
+  } catch (e) {}
+
+  if (rawEntryTransition) {
+    try {
+      sessionStorage.removeItem(PROJECT_ENTRY_KEY);
+    } catch (e) {}
+
+    var entryData = null;
+    try {
+      entryData = JSON.parse(rawEntryTransition);
+    } catch (e) {}
+
+    if (entryData && Date.now() - entryData.t < 4000) {
+      var entryFamily = entryData.family === "interface-led" ? "interface-led" : "media-led";
+      var entryTokens = ENTRY_TOKENS[entryFamily];
+      var entryBreakpoint = entryData.breakpoint || getEntryBreakpoint();
+
+      var entrySeam = document.getElementById("page-transition-seam");
+
+      if (prefersReducedMotion) {
+        /* The seam script itself already bails out under reduced motion
+           (see the inline <head> snippet), so there is nothing painted to
+           dissolve — just make sure no seam/veil is left behind. */
+        if (entrySeam && entrySeam.parentNode) entrySeam.parentNode.removeChild(entrySeam);
+      } else {
+        var arrivalVeil = getProjectEntryVeil();
+        var arrivalWash = document.getElementById("page-transition-wash");
+        var arrivalImage = document.getElementById("page-transition-image");
+        var arrivalDuration = entryTokens[entryBreakpoint];
+        var holdMs = entryBreakpoint === "mobile" ? 40 : 90;
+        var dissolveMs = entryBreakpoint === "mobile" ? 220 : 340;
+
+        arrivalVeil.style.transition = "none";
+        arrivalVeil.style.display = "block";
+        arrivalVeil.style.opacity = "1";
+        arrivalWash.style.transition = "none";
+        arrivalWash.style.background = "linear-gradient(135deg, " + entryData.c1 + ", " + entryData.c2 + ")";
+        arrivalWash.style.opacity = "0.5";
+        arrivalImage.style.transition = "none";
+        arrivalImage.style.transformOrigin = "center center";
+        arrivalImage.style.opacity = "1";
+
+        var cleanupArrivalVeil = function () {
+          arrivalVeil.style.display = "none";
+          arrivalImage.style.backgroundImage = "";
+        };
+
+        if (entryFamily === "media-led") {
+          /* Already mid-push, filling the screen: matches where the seam
+             (painted synchronously in <head>, before this script could
+             even run) left off, so there is no visible restart. */
+          arrivalImage.style.backgroundImage = "url('" + entryData.src + "')";
+          arrivalImage.style.backgroundSize = "cover";
+          arrivalImage.style.top = "0px";
+          arrivalImage.style.left = "0px";
+          arrivalImage.style.width = window.innerWidth + "px";
+          arrivalImage.style.height = window.innerHeight + "px";
+          arrivalImage.style.transform = "scale(1)";
+
+          if (entrySeam && entrySeam.parentNode) entrySeam.parentNode.removeChild(entrySeam);
+
+          var revealMediaLed = function () {
+            arrivalWash.style.transition = "opacity " + dissolveMs + "ms ease";
+            arrivalImage.style.transition =
+              "opacity " + dissolveMs + "ms ease, transform " + (dissolveMs + 120) + "ms " + entryTokens.ease;
+            arrivalImage.style.transform = "scale(1.035)";
+            arrivalImage.style.opacity = "0";
+            arrivalWash.style.opacity = "0";
+            window.setTimeout(cleanupArrivalVeil, dissolveMs + 140);
+          };
+
+          arrivalVeil.getBoundingClientRect();
+          window.setTimeout(revealMediaLed, holdMs);
+        } else {
+          /* interface-led arrival: the seam painted a plain color wash
+             (no image — see the family-aware <head> snippet), so start the
+             veil's image element at a large centered box that already
+             matches the real screenshot's aspect ratio (no crop, ever),
+             then transform it down onto the real, live-measured hero frame
+             rect before dissolving to reveal the actual DOM underneath. */
+          var img = new Image();
+          img.onload = function () {
+            var naturalAspect = img.naturalWidth / img.naturalHeight || 1.6;
+            var startHeight = window.innerHeight * (entryBreakpoint === "mobile" ? 0.62 : 0.86);
+            var startWidth = startHeight * naturalAspect;
+            var startTop = window.innerHeight * (entryBreakpoint === "mobile" ? 0.16 : 0.07);
+            var startLeft = (window.innerWidth - startWidth) / 2;
+
+            arrivalImage.style.backgroundImage = "url('" + entryData.src + "')";
+            arrivalImage.style.backgroundSize = "contain";
+            arrivalImage.style.backgroundRepeat = "no-repeat";
+            arrivalImage.style.top = startTop + "px";
+            arrivalImage.style.left = startLeft + "px";
+            arrivalImage.style.width = startWidth + "px";
+            arrivalImage.style.height = startHeight + "px";
+            arrivalImage.style.transform = "scale(1)";
+
+            var frameEl = document.querySelector("[data-gsap-hero-visual] .subpage-frame");
+            var frameRect = frameEl ? frameEl.getBoundingClientRect() : null;
+
+            arrivalVeil.getBoundingClientRect();
+
+            var settleAndReveal = function () {
+              if (frameRect && frameRect.width > 0) {
+                var startCenterX = startLeft + startWidth / 2;
+                var startCenterY = startTop + startHeight / 2;
+                var frameCenterX = frameRect.left + frameRect.width / 2;
+                var frameCenterY = frameRect.top + frameRect.height / 2;
+                var frameScale = frameRect.width / startWidth;
+                var fdx = frameCenterX - startCenterX;
+                var fdy = frameCenterY - startCenterY;
+
+                arrivalImage.style.transition = "transform " + arrivalDuration + "ms " + entryTokens.ease;
+                arrivalWash.style.transition = "opacity " + Math.round(arrivalDuration * 0.6) + "ms " + PROJECT_WASH_EASE;
+                arrivalImage.style.transform =
+                  "translate(" + fdx + "px, " + fdy + "px) scale(" + frameScale + ")";
+                arrivalWash.style.opacity = "0.32";
+              }
+
+              window.setTimeout(function () {
+                arrivalWash.style.transition = "opacity " + dissolveMs + "ms ease";
+                arrivalImage.style.transition = "opacity " + dissolveMs + "ms ease";
+                arrivalImage.style.opacity = "0";
+                arrivalWash.style.opacity = "0";
+                window.setTimeout(cleanupArrivalVeil, dissolveMs + 140);
+              }, arrivalDuration + holdMs);
+            };
+
+            window.setTimeout(settleAndReveal, 20);
+          };
+          img.onerror = function () {
+            arrivalVeil.style.transition = "opacity 200ms ease";
+            arrivalVeil.style.opacity = "0";
+            window.setTimeout(cleanupArrivalVeil, 220);
+          };
+          img.src = entryData.src;
+
+          if (entrySeam && entrySeam.parentNode) entrySeam.parentNode.removeChild(entrySeam);
+        }
+      }
+    }
+  }
+
   /* ---- Motion WIP: rotating role pill (ported from the original site) ----
      Static and fully readable if this never runs; only swaps text when
      motion is allowed. */
@@ -268,6 +643,12 @@
 
             var duration = 900;
             var start = null;
+            var format = function (value) {
+              return value.toLocaleString("en-US", {
+                minimumFractionDigits: decimals,
+                maximumFractionDigits: decimals,
+              });
+            };
 
             var step = function (timestamp) {
               if (start === null) {
@@ -278,12 +659,12 @@
               var eased = 1 - Math.pow(1 - progress, 3);
               var value = target * eased;
 
-              node.textContent = prefix + value.toFixed(decimals) + suffix;
+              node.textContent = prefix + format(value) + suffix;
 
               if (progress < 1) {
                 window.requestAnimationFrame(step);
               } else {
-                node.textContent = prefix + target.toFixed(decimals) + suffix;
+                node.textContent = prefix + format(target) + suffix;
               }
             };
 
