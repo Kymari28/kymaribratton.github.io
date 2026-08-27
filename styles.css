@@ -2795,7 +2795,11 @@ main[data-case="mindfulness"] {
   --case-panel-tint: #eef0e7;
   --case-accent: #4b6448;
   --case-accent-soft: #b8c5a5;
-  --case-accent-2: #7b5b45;
+  /* Green-gray, not the brown/terracotta this token used to hold here --
+     Kymari corrected that: Mindfulness's real palette is forest green,
+     mint/light green, green-gray, and light khaki. No brown anywhere in
+     this project's real brand identity. */
+  --case-accent-2: #7c8a6c;
   --case-ink: #2f382f;
   --case-muted: #5b6358;
   --case-line: rgba(70, 91, 67, 0.19);
@@ -2830,7 +2834,9 @@ main[data-case="mindfulness"] .case-hero--world::after {
   bottom: -5rem;
   width: 25rem;
   height: 17rem;
-  background: radial-gradient(ellipse, rgba(126, 89, 62, 0.2), transparent 68%);
+  /* Green-gray glow, matching --case-accent-2 -- was a hardcoded brown
+     rgba(126, 89, 62) that slipped in outside the token system. */
+  background: radial-gradient(ellipse, rgba(124, 138, 108, 0.2), transparent 68%);
 }
 
 main[data-case="mindfulness"] .case-hero--world .eyebrow {
@@ -9667,7 +9673,9 @@ main[data-case="immigrants-rising"] .case-hero--immersive .case-device--secondar
 main[data-case="mindfulness"].case-study--immersive {
   --immersive-hero-bg:
     radial-gradient(circle at 88% 18%, rgba(199, 211, 174, 0.22), transparent 28rem),
-    radial-gradient(circle at 9% 91%, rgba(151, 103, 73, 0.18), transparent 24rem),
+    /* Green-gray, not the brown rgba(151, 103, 73) this used to be --
+       matches the same "no brown" correction applied to --case-accent-2. */
+    radial-gradient(circle at 9% 91%, rgba(124, 138, 108, 0.18), transparent 24rem),
     linear-gradient(140deg, #283a2e 0%, #3f5742 55%, #667054 100%);
   --immersive-accent: #ead6a4;
   --immersive-button-ink: #2c392e;
@@ -9690,7 +9698,9 @@ main[data-case="mindfulness"] .case-hero--immersive::after {
   bottom: -6rem;
   width: 28rem;
   height: 18rem;
-  background: radial-gradient(ellipse, rgba(154, 103, 73, 0.22), transparent 68%);
+  /* Green-gray, matching the same fix on .case-hero--world::after above --
+     was a hardcoded brown rgba(154, 103, 73). */
+  background: radial-gradient(ellipse, rgba(124, 138, 108, 0.22), transparent 68%);
 }
 
 main[data-case="mindfulness"] .case-hero--immersive .case-device--primary {
