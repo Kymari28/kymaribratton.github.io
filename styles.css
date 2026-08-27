@@ -6149,10 +6149,14 @@ main[data-case="gateway"] .case-hero--gateway .button--secondary {
    research/personas/lo-fi/hi-fi structure this project moved away from. */
 .gateway-process {
   border-bottom: 1px solid var(--case-line);
+  /* Soft green wash -- the confirmed rhythm-map treatment for this
+     section (color-mix at 16%, matching Grant Writers' orange and
+     Ownership's purple as the page's other chapter-punctuation moments). */
+  background: color-mix(in srgb, var(--case-accent) 16%, var(--case-bg));
 }
 
 .gateway-process-layout {
-  max-width: 46rem;
+  max-width: 52rem;
 }
 
 .gateway-process-copy {
@@ -6536,12 +6540,21 @@ main[data-case="gateway"] .gateway-ownership .section-title {
    section itself carries more orange/purple than anywhere else on the
    page; the app surface underneath stays cream and calm so the working
    interface never gets visually buried under its own backdrop. */
+/* This is the most colorful moment on the page by design -- the working
+   demo is the one place the real focus-area palette (green, orange,
+   purple, blue) can all show up together at once, so it should read as
+   the page's high point, not a quiet cream section like its neighbors.
+   Green wash at 22% matches the confirmed rhythm-map direction for this
+   section ("richer, more real color"); the corner blooms are the same
+   real hues used throughout GRC, just given real presence here instead
+   of a faint hint. */
 .gateway-demo {
   position: relative;
   background:
-    radial-gradient(46rem 30rem at -6% 0%, rgba(223, 135, 52, 0.16), transparent 62%),
-    radial-gradient(50rem 34rem at 106% 100%, rgba(107, 102, 173, 0.15), transparent 64%),
-    var(--case-bg);
+    radial-gradient(46rem 30rem at -6% 0%, rgba(223, 135, 52, 0.32), transparent 62%),
+    radial-gradient(50rem 34rem at 106% 100%, rgba(107, 102, 173, 0.3), transparent 64%),
+    radial-gradient(42rem 30rem at 50% 108%, rgba(85, 147, 187, 0.2), transparent 60%),
+    color-mix(in srgb, var(--case-accent) 22%, var(--case-bg));
 }
 
 /* Whimsy: a small one-time label appearing just above the real demo as it
@@ -7168,6 +7181,28 @@ main[data-case="gateway"] .gateway-ownership .section-title {
   line-height: 1.6;
   text-align: left;
   opacity: 0.85;
+}
+
+/* A real teammate's line about the calendar work, not the section's
+   closing beat -- lighter than the Proof testimonial (smaller type,
+   smaller mark, narrower measure) so it reads as a supporting note next
+   to the demo it's about, not a second climax competing with Sherrie's
+   quote at the very end of the page. */
+.gateway-testimonial--teammate {
+  max-width: 42rem;
+  margin: 1.75rem 0 0;
+  padding-top: 1.5rem;
+  text-align: left;
+}
+
+.gateway-testimonial--teammate p {
+  font-size: clamp(1.05rem, 2.4vw, 1.3rem);
+  line-height: 1.5;
+}
+
+.gateway-testimonial--teammate::before {
+  top: -0.75rem;
+  font-size: 3.75rem;
 }
 
 /* Technical problem-solving: copy beside a small real code fragment, not a
@@ -10999,109 +11034,130 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
 }
 
 /* "How we got there": the mark previewing the section becomes a thin
-   rainbow sliver instead of solid green, matching the path below it. */
+   sliver in the same curated four-stop palette as the spine below it
+   (green -> orange -> purple -> blue), not the full six-stop rainbow. */
 .gateway-evidence-mark--green {
   background: linear-gradient(
     90deg,
     var(--case-accent),
-    var(--case-gold),
-    var(--case-rust),
+    var(--case-accent-2),
     var(--case-purple),
-    var(--case-blue),
-    var(--case-sky)
+    var(--case-blue)
   );
 }
 
-/* The six steps: a bold gradient line runs behind the circles, each circle
-   a muted tint of its own position on that line. Built as one segment per
-   step (li::before), not a single spanning line, so each segment's length
-   is fixed (grid gap + next circle's fixed offset from its own li top) and
-   never depends on how tall any step's own wrapped text is. */
+/* The process spine: one continuous line (not per-step segments) running
+   through the center column, revealed with a single scaleY fill so it
+   reads as a real spine -- "a real moment, not a margin decoration" --
+   rather than per-step confetti. Colored with the curated four-stop
+   palette (green -> orange -> purple -> blue) used for chapter
+   punctuation across the rest of the page, not the full six-stop
+   rainbow: a quiet progress indicator, not a signature animation
+   competing with Impact or Events for attention. Six real steps
+   alternate left/right of the spine as you scroll past them. */
 .gateway-process-steps {
   position: relative;
+  max-width: 48rem;
+  margin-inline: auto;
+  row-gap: 2.4rem;
+}
+
+.gateway-process-steps::before {
+  content: "";
+  position: absolute;
+  top: 0.7rem;
+  bottom: 0.7rem;
+  left: 50%;
+  width: 3px;
+  border-radius: 2px;
+  background: linear-gradient(
+    180deg,
+    var(--case-accent) 0%,
+    var(--case-accent-2) 33%,
+    var(--case-purple) 66%,
+    var(--case-blue) 100%
+  );
+  transform: translateX(-50%) scaleY(0);
+  transform-origin: top;
+  transition: transform 900ms var(--motion-ease);
+}
+
+.reveal-ready .gateway-process-steps.is-visible::before {
+  transform: translateX(-50%) scaleY(1);
 }
 
 .gateway-process-steps li {
   position: relative;
-}
-
-.gateway-process-steps li:not(:last-child)::before {
-  content: "";
-  position: absolute;
-  top: 0.72rem;
-  left: 0.66rem;
-  width: 3px;
-  bottom: -1.52rem;
-  border-radius: 2px;
-  transform: scaleY(0);
-  transform-origin: top;
-  transition: transform 480ms var(--motion-ease);
-  z-index: 0;
-}
-
-.reveal-ready .gateway-process-steps.is-visible li::before {
-  transform: scaleY(1);
-}
-
-.gateway-process-steps li:nth-child(1)::before {
-  background: linear-gradient(180deg, var(--case-accent), var(--case-gold));
-  transition-delay: 70ms;
-}
-
-.gateway-process-steps li:nth-child(2)::before {
-  background: linear-gradient(180deg, var(--case-gold), var(--case-rust));
-  transition-delay: 140ms;
-}
-
-.gateway-process-steps li:nth-child(3)::before {
-  background: linear-gradient(180deg, var(--case-rust), var(--case-purple));
-  transition-delay: 210ms;
-}
-
-.gateway-process-steps li:nth-child(4)::before {
-  background: linear-gradient(180deg, var(--case-purple), var(--case-blue));
-  transition-delay: 280ms;
-}
-
-.gateway-process-steps li:nth-child(5)::before {
-  background: linear-gradient(180deg, var(--case-blue), var(--case-sky));
-  transition-delay: 350ms;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 1.5rem;
 }
 
 .gateway-process-steps .gateway-callout-num {
-  position: relative;
-  z-index: 1;
+  grid-column: 2;
+  justify-self: center;
   color: var(--case-ink);
 }
 
-.gateway-process-steps--rainbow li:nth-child(1) .gateway-callout-num {
-  background: rgba(96, 113, 59, 0.55);
+.gateway-process-step-text {
+  grid-column: 1;
+  text-align: right;
+}
+
+.gateway-process-steps li:nth-child(even) .gateway-process-step-text {
+  grid-column: 3;
+  text-align: left;
+}
+
+.gateway-process-steps--rainbow li:nth-child(1) .gateway-callout-num,
+.gateway-process-steps--rainbow li:nth-child(2) .gateway-callout-num {
   background: color-mix(in srgb, var(--case-accent) 46%, var(--case-surface));
 }
 
-.gateway-process-steps--rainbow li:nth-child(2) .gateway-callout-num {
-  background: rgba(201, 154, 30, 0.55);
-  background: color-mix(in srgb, var(--case-gold) 46%, var(--case-surface));
-}
-
 .gateway-process-steps--rainbow li:nth-child(3) .gateway-callout-num {
-  background: rgba(213, 145, 100, 0.55);
-  background: color-mix(in srgb, var(--case-rust) 46%, var(--case-surface));
+  background: color-mix(in srgb, var(--case-accent-2) 46%, var(--case-surface));
 }
 
-.gateway-process-steps--rainbow li:nth-child(4) .gateway-callout-num {
-  background: rgba(107, 102, 147, 0.55);
+.gateway-process-steps--rainbow li:nth-child(4) .gateway-callout-num,
+.gateway-process-steps--rainbow li:nth-child(5) .gateway-callout-num {
   background: color-mix(in srgb, var(--case-purple) 46%, var(--case-surface));
 }
 
-.gateway-process-steps--rainbow li:nth-child(5) .gateway-callout-num {
-  background: rgba(85, 147, 187, 0.55);
+.gateway-process-steps--rainbow li:nth-child(6) .gateway-callout-num {
   background: color-mix(in srgb, var(--case-blue) 46%, var(--case-surface));
 }
 
-.gateway-process-steps--rainbow li:nth-child(6) .gateway-callout-num {
-  background: rgba(54, 182, 221, 0.55);
-  background: color-mix(in srgb, var(--case-sky) 46%, var(--case-surface));
+/* Mobile: no room for two side columns around a center spine, so this
+   collapses to a single left-aligned column with the spine running down
+   the left edge -- same four-stop palette, same six steps and order,
+   per the general rule that mobile compresses meaningfully rather than
+   just shrinking the desktop layout. */
+@media (max-width: 760px) {
+  .gateway-process-steps::before {
+    left: 0.66rem;
+    transform: scaleY(0);
+  }
+
+  .reveal-ready .gateway-process-steps.is-visible::before {
+    transform: scaleY(1);
+  }
+
+  .gateway-process-steps li {
+    grid-template-columns: auto 1fr;
+    column-gap: 0.9rem;
+  }
+
+  .gateway-process-steps .gateway-callout-num {
+    grid-column: 1;
+  }
+
+  .gateway-process-step-text,
+  .gateway-process-steps li:nth-child(even) .gateway-process-step-text {
+    grid-column: 2;
+    text-align: left;
+  }
 }
 
 /* Whimsy: a small real-fact chip (the actual implementation stack, already
@@ -11154,8 +11210,8 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .gateway-process-steps li::before {
-    transform: scaleY(1);
+  .gateway-process-steps::before {
+    transform: translateX(-50%) scaleY(1);
     transition: none;
   }
 
