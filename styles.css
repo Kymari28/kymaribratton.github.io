@@ -7396,11 +7396,17 @@ main[data-case="gateway"] .gateway-ownership .section-title {
 
 /* GRC Impact — "complexity becomes clarity" (motion/responsive handoff
    §3.2, the largest of GRC's five signature moments). Six real totals
-   start scattered (rotated, offset via --gx/--gy/--gr) and settle into one
-   row as the section scrolls; the real tabbed chart panel below is the one
-   solid/settled element that contrasts against the line-drawn motion
-   above it. Decorative restatement of the same six numbers already in the
-   tabbed panel below, so the whole thing is aria-hidden. Driven by
+   fade and settle into one row as the section scrolls; the real tabbed
+   chart panel below is the one solid/settled element the motion resolves
+   into. Decorative restatement of the same six numbers already in the
+   tabbed panel below, so the whole thing is aria-hidden.
+
+   Previously scattered with large independent per-stat offsets + rotation
+   (--gx/--gy/--gr) plus dashed SVG connector paths -- at real desktop
+   widths the offsets pushed stacked text lines far enough to overlap each
+   other, and the rotated/uncoordinated arrival read as broken rather than
+   as "complexity becomes clarity." Simplified to one calm, uniform rise +
+   fade -- confident and legible instead of chaotic. Driven by
    case-immersion.js writing --gp (1 = scattered, 0 = settled) on
    .gateway-impact-scatter; CSS alone (JS absent, reduced motion) shows
    everything already settled, since --gp defaults to 0. */
@@ -7413,24 +7419,11 @@ main[data-case="gateway"] .gateway-ownership .section-title {
 }
 
 .gateway-impact-paths {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: var(--gp, 0);
-}
-
-.gateway-impact-path {
-  fill: none;
-  stroke: rgba(255, 253, 247, 0.4);
-  stroke-width: 1.5;
-  stroke-dasharray: 5 7;
-  stroke-linecap: round;
+  display: none;
 }
 
 .gateway-impact-scatter {
   --gp: 0;
-  --scatter-scale: 1;
   position: relative;
   z-index: 1;
   display: grid;
@@ -7443,18 +7436,13 @@ main[data-case="gateway"] .gateway-ownership .section-title {
    caption pair — the visitor has to actually read it, the same density
    the section's own story is about. Movement lives on hover only (see
    .gateway-impact-stat-inner below), not on scroll — scrolling settles
-   the layout into place. */
+   the layout into place. One uniform rise, not six independent
+   directions -- every stat arrives the same way, so it reads as one
+   coordinated settle rather than six things doing their own thing. */
 .gateway-impact-stat {
   text-align: left;
-  transform: translate(
-      calc(var(--gx, 0px) * var(--gp, 0) * var(--scatter-scale, 1)),
-      calc(var(--gy, 0px) * var(--gp, 0) * var(--scatter-scale, 1))
-    )
-    rotate(calc(var(--gr, 0deg) * var(--gp, 0) * var(--scatter-scale, 1)));
-  /* Fade while scattered so mid-scroll overlap between stats reads as soft
-     convergence rather than fully-opaque, competing text. Still legible at
-     rest (--gp: 0 = opacity 1) and while lightly scattered. */
-  opacity: calc(1 - var(--gp, 0) * 0.55);
+  transform: translateY(calc(16px * var(--gp, 0)));
+  opacity: calc(1 - var(--gp, 0) * 0.65);
 }
 
 .gateway-impact-stat-line {
@@ -7479,31 +7467,19 @@ main[data-case="gateway"] .gateway-ownership .section-title {
 
 .gateway-impact-stat-inner:hover {
   display: inline-block;
-  transform: translate(calc(var(--gx, 0px) * 0.05), calc(var(--gy, 0px) * 0.06)) rotate(calc(var(--gr, 0deg) * 0.3));
+  transform: translateY(-2px);
 }
 
-/* Desktop's scatter magnitude (up to +/-23vw of horizontal travel) was
-   tuned against a wider canvas than a real 6-stat block actually gets;
-   at typical desktop widths it pushed stat lines far enough to overlap
-   each other and overflow the section, reading as broken rather than as
-   the intended "complexity becomes clarity" convergence. Halving it here
-   keeps the scatter-to-settle motion while keeping lines legible. */
 @media (min-width: 1025px) {
   .gateway-impact-scatter {
-    --scatter-scale: 0.34;
     gap: 2.1rem;
   }
 }
 
 @media (max-width: 1024px) {
   .gateway-impact-scatter {
-    --scatter-scale: 0.45;
     grid-template-columns: repeat(2, 1fr);
     gap: 1.25rem 1.5rem;
-  }
-
-  .gateway-impact-paths {
-    display: none;
   }
 }
 
@@ -7514,10 +7490,6 @@ main[data-case="gateway"] .gateway-ownership .section-title {
 @media (max-width: 640px) {
   .gateway-impact-converge {
     min-height: 0;
-  }
-
-  .gateway-impact-paths {
-    display: none;
   }
 
   .gateway-impact-scatter {
@@ -7570,10 +7542,6 @@ main[data-case="gateway"] .gateway-ownership .section-title {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .gateway-impact-paths {
-    display: none;
-  }
-
   .gateway-impact-stat {
     transform: none;
     opacity: 1;
@@ -10440,7 +10408,11 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
    match each callout to the feature it describes without reading the
    whole interaction demo below. */
 .gateway-events-showcase {
-  background: linear-gradient(118deg, #edf0e4, #e4e8d5);
+  /* Intentional beige, not the site's cool sage-cream -- these events are
+     the "before" (dull, no focus-area color, date + title only), so the
+     section itself should read as deliberately muted, sitting right after
+     the process narrative it closes out. */
+  background: linear-gradient(118deg, #f1e9d8, #e8dcc3);
 }
 
 .gateway-events-layout {
@@ -10877,25 +10849,6 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
   .gateway-grants-stats li:hover {
     transform: translateY(-2px);
   }
-}
-
-/* Events showcase fragments: a small dot in each card's meta line, colored
-   to match the real focus-area taxonomy used in the working demo below --
-   the scattered/converging visual is telling the truth about categories,
-   not decorating at random. */
-.gateway-events-fragment-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.gateway-events-fragment-dot {
-  display: inline-block;
-  flex-shrink: 0;
-  width: 0.4rem;
-  height: 0.4rem;
-  border-radius: 50%;
-  background: var(--dot-color, var(--case-muted));
 }
 
 /* Technical section: a small editor-chrome bar above the real code block,
