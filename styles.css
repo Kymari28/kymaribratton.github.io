@@ -3472,6 +3472,44 @@ main[data-case="mindfulness"] .mindfulness-motion .eyebrow {
   max-width: 26ch;
 }
 
+/* Reflection's closing photo -- a quiet bookend to Calm Before
+   Complexity's opening one: same shell/media grid pattern, reversed
+   column order (copy leads, photo follows), no scroll-driven scale. This
+   is a resting beat at the end of the case study, not another signature
+   moment, so the treatment stays calm on purpose. */
+.mindfulness-reflection-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 0.58fr) minmax(0, 0.42fr);
+  gap: clamp(2rem, 5vw, 3.5rem);
+  align-items: center;
+}
+
+.mindfulness-reflection-media {
+  margin: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  aspect-ratio: 4 / 5;
+  box-shadow: 0 14px 30px rgba(37, 31, 26, 0.14);
+}
+
+.mindfulness-reflection-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.04);
+}
+
+@media (max-width: 720px) {
+  .mindfulness-reflection-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .mindfulness-reflection-media {
+    aspect-ratio: 16 / 10;
+  }
+}
+
 /* Multiple Users, One Brand — an editorial spread with real hierarchy, not
    five equal cards. The Regulated Woman (the strongest, widest-reaching
    real asset) leads full-width; the other four sit in a simpler row below,
