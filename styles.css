@@ -3083,7 +3083,7 @@ main[data-case="mindfulness"] .case-hero--world .button--primary::before {
   }
 
   .mindfulness-challenge-media {
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 4 / 5;
   }
 }
 
@@ -3158,7 +3158,7 @@ main[data-case="mindfulness"] .case-hero--world .button--primary::before {
   }
 
   .mindfulness-calm-media {
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 4 / 5;
   }
 }
 
@@ -3506,7 +3506,7 @@ main[data-case="mindfulness"] .mindfulness-motion .eyebrow {
   }
 
   .mindfulness-reflection-media {
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 4 / 5;
   }
 }
 
