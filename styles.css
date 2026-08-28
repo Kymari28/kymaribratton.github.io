@@ -11115,11 +11115,11 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
   background: linear-gradient(
     180deg,
     var(--case-accent) 0%,
-    var(--case-accent) 25%,
-    var(--case-accent-2) 41.67%,
-    var(--case-purple) 58.33%,
-    var(--case-purple) 75%,
-    var(--case-blue) 91.67%,
+    var(--case-accent) 26%,
+    var(--case-accent-2) 41.3%,
+    var(--case-purple) 57%,
+    var(--case-purple) 78%,
+    var(--case-blue) 91%,
     var(--case-blue) 100%
   );
   transform: translateX(-50%) scaleY(0);
