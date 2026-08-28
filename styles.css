@@ -11161,12 +11161,14 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
 
 .gateway-process-steps .gateway-callout-num {
   grid-column: 2;
+  grid-row: 1;
   justify-self: center;
   color: var(--case-ink);
 }
 
 .gateway-process-step-text {
   grid-column: 1;
+  grid-row: 1;
   text-align: right;
 }
 
