@@ -3103,7 +3103,7 @@ main[data-case="mindfulness"] .case-hero--world .button--primary::before {
    at scroll-start and eases back to this same resting state. */
 .mindfulness-calm-shell {
   display: grid;
-  grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.58fr);
+  grid-template-columns: minmax(0, 0.58fr) minmax(0, 0.42fr);
   gap: clamp(2rem, 5vw, 3.5rem);
   align-items: center;
 }
@@ -6206,10 +6206,6 @@ main[data-case="gateway"] .case-hero--gateway .button--secondary {
 
 .gateway-process-copy--close {
   margin-top: 1.4rem;
-}
-
-.gateway-process-steps {
-  max-width: 34rem;
 }
 
 /* Whimsy: a small real-fact chip (the actual implementation stack, already
@@ -11097,9 +11093,17 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
   position: relative;
   max-width: 48rem;
   margin-inline: auto;
-  row-gap: 2.4rem;
+  row-gap: 0.75rem;
 }
 
+/* Six equal-height rows (below) turn this into a real evenly-spaced path
+   rather than a list whose gaps track each caption's line count. With
+   even rows, the spine's gradient stops can be computed to land exactly
+   on every badge's true position instead of approximating it: each
+   stop below is that step's vertical center within six equal sixths
+   (8.33%, 25%, 41.67%, 58.33%, 75%, 91.67%), paired so steps sharing a
+   color (1+2 green, 4+5 purple) sit on a flat plateau and only the
+   changeover between different-colored steps blends. */
 .gateway-process-steps::before {
   content: "";
   position: absolute;
@@ -11111,8 +11115,11 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
   background: linear-gradient(
     180deg,
     var(--case-accent) 0%,
-    var(--case-accent-2) 33%,
-    var(--case-purple) 66%,
+    var(--case-accent) 25%,
+    var(--case-accent-2) 41.67%,
+    var(--case-purple) 58.33%,
+    var(--case-purple) 75%,
+    var(--case-blue) 91.67%,
     var(--case-blue) 100%
   );
   transform: translateX(-50%) scaleY(0);
@@ -11131,6 +11138,25 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   column-gap: 1.5rem;
+  min-height: clamp(5.5rem, 9vw, 7rem);
+  transition:
+    opacity 550ms var(--motion-ease),
+    transform 550ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Each step pops onto the path with a small overshoot rather than just
+   fading up -- reads as a waypoint being placed down, not a paragraph
+   arriving. Reuses the existing data-reveal-sequence stagger (already on
+   the <ol>) for per-step timing; only the motion itself is overridden
+   here, so the six steps still land one after another down the path. */
+.reveal-ready .gateway-process-steps:not(.is-visible) > li {
+  opacity: 0;
+  transform: scale(0.7) translateY(14px);
+}
+
+.reveal-ready .gateway-process-steps.is-visible > li {
+  opacity: 1;
+  transform: scale(1) translateY(0);
 }
 
 .gateway-process-steps .gateway-callout-num {
@@ -11169,9 +11195,9 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
 
 /* Mobile: no room for two side columns around a center spine, so this
    collapses to a single left-aligned column with the spine running down
-   the left edge -- same four-stop palette, same six steps and order,
-   per the general rule that mobile compresses meaningfully rather than
-   just shrinking the desktop layout. */
+   the left edge -- same seven-stop plateau palette, same six steps and
+   order, same even row heights (a touch shorter -- the single wide
+   column wraps less than desktop's half-width columns did). */
 @media (max-width: 760px) {
   .gateway-process-steps::before {
     left: 0.66rem;
@@ -11185,6 +11211,7 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
   .gateway-process-steps li {
     grid-template-columns: auto 1fr;
     column-gap: 0.9rem;
+    min-height: clamp(4rem, 16vw, 5rem);
   }
 
   .gateway-process-steps .gateway-callout-num {
@@ -11250,6 +11277,12 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
 @media (prefers-reduced-motion: reduce) {
   .gateway-process-steps::before {
     transform: translateX(-50%) scaleY(1);
+    transition: none;
+  }
+
+  .gateway-process-steps li {
+    opacity: 1;
+    transform: none;
     transition: none;
   }
 
