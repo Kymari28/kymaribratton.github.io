@@ -82,6 +82,24 @@
   --space-head: clamp(1.5rem, 2.5vw, 2rem);
   --space-card: clamp(1.5rem, 2.4vw, 1.85rem);
   --header-h: 4.75rem;
+
+  /* Project-entry transition system (motion/responsive handoff §4.7). The
+     fixed ~80% shared choreography every case study's Match & Move entry
+     draws from: two families (interface-led = stays framed, media-led =
+     goes full-bleed), each with its own duration per breakpoint, its own
+     easing character, and its own reduced-motion crossfade length. See
+     script.js's ENTRY_TOKENS for how these are consumed. */
+  --entry-interface-led-duration-desktop: 760ms;
+  --entry-interface-led-duration-tablet: 650ms;
+  --entry-interface-led-duration-mobile: 450ms;
+  --entry-interface-led-ease: cubic-bezier(0.65, 0, 0.35, 1);
+  --entry-interface-led-reduced-duration: 130ms;
+
+  --entry-media-led-duration-desktop: 840ms;
+  --entry-media-led-duration-tablet: 720ms;
+  --entry-media-led-duration-mobile: 520ms;
+  --entry-media-led-ease: cubic-bezier(0.22, 1, 0.36, 1); /* = PROJECT_ZOOM_EASE */
+  --entry-media-led-reduced-duration: 150ms;
 }
 
 /* ---------- 3. Base ------------------------------------------------------- */
@@ -1157,6 +1175,28 @@ main[data-case] .button--primary {
   max-width: 48rem;
 }
 
+/* About: photo leads on the left, copy follows on the right. DOM order
+   stays copy-then-visual (so the heading remains the first thing a screen
+   reader or keyboard user reaches); only the visual position flips. */
+.subpage-hero--about {
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+}
+
+.subpage-hero--about .subpage-copy {
+  order: 2;
+}
+
+.subpage-hero--about .subpage-visual {
+  order: 1;
+}
+
+@media (max-width: 860px) {
+  .subpage-hero--about .subpage-copy,
+  .subpage-hero--about .subpage-visual {
+    order: initial;
+  }
+}
+
 .subpage-copy {
   max-width: 38rem;
 }
@@ -1691,6 +1731,67 @@ main[data-case] .button--primary {
   margin-top: 1.5rem;
 }
 
+/* ---------- 15b. Case-study motion components (§4.2-4.4 of the
+   motion/responsive handoff) — reusable across any future case study, not
+   just Gateway/Mindfulness. --------------------------------------------- */
+
+/* .skillnote — a quiet single-line annotation, thin left-border accent,
+   small muted text: "Skill: [x]. Decision: [x]. Resolves to: [x]." Not a
+   boxed/grid callout — deliberately lighter than .callout. */
+.skillnote {
+  margin-block: 0.85rem 0;
+  padding-left: 0.9rem;
+  border-left: 2px solid var(--case-accent, var(--line-strong));
+  color: var(--case-muted, var(--muted));
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.skillnote strong {
+  color: var(--case-ink, var(--ink));
+  font-weight: 600;
+}
+
+/* .myfocus — plain uppercase, letter-spaced micro-label, no border,
+   background, or card treatment. Deliberately quieter than .skillnote;
+   used once above Calm Before Complexity's mobile Contained phase. */
+.myfocus {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--case-muted, var(--muted));
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* .real-tag / .ph-tag — small provenance pills distinguishing real product
+   assets from photography that's still pending. Reusable anywhere a future
+   case study needs the same honesty convention. */
+.real-tag,
+.ph-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.6rem;
+  border-radius: var(--radius-pill);
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.real-tag {
+  border: 1px solid rgba(68, 97, 65, 0.3);
+  background: rgba(169, 198, 165, 0.22);
+  color: var(--sage-deep);
+}
+
+.ph-tag {
+  border: 1px solid rgba(138, 100, 64, 0.32);
+  background: rgba(180, 140, 100, 0.16);
+  color: #7a5233;
+}
+
 /* ---------- 16. Reveal on scroll ------------------------------------------- */
 
 /* No-JS safe: content is visible by default. script.js adds .reveal-ready,
@@ -1707,6 +1808,52 @@ main[data-case] .button--primary {
 .reveal-ready [data-reveal].is-visible {
   opacity: 1;
   transform: none;
+}
+
+/* Project entry transition: a film-style camera push, created at runtime
+   by script.js. The clicked project thumbnail (#page-transition-image) is
+   sized/positioned once to its exact on-page rect, then only ever
+   animates via `transform` (scale + translate, GPU-friendly, no layout
+   thrash) toward filling the viewport, like a lens pushing into the
+   photo; #page-transition-wash is a soft color tint (the project's own
+   accent) behind it. See script.js for the full explanation and timing. */
+#page-transition-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+}
+
+#page-transition-wash {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+#page-transition-image {
+  position: fixed;
+  background-size: cover;
+  background-position: center;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #page-transition-veil {
+    display: none !important;
+  }
+}
+
+/* Pre-hides the GRC/Mindfulness GSAP hero (copy + visual) the moment the
+   fast local script.js runs, well before the slower external GSAP CDN
+   scripts finish loading and case-immersion.js can take over. Without
+   this, the browser paints the hero fully visible by default first, so
+   GSAP's later gsap.set() snaps it to invisible and re-animates it,
+   an out-of-order flash. script.js removes this class outright if GSAP
+   never loads, so the hero is never stuck hidden. */
+.gsap-hero-ready [data-gsap-hero-copy] > *,
+.gsap-hero-ready [data-gsap-hero-visual] {
+  opacity: 0;
 }
 
 /* Sequential reveal: pair with data-reveal on the same element so the
@@ -2037,6 +2184,7 @@ main[data-case] .button--primary {
   grid-template-columns: minmax(25rem, 0.9fr) minmax(0, 1.1fr);
   gap: clamp(2.25rem, 4vw, 4rem);
 }
+
 
 .case-hero--world::before,
 .case-hero--world::after {
@@ -2784,7 +2932,11 @@ main[data-case="mindfulness"] {
   --case-panel-tint: #eef0e7;
   --case-accent: #4b6448;
   --case-accent-soft: #b8c5a5;
-  --case-accent-2: #7b5b45;
+  /* Green-gray, not the brown/terracotta this token used to hold here --
+     Kymari corrected that: Mindfulness's real palette is forest green,
+     mint/light green, green-gray, and light khaki. No brown anywhere in
+     this project's real brand identity. */
+  --case-accent-2: #7c8a6c;
   --case-ink: #2f382f;
   --case-muted: #5b6358;
   --case-line: rgba(70, 91, 67, 0.19);
@@ -2819,7 +2971,9 @@ main[data-case="mindfulness"] .case-hero--world::after {
   bottom: -5rem;
   width: 25rem;
   height: 17rem;
-  background: radial-gradient(ellipse, rgba(126, 89, 62, 0.2), transparent 68%);
+  /* Green-gray glow, matching --case-accent-2 -- was a hardcoded brown
+     rgba(126, 89, 62) that slipped in outside the token system. */
+  background: radial-gradient(ellipse, rgba(124, 138, 108, 0.2), transparent 68%);
 }
 
 main[data-case="mindfulness"] .case-hero--world .eyebrow {
@@ -2829,6 +2983,16 @@ main[data-case="mindfulness"] .case-hero--world .eyebrow {
 main[data-case="mindfulness"] .case-hero--world .subpage-title,
 main[data-case="mindfulness"] .case-hero--world .subpage-lede {
   color: #fffaf0;
+}
+
+.mindfulness-thesis {
+  margin-top: 0.85rem;
+  color: #ead6a4;
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 2.4vw, 2rem);
+  font-weight: 600;
+  font-style: italic;
+  line-height: 1.12;
 }
 
 main[data-case="mindfulness"] .case-hero--world .subpage-note {
@@ -2853,54 +3017,35 @@ main[data-case="mindfulness"] .case-hero--world .button--secondary {
   color: #fffaf0;
 }
 
-/* A quiet resonance ripple, once on load: two rings expand and fade outward
-   from the same point as the existing static ring decoration, echoing sound
-   moving outward from a bowl. Real elements, not the hero's ::before/::after
-   pseudo-elements, since both are already claimed by the existing ring and
-   glow decoration. Slow and singular, matching Desiree's calmer pacing. */
-main[data-case="mindfulness"] .mindfulness-ripple {
+/* A slow, soft breathing glow behind the primary CTA, echoing the pacing
+   of a guided breath rather than drawing urgent attention: a calm
+   invitation, not a "click me" pulse. */
+main[data-case="mindfulness"] .case-hero--world .button--primary {
+  position: relative;
+  isolation: isolate;
+}
+
+main[data-case="mindfulness"] .case-hero--world .button--primary::before {
+  content: "";
   position: absolute;
-  top: 50%;
-  right: -5rem;
   z-index: -1;
-  width: 25rem;
-  aspect-ratio: 1;
-  border: 1px solid rgba(236, 220, 181, 0.4);
-  border-radius: 50%;
-  opacity: 0;
-  transform: translateY(-50%) scale(0.7);
-  animation: mindfulness-ripple-out 3400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  inset: -0.5rem;
+  border-radius: inherit;
+  background: radial-gradient(circle, rgba(236, 220, 181, 0.55), transparent 72%);
+  opacity: 0.5;
+  animation: mindfulness-cta-breathe 4.8s ease-in-out infinite;
 }
 
-main[data-case="mindfulness"] .mindfulness-ripple--two {
-  animation-delay: 950ms;
-}
-
-@keyframes mindfulness-ripple-out {
-  0% {
-    opacity: 0;
-    transform: translateY(-50%) scale(0.7);
-  }
-
-  28% {
-    opacity: 0.45;
-  }
-
+@keyframes mindfulness-cta-breathe {
+  0%,
   100% {
-    opacity: 0;
-    transform: translateY(-50%) scale(1.3);
+    transform: scale(1);
+    opacity: 0.4;
   }
-}
 
-@media (hover: none), (pointer: coarse) {
-  main[data-case="mindfulness"] .mindfulness-ripple {
-    display: none;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  main[data-case="mindfulness"] .mindfulness-ripple {
-    display: none;
+  50% {
+    transform: scale(1.16);
+    opacity: 0.7;
   }
 }
 
@@ -2908,6 +3053,769 @@ main[data-case="mindfulness"] .mindfulness-ripple--two {
    in a different crop, with the practice's own real tagline as a pull-quote.
    The photo reveals through a soft blur-to-sharp mask on scroll instead of
    the hard curtain used for 24Seven, matching Desiree's gentler pacing. */
+/* Proof: real practice stats and a real client quote, framed as facts
+   about the practice itself, not measured outcomes of the redesign. */
+.mindfulness-proof {
+  position: relative;
+}
+
+.mindfulness-proof-layout {
+  max-width: 44rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+/* Whimsy detail 2 (approved handoff §3.4): as the visitor scrolls through
+   the Screens Showcase and Proof sections, a flat, low-alpha warm overlay
+   (never a gradient, glow, or radial light) eases in and back out, echoing
+   the gold already present in the real photography rather than tinting
+   the whole page. Kept to a single low alpha value on purpose: felt more
+   than consciously noticed. --warmth is 0 by default (default = settled,
+   matching the site's "never hidden without JS" pattern) and case-
+   immersion.js scrubs it 0 -> 1 -> 0 across each section's own scroll
+   range. */
+.mindfulness-warmth-overlay {
+  --warmth: 0;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: rgba(214, 158, 84, calc(var(--warmth, 0) * 0.07));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mindfulness-warmth-overlay {
+    background: transparent !important;
+  }
+}
+
+.mindfulness-proof-eyebrow {
+  color: var(--case-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.mindfulness-proof-stats {
+  display: flex;
+  justify-content: center;
+  gap: clamp(2.5rem, 6vw, 4.5rem);
+  margin: 1.1rem 0 0;
+  list-style: none;
+}
+
+.mindfulness-proof-stat-value {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: clamp(1.8rem, 4vw, 2.5rem);
+  font-weight: 600;
+  color: var(--case-ink);
+}
+
+.mindfulness-proof-stat-label {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--case-muted);
+  font-size: 0.86rem;
+}
+
+.mindfulness-proof-quote {
+  margin: 2.5rem 0 0;
+  padding-top: 2.25rem;
+  border-top: 1px solid var(--case-line);
+}
+
+.mindfulness-proof-quote p {
+  font-family: var(--font-serif);
+  font-size: clamp(1.25rem, 2.8vw, 1.65rem);
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--case-ink);
+}
+
+.mindfulness-proof-quote p.mindfulness-proof-quote-label {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  color: var(--case-accent);
+  font-family: var(--font-sans, inherit);
+  font-size: 0.72rem;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.mindfulness-proof-quote p.mindfulness-proof-quote-context {
+  margin-top: 1rem;
+  color: var(--case-muted);
+  font-family: var(--font-sans, inherit);
+  font-size: 0.85rem;
+  font-style: normal;
+  line-height: 1.6;
+}
+
+.mindfulness-proof-quote cite {
+  display: block;
+  margin-top: 1rem;
+  color: var(--case-accent);
+  font-size: 0.8rem;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.mindfulness-timeline-note {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--case-line);
+  max-width: 62rem;
+  color: var(--case-muted);
+  font-size: 0.94rem;
+  line-height: 1.75;
+}
+
+.mindfulness-role-copy {
+  margin-top: 0.9rem;
+  color: var(--case-muted);
+  font-size: 0.96rem;
+  line-height: 1.75;
+}
+
+/* Whimsy detail 1 (approved handoff §3.4): a real photo sits beside the
+   challenge copy and drifts a few px slower than the text as the section
+   scrolls — the one static section specifically approved for this subtle
+   parallax. Restrained on purpose: typography never moves, only the photo,
+   and only by a handful of px (see case-immersion.js). */
+.mindfulness-challenge {
+  display: grid;
+  grid-template-columns: minmax(0, 0.4fr) minmax(0, 0.6fr);
+  gap: clamp(2rem, 5vw, 3.5rem);
+  align-items: center;
+}
+
+.mindfulness-challenge-media {
+  margin: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  aspect-ratio: 4 / 5;
+}
+
+.mindfulness-challenge-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  will-change: transform;
+}
+
+.mindfulness-challenge .section-title {
+  max-width: 16ch;
+}
+
+@media (max-width: 720px) {
+  .mindfulness-challenge {
+    grid-template-columns: 1fr;
+  }
+
+  .mindfulness-challenge-media {
+    aspect-ratio: 4 / 5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mindfulness-challenge-media img {
+    transform: none !important;
+  }
+}
+
+/* Calm Before Complexity — a real photo sits in its own column beside the
+   audit copy (not behind/overlapping it) and quietly breathes tighter-and-
+   cooler to open-and-warmer as the section scrolls: one simple continuous
+   read, not a multi-stage sequence. The photo carries the whole "contained
+   -> opens" story on its own so the text next to it never has to move or
+   dim to tell it. CSS default (no-JS / reduced motion) below already shows
+   the photo clear and settled — GSAP only pulls it slightly tighter/cooler
+   at scroll-start and eases back to this same resting state. */
+.mindfulness-calm-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 0.58fr) minmax(0, 0.42fr);
+  gap: clamp(2rem, 5vw, 3.5rem);
+  align-items: center;
+}
+
+.mindfulness-calm-media {
+  margin: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  aspect-ratio: 4 / 5;
+  transform: scale(1);
+  box-shadow: 0 14px 30px rgba(37, 31, 26, 0.14);
+}
+
+/* Whimsy detail 3 (approved handoff §3.4): on first entrance only, this
+   real close-up grows a few % and its shadow settles in — notice, then
+   settle, never repeating. Applied to the wrapper (not the img inside,
+   which already has Calm Before Complexity's own continuous scroll-driven
+   breathing) so the two never touch the same transform. */
+@media (prefers-reduced-motion: reduce) {
+  .mindfulness-calm-media {
+    transform: scale(1) !important;
+    box-shadow: 0 14px 30px rgba(37, 31, 26, 0.14) !important;
+  }
+}
+
+.mindfulness-calm-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1);
+  filter: saturate(1.04);
+  will-change: transform, filter;
+}
+
+.mindfulness-calm-copy .myfocus {
+  margin-bottom: 0.9rem;
+}
+
+.mindfulness-calm-copy .eyebrow {
+  margin-top: 0;
+}
+
+.mindfulness-calm-copy .mindfulness-audit-principles {
+  margin-top: 1.75rem;
+  padding-top: 1.5rem;
+}
+
+@media (max-width: 720px) {
+  .mindfulness-calm-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .mindfulness-calm-media {
+    aspect-ratio: 4 / 5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mindfulness-calm-media img {
+    transform: none !important;
+    filter: saturate(1.04) !important;
+  }
+}
+
+.mindfulness-audit-principles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  margin: 2rem 0 0;
+  padding: 1.75rem 0 0;
+  border-top: 1px solid var(--case-line);
+  list-style: none;
+}
+
+.mindfulness-audit-principle-name {
+  margin-bottom: 0.5rem;
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--case-ink);
+}
+
+.mindfulness-audit-principles p:last-child {
+  color: var(--case-muted);
+  font-size: 0.94rem;
+  line-height: 1.65;
+}
+
+/* Real site screens: four real pages (programs, about, corporate, a real
+   client result) shown complete, not cropped — these are UI screenshots,
+   not photography, so object-fit:contain inside a shared aspect-ratio box
+   is deliberate: every capture stays exactly as taken, just consistently
+   sized and aligned next to its neighbors. */
+.mindfulness-screens-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.mindfulness-screens-strip-item {
+  margin: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  aspect-ratio: 8 / 5;
+  background: var(--case-panel-tint, var(--sage-wash));
+  box-shadow: 0 14px 30px rgba(37, 31, 26, 0.12);
+}
+
+.mindfulness-screens-strip-item img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.mindfulness-screens-strip-item figcaption {
+  margin-top: 0.6rem;
+  color: var(--case-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 900px) {
+  .mindfulness-screens-strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .mindfulness-screens-strip {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Cinematic walkthrough of the real live site: forest palette matching the
+   project rather than GRC's green. */
+.mindfulness-motion {
+  padding-block: clamp(3rem, 7vw, 5rem);
+  background: linear-gradient(160deg, #22301f 0%, #37452e 100%);
+  color: #fffaf0;
+  text-align: center;
+}
+
+.mindfulness-motion-head {
+  max-width: 34rem;
+  margin: 0 auto 2rem;
+}
+
+main[data-case="mindfulness"] .mindfulness-motion .eyebrow {
+  color: #ead6a4;
+}
+
+.mindfulness-motion .section-title {
+  color: #fffaf0;
+}
+
+.mindfulness-motion-video {
+  width: min(100%, 68rem);
+  margin-inline: auto;
+  border-radius: 16px;
+  box-shadow: 0 30px 70px rgba(10, 14, 6, 0.4);
+}
+
+/* What I'd test next: an honest close, not fabricated results. */
+.mindfulness-next-list {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 42rem;
+  margin: 1.75rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mindfulness-next-list li {
+  position: relative;
+  padding-left: 1.3rem;
+  color: var(--case-muted);
+  font-size: 0.96rem;
+  line-height: 1.65;
+}
+
+.mindfulness-next-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--case-accent-2);
+}
+
+/* Open editorial columns instead of two matching cards: a slow, human
+   register reads better as text settling into place than as boxes. */
+.mindfulness-approach-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(2rem, 5vw, 4rem);
+}
+
+.mindfulness-approach-mark {
+  display: block;
+  width: 2.25rem;
+  height: 2px;
+  margin-bottom: 1.1rem;
+  background: var(--case-accent);
+}
+
+.mindfulness-approach-item--2 .mindfulness-approach-mark {
+  background: var(--case-accent-2);
+}
+
+.mindfulness-approach-label {
+  margin-bottom: 0.6rem;
+  font-family: var(--font-serif);
+  font-size: 1.28rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--case-ink);
+}
+
+.mindfulness-approach-item p:not(.mindfulness-approach-label) {
+  color: var(--case-muted);
+  font-size: 0.98rem;
+  line-height: 1.8;
+}
+
+@media (max-width: 720px) {
+  .mindfulness-approach-row {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+/* Same brand, different decision-maker: no cards, no border boxes. Real
+   photography and its ratio to the text beside it IS the distinction —
+   personal gets a large, spacious image and a short list; corporate gets a
+   smaller image and a fuller, more structured list. Stacked (not
+   side-by-side at equal width) so the two ratios are legible on their own
+   rather than reading as a symmetrical comparison. */
+.mindfulness-decision-split {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(3rem, 6vw, 4.5rem);
+  margin-top: clamp(2rem, 4vw, 3rem);
+}
+
+.mindfulness-decision-side {
+  display: grid;
+  align-items: center;
+  gap: clamp(1.75rem, 4vw, 3rem);
+}
+
+.mindfulness-decision-side--personal {
+  grid-template-columns: minmax(0, 0.62fr) minmax(0, 0.38fr);
+}
+
+.mindfulness-decision-side--corporate {
+  grid-template-columns: minmax(0, 0.38fr) minmax(0, 0.62fr);
+}
+
+.mindfulness-decision-side--corporate .mindfulness-decision-media {
+  order: 1;
+}
+
+.mindfulness-decision-side--corporate .mindfulness-decision-copy {
+  order: 2;
+}
+
+.mindfulness-decision-media {
+  margin: 0;
+  overflow: hidden;
+  border-radius: 10px;
+}
+
+.mindfulness-decision-side--personal .mindfulness-decision-media {
+  aspect-ratio: 4 / 5;
+}
+
+.mindfulness-decision-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The corporate side's image is a real UI screenshot, not photography, so
+   it gets the same "show it complete, don't crop it" treatment as the
+   screens strip: a padded card sitting on the section's tinted background,
+   the full page capture visible inside via object-fit:contain, rather than
+   a photo-style bleed straight to the section's own edge. */
+.mindfulness-decision-side--corporate .mindfulness-decision-media {
+  aspect-ratio: 4 / 3;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  background: var(--case-surface, var(--case-bg));
+}
+
+.mindfulness-decision-side--corporate .mindfulness-decision-media img {
+  height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+.mindfulness-decision-label {
+  margin-bottom: 0.9rem;
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--case-ink);
+}
+
+.mindfulness-decision-copy ul {
+  display: grid;
+  gap: 0.55rem;
+  list-style: none;
+}
+
+.mindfulness-decision-copy li {
+  position: relative;
+  padding-left: 1.1rem;
+  color: var(--case-muted);
+  font-size: 0.94rem;
+  line-height: 1.55;
+}
+
+.mindfulness-decision-copy li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 50%;
+  background: var(--case-accent);
+}
+
+.mindfulness-decision-side--corporate li::before {
+  background: var(--case-accent-2);
+}
+
+@media (max-width: 720px) {
+  .mindfulness-decision-side,
+  .mindfulness-decision-side--personal,
+  .mindfulness-decision-side--corporate {
+    grid-template-columns: 1fr;
+  }
+
+  .mindfulness-decision-side--corporate .mindfulness-decision-media {
+    order: initial;
+  }
+
+  .mindfulness-decision-side--corporate .mindfulness-decision-copy {
+    order: initial;
+  }
+
+  .mindfulness-decision-split {
+    gap: 2.25rem;
+  }
+}
+
+.mindfulness-reflection .section-title {
+  max-width: 26ch;
+}
+
+/* Reflection's closing photo -- a quiet bookend to Calm Before
+   Complexity's opening one: same shell/media grid pattern, reversed
+   column order (copy leads, photo follows), no scroll-driven scale. This
+   is a resting beat at the end of the case study, not another signature
+   moment, so the treatment stays calm on purpose. */
+.mindfulness-reflection-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 0.58fr) minmax(0, 0.42fr);
+  gap: clamp(2rem, 5vw, 3.5rem);
+  align-items: center;
+}
+
+.mindfulness-reflection-media {
+  margin: 0;
+  overflow: hidden;
+  border-radius: 10px;
+  aspect-ratio: 4 / 5;
+  box-shadow: 0 14px 30px rgba(37, 31, 26, 0.14);
+}
+
+.mindfulness-reflection-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.04);
+}
+
+@media (max-width: 720px) {
+  .mindfulness-reflection-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .mindfulness-reflection-media {
+    aspect-ratio: 4 / 5;
+  }
+}
+
+/* Multiple Users, One Brand — an editorial spread with real hierarchy, not
+   five equal cards. The Regulated Woman (the strongest, widest-reaching
+   real asset) leads full-width; the other four sit in a simpler row below,
+   the two without real photography quieted to text only rather than an
+   empty placeholder box — the design idea should read first, not asset
+   bookkeeping. */
+.mindfulness-path--lead {
+  display: grid;
+  grid-template-columns: minmax(0, 0.58fr) minmax(0, 0.42fr);
+  gap: clamp(1.75rem, 4vw, 3rem);
+  align-items: center;
+  margin-top: clamp(2rem, 4vw, 3rem);
+}
+
+.mindfulness-path--lead .mindfulness-path-media {
+  aspect-ratio: 16 / 10;
+}
+
+.mindfulness-path--lead h3 {
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+}
+
+.mindfulness-path-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(1.5rem, 3vw, 2.5rem);
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+}
+
+.mindfulness-path-media {
+  margin: 0 0 0.9rem;
+  overflow: hidden;
+  border-radius: var(--radius-md);
+  aspect-ratio: 4 / 3;
+}
+
+.mindfulness-path-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+.mindfulness-path--quiet {
+  padding-top: 0.4rem;
+  border-top: 1px solid var(--case-line, var(--line));
+}
+
+.mindfulness-path-copy h3 {
+  margin: 0 0 0.4rem;
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+}
+
+.mindfulness-path-copy p {
+  margin: 0;
+  color: var(--case-muted, var(--muted));
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+@media (max-width: 900px) {
+  .mindfulness-path-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .mindfulness-path--lead {
+    grid-template-columns: 1fr;
+  }
+
+  .mindfulness-path-list {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+}
+
+/* Vertical media story: one real photograph as the emotional anchor,
+   sticky for the height of its own column while four short story beats
+   move past on the right. Not a photo card + text card: no border,
+   minimal rounding, the image bleeds slightly into the gutter so it reads
+   as environmental rather than contained. */
+.mindfulness-story {
+  display: grid;
+  grid-template-columns: minmax(0, 0.42fr) minmax(0, 0.58fr);
+  gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: start;
+  padding-block: clamp(3rem, 7vw, 5.5rem);
+  background: var(--case-bg);
+}
+
+.mindfulness-story-media {
+  position: sticky;
+  top: 5.5rem;
+  overflow: hidden;
+  height: min(78vh, 46rem);
+  margin-left: clamp(-2rem, -4vw, -3.5rem);
+  border-radius: 6px;
+}
+
+.mindfulness-story-media img,
+.mindfulness-story-media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 100%;
+}
+
+.mindfulness-story-beats {
+  display: grid;
+  gap: clamp(3.5rem, 8vw, 6rem);
+  padding-right: clamp(1rem, 3vw, 2.5rem);
+}
+
+.mindfulness-story-mark {
+  display: block;
+  width: 2.25rem;
+  height: 2px;
+  margin-bottom: 1.1rem;
+  background: var(--case-accent-2);
+}
+
+.mindfulness-story-heading {
+  margin-bottom: 0.7rem;
+  font-family: var(--font-serif);
+  font-size: clamp(1.5rem, 2.6vw, 1.9rem);
+  font-weight: 600;
+  color: var(--case-ink);
+}
+
+.mindfulness-story-beat p {
+  max-width: 42ch;
+  color: var(--case-muted);
+  font-size: 1rem;
+  line-height: 1.8;
+}
+
+.mindfulness-story-detail {
+  width: min(26%, 5.5rem);
+  margin: 0 0 1rem;
+  overflow: hidden;
+  border-radius: 6px;
+}
+
+.mindfulness-story-detail img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (max-width: 900px) {
+  .mindfulness-story {
+    display: block;
+    padding-block: 3.5rem;
+  }
+
+  .mindfulness-story-media {
+    position: static;
+    height: 60vh;
+    margin: 0 0 2.5rem;
+  }
+
+  .mindfulness-story-beats {
+    gap: 2.75rem;
+    padding-right: 0;
+  }
+}
+
 .mindfulness-editorial {
   position: relative;
   isolation: isolate;
@@ -2915,35 +3823,35 @@ main[data-case="mindfulness"] .mindfulness-ripple--two {
   color: #fffaf0;
 }
 
-.mindfulness-editorial::before {
-  content: "";
+/* A real element (not ::before) so the signature scroll sequence in
+   case-immersion.js can drive it directly: density (blurred, dim, slightly
+   enlarged) easing open into clarity (sharp, lit, settled) as the section
+   scrolls through view, rather than snapping once on a single IntersectionObserver
+   trigger. Visible and sharp by default so the section is never broken if
+   GSAP fails to load. */
+.mindfulness-editorial-photo {
   position: absolute;
   z-index: -1;
   inset: 0;
   background:
-    linear-gradient(120deg, rgba(28, 41, 30, 0.93) 0%, rgba(42, 58, 43, 0.87) 55%, rgba(58, 72, 55, 0.72) 100%),
-    url("/assets/mindfulness-sound-bowls.jpg") center 30% / cover no-repeat;
-  filter: blur(16px);
-  opacity: 0;
-  transform: scale(1.06);
-  transition:
-    opacity 1400ms ease,
-    filter 1400ms ease,
-    transform 1800ms var(--motion-ease);
+    linear-gradient(120deg, rgba(24, 35, 26, 0.9) 0%, rgba(36, 50, 38, 0.85) 55%, rgba(50, 62, 46, 0.72) 100%),
+    url("/assets/mindfulness-outdoor-bowls.jpg") center 52% / cover no-repeat;
 }
 
-.reveal-ready .mindfulness-editorial[data-reveal] {
-  opacity: 1;
-  transform: none;
+/* A different real photograph than the hero's candlelit portrait (outdoor
+   bowl session, natural daylight) so this section reads as its own moment
+   instead of a repeated crop. The glow follows the photo's own patch of
+   direct sun instead of reproducing candlelight that isn't in this frame. */
+.mindfulness-editorial::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: radial-gradient(38rem 30rem at 38% 30%, rgba(210, 220, 140, 0.14), transparent 68%);
+  pointer-events: none;
 }
 
-.reveal-ready .mindfulness-editorial[data-reveal].is-visible::before {
-  opacity: 1;
-  filter: blur(0);
-  transform: scale(1);
-}
-
-.mindfulness-editorial .eyebrow {
+main[data-case="mindfulness"] .mindfulness-editorial .eyebrow {
   color: #ead6a4;
 }
 
@@ -2979,28 +3887,6 @@ main[data-case="mindfulness"] .mindfulness-ripple--two {
   color: rgba(255, 250, 240, 0.85);
   font-size: 1.02rem;
   line-height: 1.75;
-}
-
-.mindfulness-editorial-rings {
-  position: absolute;
-  top: 50%;
-  right: 8%;
-  z-index: -1;
-  width: 22rem;
-  aspect-ratio: 1;
-  transform: translateY(-50%);
-  opacity: 0.5;
-  background:
-    radial-gradient(circle, transparent 60%, rgba(236, 220, 181, 0.14) 61%, rgba(236, 220, 181, 0.14) 62%, transparent 63%),
-    radial-gradient(circle, transparent 74%, rgba(236, 220, 181, 0.1) 75%, rgba(236, 220, 181, 0.1) 76%, transparent 77%),
-    radial-gradient(circle, transparent 88%, rgba(236, 220, 181, 0.07) 89%, rgba(236, 220, 181, 0.07) 90%, transparent 91%);
-  border-radius: 50%;
-}
-
-@media (max-width: 900px) {
-  .mindfulness-editorial-rings {
-    display: none;
-  }
 }
 
 /* We Are One Housing: warm, modular, and community-led. */
@@ -3342,6 +4228,19 @@ main[data-case="we-are-one"] .stat {
     linear-gradient(180deg, #fbf5f4 0%, #faf1f2 58%, #faf5f2 100%);
   border-block: 1px solid rgba(142, 67, 86, 0.055);
 }
+
+/* TODO: Future Kymari sculptural dragonfly asset (prerendered, transparent
+   WebP/PNG, supplied separately) returns here. Placement intent: absolute,
+   top-right of this section, anchored near the section's own right edge so
+   it crops slightly off it, diagonally oriented, roughly 3.5-5rem wide,
+   secondary to the "Current Projects" heading. Re-add `overflow: hidden`
+   on #projects for the edge-crop when that asset lands. A one-time reveal
+   (opacity + tiny blur/scale settle, no flight path) belongs on it, gated
+   through the existing [data-reveal] system, hidden below 900px, and
+   removed under (hover: none)/coarse pointers and prefers-reduced-motion
+   down to a static resting frame. See kymari-immersion skill references
+   for the full art-direction brief (bas-relief, beige-on-beige, body vs.
+   wing depth) once the asset is ready to wire in. */
 
 /* Dark ink on sage measures 7.7:1. White would be 1.8:1 and unreadable. */
 .band--sage .display-title,
@@ -3966,8 +4865,32 @@ main[data-case] .detail-list li {
     text-shadow 300ms ease;
 }
 
+/* Each word carries its color by default (matching the original Figma
+   reference, where Explorer/Creator/Designer are always tinted, not only
+   on hover) so the headline reads correctly on first paint and on touch
+   devices that never hover. Hover adds a gradient shimmer on top of that
+   same color, it does not introduce the color. */
+/* Brighter, more saturated than the shared --*-deep text colors: safe here
+   because this headline is large display type (3:1 AA threshold, not the
+   4.5:1 body-text threshold), and the reference calls for vivid color. */
+.word-hover--explorer .word-hover-text {
+  color: #3fa15a;
+}
+
+.word-hover--creator .word-hover-text {
+  color: #d6a422;
+}
+
+.word-hover--designer .word-hover-text {
+  color: #cf6a95;
+}
+
+/* Explorer's sweep runs green into sky-blue and back, the same "world"
+   pairing as the plane graphic's own blue tones, so the hover reads as
+   the word taking flight over green-and-blue terrain rather than a
+   single flat color shifting shade. */
 .word-hover--explorer:hover .word-hover-text {
-  background-image: linear-gradient(100deg, var(--sage-deep), #3a7fb5, var(--sage-deep));
+  background-image: linear-gradient(100deg, #3fa15a, #4fb0d6, #3fa15a);
   background-size: 220% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -3976,7 +4899,7 @@ main[data-case] .detail-list li {
 }
 
 .word-hover--creator:hover .word-hover-text {
-  background-image: linear-gradient(100deg, var(--gold-deep), #f0b429, var(--gold-deep));
+  background-image: linear-gradient(100deg, #d6a422, #f0b429, #d6a422);
   background-size: 220% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -3985,12 +4908,17 @@ main[data-case] .detail-list li {
   animation: word-gradient-sweep 2.6s ease-in-out infinite;
 }
 
-.word-hover--traveler:hover .word-hover-text {
-  background-image: linear-gradient(100deg, var(--rose-deep), #c98fd0, var(--sage-deep), #8db8dc);
-  background-size: 220% 100%;
+/* Designer's sweep runs through the same multi-hue palette as its
+   particle burst below (rose, orchid, sage, sky) instead of one flat
+   pink, so the word itself reads as "colorful" even before the
+   particles fire. */
+.word-hover--designer:hover .word-hover-text {
+  background-image: linear-gradient(100deg, #cf6a95, #c98fd0, #6fa86a, #6fa9d6, #cf6a95);
+  background-size: 280% 100%;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+  text-shadow: 0 0 26px rgba(207, 106, 149, 0.3);
   animation: word-gradient-sweep 2.6s ease-in-out infinite;
 }
 
@@ -5235,6 +6163,23 @@ main[data-case="gateway"] {
   --case-muted: #5d6257;
   --case-line: rgba(77, 88, 58, 0.2);
   --case-media-bg: linear-gradient(155deg, #fffaf0 0%, #edf0e4 62%, #f3e7dc 100%);
+  /* Wider GRC palette (Aug 2026 pass): pulled from the real site's own
+     focus-area color-coding and calendar states, not invented. Used as
+     restrained accents/punctuation across the page, not a background
+     color swap -- green stays the anchor. */
+  --case-blue: #5593bb;
+  --case-purple: #6b6693;
+  --case-purple-dark: #4f4c6e;
+  --case-purple-soft: #c9c3e3;
+  --case-gold: #c99a1e;
+  --case-today: #2d3717;
+  /* Sampled directly from the real calendar background art's own corner
+     blobs (Aug 27 2026), for the "hopeful colorful" early-page pass --
+     provably the same source as the color behind the working demo, not a
+     separate invented set. */
+  --case-sun: #ffd269;
+  --case-rust: #d59164;
+  --case-sky: #36b6dd;
   color: var(--case-ink);
   background: var(--case-bg);
 }
@@ -5256,26 +6201,6 @@ main[data-case="gateway"] .breadcrumb a {
   box-shadow: 0 22px 50px rgba(55, 66, 37, 0.14);
   grid-template-columns: minmax(30rem, 0.92fr) minmax(0, 1.08fr);
   gap: clamp(2.5rem, 4vw, 4.5rem);
-}
-
-/* A static calendar-like grid gives the environment project language without
-   turning it into another animated illustration. */
-.case-hero--gateway::before {
-  content: "";
-  position: absolute;
-  z-index: -1;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 46%;
-  background-image:
-    linear-gradient(rgba(255, 253, 247, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 253, 247, 0.07) 1px, transparent 1px);
-  background-size: 34px 34px;
-  opacity: 0.5;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 35%);
-  mask-image: linear-gradient(90deg, transparent, #000 35%);
-  animation: gateway-grid-reveal 900ms var(--motion-ease) both 120ms;
 }
 
 .case-hero--gateway .subpage-copy,
@@ -5313,6 +6238,92 @@ main[data-case="gateway"] .case-hero--gateway .eyebrow {
   max-width: 34rem;
 }
 
+/* Compact role snapshot: makes "what I did on this project" legible in the
+   first screen without becoming a skill-tag wall. */
+.gateway-role-snapshot {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.5rem;
+  margin: 1.5rem 0 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgba(255, 253, 247, 0.22);
+  max-width: 30rem;
+}
+
+.gateway-role-snapshot dt {
+  color: #ffe9cf;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.gateway-role-snapshot dd {
+  margin: 0.3rem 0 0;
+  color: #fffdf7;
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 480px) {
+  .gateway-role-snapshot {
+    grid-template-columns: 1fr;
+  }
+}
+
+.gateway-what-i-did {
+  display: grid;
+  gap: 0.55rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  max-width: 30rem;
+  list-style: none;
+}
+
+.gateway-what-i-did li {
+  position: relative;
+  padding-left: 1.2rem;
+  color: rgba(255, 253, 247, 0.92);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.gateway-what-i-did li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: #d68033;
+}
+
+/* Small label matching .eyebrow's rhythm, for a second grouped list inside
+   a .panel (e.g. "What I did" sitting under Project details), without
+   repeating the full eyebrow treatment. */
+.panel-subhead {
+  margin-top: 1.4rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* .gateway-what-i-did lives on the hero's dark background by default; this
+   variant sits on a .panel's light surface instead. */
+.gateway-what-i-did--panel {
+  margin-top: 0.8rem;
+  max-width: none;
+}
+
+.gateway-what-i-did--panel li {
+  color: var(--ink);
+}
+
 .case-hero--gateway .status {
   border-color: rgba(255, 253, 247, 0.22);
   background: rgba(28, 38, 18, 0.22);
@@ -5345,17 +6356,6 @@ main[data-case="gateway"] .case-hero--gateway .button--secondary {
 
 .case-hero--gateway .case-device--secondary {
   animation: gateway-secondary-settle 900ms var(--motion-ease) both 270ms;
-}
-
-@keyframes gateway-grid-reveal {
-  from {
-    opacity: 0;
-    transform: translateX(18px);
-  }
-  to {
-    opacity: 0.5;
-    transform: translateX(0);
-  }
 }
 
 @keyframes gateway-frame-settle {
@@ -5391,59 +6391,45 @@ main[data-case="gateway"] .case-hero--gateway .button--secondary {
   }
 }
 
-.gateway-snapshot {
-  border-block: 1px solid var(--case-line);
+/* A short bridge establishing the collaborative process before the case
+   study narrows to individual ownership, without reviving the old
+   research/personas/lo-fi/hi-fi structure this project moved away from. */
+.gateway-process {
+  border-bottom: 1px solid var(--case-line);
+  /* Soft green wash -- the confirmed rhythm-map treatment for this
+     section (color-mix at 16%, matching Grant Writers' orange and
+     Ownership's purple as the page's other chapter-punctuation moments). */
+  background: color-mix(in srgb, var(--case-accent) 16%, var(--case-bg));
 }
 
-.gateway-snapshot .panel {
-  position: relative;
-  overflow: hidden;
-  box-shadow: 0 8px 28px rgba(74, 83, 55, 0.06);
+.gateway-process-layout {
+  max-width: 52rem;
 }
 
-.gateway-snapshot .panel::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  height: 3px;
-  background: var(--case-accent-2);
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 720ms var(--motion-ease);
+.gateway-process-copy {
+  margin-top: 1rem;
+  color: var(--case-muted);
+  font-size: 1rem;
+  line-height: 1.75;
 }
 
-.gateway-snapshot .panel.is-visible::before {
-  transform: scaleX(1);
+.gateway-process-copy--close {
+  margin-top: 1.4rem;
 }
 
-.gateway-snapshot .panel:nth-child(2)::before {
-  background: var(--case-accent-3);
-}
-
-main[data-case="gateway"] .gateway-snapshot .pill-list li {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.42rem;
-  border-color: rgba(96, 113, 59, 0.24);
-  background: #f8f5e9;
-  color: #4f622f;
-}
-
-main[data-case="gateway"] .gateway-snapshot .pill-list li::before {
-  content: "";
-  width: 0.38rem;
-  height: 0.38rem;
-  flex: 0 0 auto;
-  border-radius: 50%;
-  background: var(--case-highlight);
-}
-
-main[data-case="gateway"] .gateway-snapshot .pill-list li:nth-child(3n + 2)::before {
-  background: var(--case-accent-3);
-}
-
-main[data-case="gateway"] .gateway-snapshot .pill-list li:nth-child(3n)::before {
-  background: #5d95b7;
+/* Whimsy: a small real-fact chip (the actual implementation stack, already
+   stated in the hero) slides in a few px from the right as the section
+   scrolls into view — a real detail entering, not decoration. */
+.gateway-process-chip {
+  display: inline-block;
+  margin-top: 1.1rem;
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--case-line);
+  border-radius: var(--radius-pill);
+  background: var(--case-surface);
+  color: var(--case-accent);
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 
 .gateway-section-intro {
@@ -5458,24 +6444,56 @@ main[data-case="gateway"] .section-title {
   border-color: var(--case-line);
 }
 
-.gateway-audiences .grid-3 .panel {
-  position: relative;
-  padding-top: calc(var(--space-card) + 0.4rem);
-  border-top: 4px solid var(--case-accent-2);
-  box-shadow: 0 8px 24px rgba(74, 83, 55, 0.055);
+/* Editorial columns, not cards: an audience is a short colour mark and open
+   type, not a bordered box. Three near-identical panels read as filler;
+   this reads as a structured list of who the work is for. */
+.gateway-audience-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(2rem, 4vw, 3.25rem);
 }
 
-.gateway-audiences .grid-3 .panel:nth-child(2) {
-  border-top-color: var(--case-accent-3);
+.gateway-audience-mark {
+  display: block;
+  width: 2.25rem;
+  height: 3px;
+  margin-bottom: 1.1rem;
+  background: var(--case-accent-2);
 }
 
-.gateway-audiences .grid-3 .panel:nth-child(3) {
-  border-top-color: #5d95b7;
+.gateway-audience--2 .gateway-audience-mark {
+  background: var(--case-accent-3);
+}
+
+.gateway-audience--3 .gateway-audience-mark {
+  background: #5d95b7;
+}
+
+.gateway-audience-name {
+  margin-bottom: 0.6rem;
+  font-family: var(--font-serif);
+  font-size: 1.28rem;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--case-ink);
+}
+
+.gateway-audience p:not(.gateway-audience-name) {
+  color: var(--case-muted);
+  font-size: 0.96rem;
+  line-height: 1.72;
+}
+
+@media (max-width: 720px) {
+  .gateway-audience-row {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
 }
 
 .gateway-ownership {
   color: #fffdf7;
-  background: linear-gradient(135deg, #4f622f, #687942);
+  background: linear-gradient(135deg, var(--case-purple-dark), var(--case-purple));
 }
 
 .gateway-ownership-layout {
@@ -5558,6 +6576,1049 @@ main[data-case="gateway"] .gateway-ownership .section-title {
 
 .gateway-ownership-list.is-visible li:nth-child(7) {
   transition-delay: 330ms, 330ms, 0ms;
+}
+
+/* New process evidence: scale, prioritization, and personal-focus sections,
+   sitting between the audience framing and Grant Writers. Restrained
+   editorial figures (real screenshots, muted captions) instead of another
+   card grid -- the artifacts carry the "how big this actually was" proof,
+   not another paragraph restating the process already told above. */
+.gateway-evidence-figure {
+  margin: 0;
+}
+
+.gateway-evidence-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--case-line);
+  border-radius: 16px;
+  box-shadow: 0 20px 44px rgba(44, 48, 39, 0.1);
+}
+
+.gateway-evidence-caption {
+  margin: 0.85rem 0 0;
+  max-width: 40rem;
+  color: var(--case-muted);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  opacity: 0.85;
+}
+
+.gateway-scale-layout {
+  max-width: 54rem;
+  margin-inline: auto;
+}
+
+.gateway-scale-layout .gateway-evidence-figure {
+  margin-top: 2.25rem;
+}
+
+.gateway-priorities-layout,
+.gateway-focus-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 3.75rem);
+  align-items: center;
+}
+
+.gateway-priorities-close {
+  margin-top: 1rem;
+  color: var(--case-muted);
+  font-size: 0.98rem;
+  line-height: 1.75;
+}
+
+/* A research quote, lighter than the CEO testimonial further down -- real
+   participant language, not another pull-quote competing for the same
+   visual weight. */
+.gateway-quote {
+  margin: 1.5rem 0 0;
+  padding-left: 1.1rem;
+  border-left: 3px solid var(--case-accent-2);
+}
+
+.gateway-quote p {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--case-ink);
+}
+
+.gateway-quote cite {
+  display: block;
+  margin-top: 0.4rem;
+  color: var(--case-muted);
+  font-size: 0.76rem;
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.gateway-focus-close {
+  margin-top: 1rem;
+  color: var(--case-muted);
+  font-size: 0.98rem;
+  line-height: 1.75;
+}
+
+@media (max-width: 860px) {
+  .gateway-priorities-layout,
+  .gateway-focus-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Grant Writers: a still, cream beat between the green ownership block and
+   the orange Events section, so the color rhythm has somewhere to rest.
+   Purple (the project's smaller accent) marks it as its own moment without
+   turning it into another saturated field. */
+.gateway-grants {
+  /* Was flat --case-bg -- one of six cream sections in a row with no
+     relief. A soft, unsaturated orange tint gives Grant Writers its own
+     identity without touching its pacing or adding motion. */
+  background: color-mix(in srgb, var(--case-accent-2) 12%, var(--case-bg));
+}
+
+.gateway-grants-layout {
+  max-width: 46rem;
+}
+
+.gateway-grants-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  margin: 2.25rem 0 0;
+  padding: 1.75rem 0 0;
+  border-top: 1px solid var(--case-line);
+  list-style: none;
+}
+
+.gateway-grants-stat-value {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: clamp(1.7rem, 3.4vw, 2.3rem);
+  font-weight: 600;
+  color: var(--case-accent-2);
+}
+
+.gateway-grants-stat-label {
+  display: block;
+  margin-top: 0.3rem;
+  color: var(--case-muted);
+  font-size: 0.86rem;
+  line-height: 1.5;
+}
+
+.gateway-grants-note {
+  margin-top: 1.5rem;
+  color: var(--case-muted);
+  font-size: 0.92rem;
+}
+
+.gateway-grants-insight {
+  margin-top: 1.5rem;
+  padding-left: 1rem;
+  border-left: 3px solid var(--case-accent-2);
+  color: var(--case-muted);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.gateway-grants-insight strong {
+  color: var(--case-ink);
+}
+
+@media (max-width: 640px) {
+  .gateway-grants-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Events: real UI elements narrated in the order they matter, using the
+   actual screenshot instead of fabricated grid/calendar functionality. */
+.gateway-events-story {
+  display: grid;
+  gap: 0.9rem;
+  max-width: 30rem;
+  margin: 2rem auto 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: gateway-events;
+}
+
+.gateway-events-story li {
+  position: relative;
+  padding-left: 2.1rem;
+  color: var(--case-muted);
+  font-size: 0.94rem;
+  line-height: 1.65;
+}
+
+.gateway-events-story li strong {
+  color: var(--case-ink);
+}
+
+.gateway-events-story li::before {
+  counter-increment: gateway-events;
+  content: counter(gateway-events);
+  position: absolute;
+  left: 0;
+  top: 0.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: rgba(223, 135, 52, 0.14);
+  color: #994b17;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Events demo: the one place GRC is allowed to feel more playful. The
+   section itself carries more orange/purple than anywhere else on the
+   page; the app surface underneath stays cream and calm so the working
+   interface never gets visually buried under its own backdrop. */
+/* This is the most colorful moment on the page by design -- the working
+   demo is the one place the real focus-area palette (green, orange,
+   purple, blue) can all show up together at once, so it should read as
+   the page's high point, not a quiet cream section like its neighbors.
+   Green wash at 22% matches the confirmed rhythm-map direction for this
+   section ("richer, more real color"); the corner blooms are the same
+   real hues used throughout GRC, just given real presence here instead
+   of a faint hint. */
+.gateway-demo {
+  position: relative;
+  background:
+    radial-gradient(46rem 30rem at -6% 0%, rgba(223, 135, 52, 0.32), transparent 62%),
+    radial-gradient(50rem 34rem at 106% 100%, rgba(107, 102, 173, 0.3), transparent 64%),
+    radial-gradient(42rem 30rem at 50% 108%, rgba(85, 147, 187, 0.2), transparent 60%),
+    color-mix(in srgb, var(--case-accent) 22%, var(--case-bg));
+}
+
+/* Whimsy: a small one-time label appearing just above the real demo as it
+   scrolls into view, naming the thing that makes it different from every
+   other screenshot on the page. Settles once, never repeats, never sits
+   over the controls themselves. */
+.gateway-demo-annotation {
+  max-width: 42rem;
+  margin: 1.5rem auto 0;
+  color: var(--case-accent-3, #5b586e);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Deliberately not full shell width: a focused instrument to try, not
+   another full-page section. Widened slightly from the first pass so the
+   richer calendar composition below has room to breathe. */
+.gateway-demo-app {
+  max-width: 56rem;
+  margin: 2.25rem auto 0;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--case-line);
+  border-radius: 22px;
+  background: var(--case-surface);
+  box-shadow: 0 20px 44px rgba(60, 54, 34, 0.08);
+}
+
+@media (max-width: 720px) {
+  .gateway-demo-app {
+    max-width: none;
+  }
+}
+
+.gateway-demo-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+.gateway-demo-control-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--case-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gateway-demo-views {
+  display: inline-flex;
+  padding: 0.25rem;
+  border: 1px solid var(--case-line);
+  border-radius: var(--radius-pill);
+  background: var(--case-bg-alt);
+}
+
+.gateway-demo-view {
+  min-height: 2.75rem;
+  padding: 0.5rem 1.05rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--case-muted);
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 200ms ease, color 200ms ease, box-shadow 200ms ease;
+}
+
+.gateway-demo-view.is-active {
+  background: var(--case-accent-2);
+  color: #fffdf7;
+  box-shadow: 0 6px 14px rgba(223, 135, 52, 0.28);
+}
+
+.gateway-demo-search input {
+  width: min(100%, 15rem);
+  min-height: 2.75rem;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--case-line);
+  border-radius: var(--radius-pill);
+  background: var(--case-bg-alt);
+  color: var(--case-ink);
+  font-size: 0.88rem;
+}
+
+.gateway-demo-search input:focus-visible {
+  outline: 2px solid var(--case-accent);
+  outline-offset: 1px;
+}
+
+.gateway-demo-filters-group {
+  margin-top: 1.1rem;
+}
+
+.gateway-demo-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.gateway-demo-filter {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--case-line);
+  border-radius: var(--radius-pill);
+  background: var(--case-surface);
+  color: var(--case-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 200ms ease,
+    color 200ms ease,
+    border-color 200ms ease;
+}
+
+.gateway-demo-filter-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--dot-color, var(--case-muted));
+  opacity: 0.85;
+}
+
+.gateway-demo-filter.is-active {
+  border-color: transparent;
+  background: var(--case-accent);
+  color: #fffdf7;
+}
+
+.gateway-demo-filter.is-active .gateway-demo-filter-dot {
+  background: #fffdf7;
+  opacity: 0.9;
+}
+
+.gateway-demo-body {
+  margin-top: 1.5rem;
+}
+
+/* Calendar view echoes the real page's side-by-side composition: calendar
+   on the left, "Select a date" detail on the right. Grid view (a full list
+   of cards) doesn't need that split, so this only engages while the
+   calendar is the visible view. */
+@media (min-width: 860px) {
+  .gateway-demo-body:has(.gateway-demo-calendar:not([hidden])) {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 1.5rem;
+  }
+
+  .gateway-demo-body:has(.gateway-demo-calendar:not([hidden])) .gateway-demo-detail {
+    margin-top: 0;
+  }
+}
+
+/* The atmosphere layer behind the calendar: soft project-derived color
+   fields plus a scattered dot cluster, echoing the real page's layered
+   background without literally copying it. Restrained opacity so the
+   grid and detail panel on top stay easy to read. Decorative, so it's
+   hidden from assistive tech and skipped for reduced motion doesn't
+   apply here (it's static, not animated). */
+.gateway-demo-calendar {
+  position: relative;
+  border: 1px solid var(--case-line);
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--case-bg-alt);
+  box-shadow: 0 16px 36px rgba(45, 55, 23, 0.12);
+}
+
+.gateway-demo-cal-head {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.1rem 1.25rem;
+  background: linear-gradient(120deg, #4a5a28, #5c6e33);
+  color: #fdfaf0;
+}
+
+.gateway-demo-cal-month {
+  flex: 1;
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #fdfaf0;
+}
+
+.gateway-demo-cal-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 253, 247, 0.92);
+  color: #3d4a20;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: transform 160ms ease, background 160ms ease;
+}
+
+.gateway-demo-cal-nav:hover {
+  background: #fffdf7;
+  transform: translateY(-1px);
+}
+
+.gateway-demo-cal-today {
+  min-height: 2.75rem;
+  padding: 0.45rem 0.95rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--case-accent-2);
+  color: #fffdf7;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 160ms ease;
+}
+
+.gateway-demo-cal-today:hover {
+  filter: brightness(1.06);
+}
+
+.gateway-demo-cal-atmosphere {
+  position: relative;
+  padding: 1.5rem 1.25rem 1.25rem;
+  overflow: hidden;
+}
+
+.gateway-demo-cal-atmosphere::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-color: rgba(240, 204, 98, 0.08);
+  background-image: url("/assets/gateway-calendar-bg-desktop.png");
+  background-image: image-set(url("/assets/gateway-calendar-bg-desktop.webp") 1x);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: 0.62;
+}
+
+@media (max-width: 640px) {
+  .gateway-demo-cal-atmosphere::before {
+    background-image: url("/assets/gateway-calendar-bg-mobile.png");
+    background-image: image-set(url("/assets/gateway-calendar-bg-mobile.webp") 1x);
+  }
+}
+
+.gateway-demo-cal-weekdays,
+.gateway-demo-cal-grid,
+.gateway-demo-detail {
+  position: relative;
+  z-index: 1;
+}
+
+.gateway-demo-cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  color: var(--case-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.gateway-demo-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.35rem;
+  margin-top: 0.6rem;
+}
+
+.gateway-demo-cal-cell {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.3rem;
+  aspect-ratio: 1;
+  padding: 0.4rem 0.2rem;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: rgba(255, 253, 247, 0.82);
+  color: var(--case-ink);
+  font-size: 0.86rem;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.gateway-demo-cal-cell--outside {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  aspect-ratio: 1;
+  padding: 0.4rem 0.2rem;
+  color: var(--case-muted);
+  font-size: 0.86rem;
+  opacity: 0.3;
+}
+
+.gateway-demo-cal-cell:hover {
+  background: #fffdf7;
+  border-color: var(--case-line);
+  transform: translateY(-1px);
+}
+
+.gateway-demo-cal-daynum {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.15rem;
+}
+
+.gateway-demo-cal-count {
+  font-size: 0.66rem;
+  font-weight: 700;
+  opacity: 0.75;
+}
+
+/* Three real calendar states, matched to the live page: today reads as a
+   filled dark-green cell, a day with events (not yet selected) reads as a
+   soft lavender/purple fill, and the active selection reads as orange --
+   the same "today / has events / selected" language the real Wix calendar
+   uses, not a generic single-color highlight. */
+.gateway-demo-cal-cell.has-events {
+  background: var(--case-purple-soft);
+  color: #2c2a3d;
+}
+
+.gateway-demo-cal-cell.is-today {
+  background: var(--case-today);
+  border-color: transparent;
+  color: #fdfaf0;
+}
+
+.gateway-demo-cal-cell.is-selected {
+  background: var(--case-accent-2);
+  border-color: transparent;
+  color: #fffdf7;
+}
+
+.gateway-demo-cal-dots {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.gateway-demo-cal-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(255, 253, 247, 0.7);
+}
+
+.gateway-demo-grid[hidden] {
+  display: none;
+}
+
+.gateway-demo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
+  gap: 1.1rem;
+}
+
+/* Grid cards get a colored "cover" band standing in for the real page's
+   event image -- a category icon on project color, not a fabricated
+   photo, since this is placeholder demo data. */
+.gateway-demo-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--case-line);
+  border-radius: 16px;
+  background: var(--case-surface);
+  box-shadow: 0 12px 26px rgba(45, 55, 23, 0.08);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.gateway-demo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(45, 55, 23, 0.14);
+}
+
+.gateway-demo-card-cover {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 6.5rem;
+  color: #fffdf7;
+}
+
+.gateway-demo-card-badge {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 50%;
+  background: rgba(255, 253, 247, 0.28);
+}
+
+.gateway-demo-card-badge svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.gateway-demo-card-body {
+  padding: 1.1rem 1.15rem 1.25rem;
+}
+
+.gateway-demo-card-focus {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-pill);
+  color: #fffdf7;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.gateway-demo-card-title {
+  margin-top: 0.6rem;
+  font-family: var(--font-serif);
+  color: var(--case-ink);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.gateway-demo-field {
+  margin-top: 0.3rem;
+  color: var(--case-muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.gateway-demo-field-label {
+  display: inline-block;
+  min-width: 4.6rem;
+  color: var(--case-ink);
+  font-weight: 700;
+}
+
+/* A visual-only next step under each card (not a real link or button --
+   there's no real event detail page for this recreation to send it to),
+   restoring the "where to go next" affordance real event listings need
+   without pretending it's functional. Not focusable/announced as
+   interactive, since it genuinely isn't. */
+.gateway-demo-card-cta {
+  display: inline-block;
+  margin-top: 0.85rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: var(--radius-pill);
+  background: var(--case-accent-2);
+  color: #fffdf7;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.gateway-demo-empty {
+  padding: 1.5rem 0;
+  color: var(--case-muted);
+  font-size: 0.92rem;
+  text-align: center;
+}
+
+.gateway-demo-detail {
+  margin-top: 1.25rem;
+}
+
+/* The detail panel: a sage-green gradient with the same restrained dot
+   texture as the calendar atmosphere above, so selecting a date feels
+   continuous with the calendar rather than opening an unrelated card. */
+.gateway-demo-detail-panel {
+  position: relative;
+  overflow: hidden;
+  padding: 1.35rem 1.4rem 1.5rem;
+  border: 1px solid var(--case-line);
+  border-radius: 16px;
+  background:
+    radial-gradient(16rem 12rem at 100% 0%, rgba(240, 204, 98, 0.22), transparent 60%),
+    linear-gradient(165deg, #eef1e3, #dbe3cd 70%);
+}
+
+.gateway-demo-detail-panel::after {
+  content: "";
+  position: absolute;
+  bottom: -1.5rem;
+  right: -1.5rem;
+  width: 8rem;
+  height: 8rem;
+  background-image: radial-gradient(circle, rgba(45, 55, 23, 0.18) 1.4px, transparent 1.5px);
+  background-size: 13px 13px;
+  opacity: 0.6;
+}
+
+.gateway-demo-detail-head {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.gateway-demo-detail-date {
+  color: var(--case-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.gateway-demo-detail-pager {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--case-ink);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.gateway-demo-detail-pager button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 253, 247, 0.85);
+  color: var(--case-ink);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.gateway-demo-detail-pager button:hover {
+  background: #fffdf7;
+  transform: translateY(-1px);
+}
+
+.gateway-demo-detail-cover {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.9rem;
+  height: 5.5rem;
+  border-radius: 12px;
+}
+
+.gateway-demo-detail-panel .gateway-demo-card-focus {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.85rem;
+}
+
+.gateway-demo-detail-title {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.55rem;
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--case-ink);
+}
+
+.gateway-demo-detail-panel .gateway-demo-field {
+  position: relative;
+  z-index: 1;
+}
+
+.gateway-demo-detail-desc {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.75rem;
+  color: var(--case-muted);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.gateway-demo-note {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--case-line);
+  color: var(--case-muted);
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
+.gateway-demo-learning {
+  max-width: 42rem;
+  margin: 2rem 0 0;
+  color: var(--case-muted);
+  font-size: 0.94rem;
+  line-height: 1.75;
+  text-align: left;
+}
+
+.gateway-demo-learning strong {
+  color: var(--case-ink);
+}
+
+.gateway-demo-note {
+  max-width: 42rem;
+  margin: 0.75rem 0 0;
+  color: var(--case-muted);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  text-align: left;
+  opacity: 0.85;
+}
+
+/* A real teammate's line about the calendar work, not the section's
+   closing beat -- lighter than the Proof testimonial (smaller type,
+   smaller mark, narrower measure) so it reads as a supporting note next
+   to the demo it's about, not a second climax competing with Sherrie's
+   quote at the very end of the page. */
+.gateway-testimonial--teammate {
+  max-width: 42rem;
+  margin: 1.75rem 0 0;
+  padding-top: 1.5rem;
+  text-align: left;
+}
+
+.gateway-testimonial--teammate p {
+  font-size: clamp(1.05rem, 2.4vw, 1.3rem);
+  line-height: 1.5;
+}
+
+.gateway-testimonial--teammate::before {
+  top: -0.75rem;
+  font-size: 3.75rem;
+}
+
+/* Technical problem-solving: copy beside a small real code fragment, not a
+   giant dump, evidence this went past Figma screens. */
+.gateway-technical-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: clamp(2rem, 5vw, 3.5rem);
+  align-items: center;
+}
+
+.gateway-technical-copy p {
+  margin-top: 1rem;
+  color: var(--case-muted);
+  font-size: 0.98rem;
+  line-height: 1.75;
+}
+
+.gateway-tech-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+  margin: 1rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.gateway-tech-tags li {
+  padding: 0.35rem 0.85rem;
+  border: 1px solid var(--case-line);
+  border-radius: var(--radius-pill);
+  background: var(--case-surface);
+  color: var(--case-ink);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.gateway-technical-code-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+/* The code block's own negative bottom margin (below) is a whimsy detail
+   for when nothing sits under it in the same column; now that a caption
+   follows it here, neutralize that margin so the two don't overlap. The
+   escaping corner square (.gateway-code::after) is unaffected. */
+.gateway-technical-code-col .gateway-code {
+  margin: 0;
+}
+
+.gateway-code-caption {
+  margin: 0;
+  color: var(--case-muted);
+  font-size: 0.82rem;
+  line-height: 1.55;
+  opacity: 0.85;
+}
+
+.gateway-code {
+  position: relative;
+  margin: 0 0 -1.5rem;
+  padding: 1.5rem 1.75rem;
+  overflow-x: auto;
+  border-radius: 14px;
+  background: #1e2116;
+  box-shadow: 0 20px 44px rgba(20, 24, 12, 0.22);
+}
+
+/* Whimsy detail 4 (approved handoff): the real interface artifact crosses
+   its own container's bottom boundary a few px into the section's own
+   whitespace below, via the negative margin above — the page feels less
+   boxed into perfect rectangles. Static, always present, no animation.
+   The technical section shows real production code rather than a device
+   screenshot (it was rebuilt that way in an earlier session), so this
+   detail is applied to that real artifact instead; the small orange
+   (--case-accent-2) corner below reinforces the same "escaping its own
+   frame" idea without needing a device image that doesn't exist here. */
+.gateway-code::after {
+  content: "";
+  position: absolute;
+  right: -0.5rem;
+  bottom: -0.5rem;
+  z-index: -1;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 8px;
+  background: var(--case-accent-2, #df8734);
+  opacity: 0.85;
+}
+
+.gateway-code code {
+  color: #f3efe1;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.84rem;
+  line-height: 1.75;
+  white-space: pre;
+}
+
+@media (max-width: 860px) {
+  .gateway-technical-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .gateway-demo-app {
+    padding: 1.1rem;
+  }
+
+  .gateway-demo-cal-head {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr) 2.75rem;
+    gap: 0.5rem;
+    padding: 0.9rem;
+  }
+
+  .gateway-demo-cal-month {
+    grid-column: 2;
+    grid-row: 1;
+    align-self: center;
+    font-size: 1.15rem;
+    text-align: center;
+  }
+
+  .gateway-demo-cal-nav {
+    flex: 0 0 2.75rem;
+  }
+
+  .gateway-demo-cal-today {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    width: 100%;
+  }
+
+  .gateway-demo-cal-weekdays {
+    font-size: 0.64rem;
+    letter-spacing: 0.02em;
+  }
+
+  .gateway-demo-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .gateway-demo-search input {
+    width: 100%;
+  }
+
+  .gateway-demo-filters {
+    flex-wrap: nowrap;
+    max-width: 100%;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .gateway-demo-filter {
+    flex: 0 0 auto;
+  }
+
+  .gateway-demo-cal-cell {
+    font-size: 0.8rem;
+  }
+
+  .gateway-demo-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .gateway-interface-section {
@@ -5646,8 +7707,165 @@ main[data-case="gateway"] .gateway-ownership .section-title {
   color: rgba(255, 253, 247, 0.82);
 }
 
+/* GRC Impact — "complexity becomes clarity" (motion/responsive handoff
+   §3.2, the largest of GRC's five signature moments). Six real totals
+   fade and settle into one row as the section scrolls; the real tabbed
+   chart panel below is the one solid/settled element the motion resolves
+   into. Decorative restatement of the same six numbers already in the
+   tabbed panel below, so the whole thing is aria-hidden.
+
+   Previously scattered with large independent per-stat offsets + rotation
+   (--gx/--gy/--gr) plus dashed SVG connector paths -- at real desktop
+   widths the offsets pushed stacked text lines far enough to overlap each
+   other, and the rotated/uncoordinated arrival read as broken rather than
+   as "complexity becomes clarity." Simplified to one calm, uniform rise +
+   fade -- confident and legible instead of chaotic. Driven by
+   case-immersion.js writing --gp (1 = scattered, 0 = settled) on
+   .gateway-impact-scatter; CSS alone (JS absent, reduced motion) shows
+   everything already settled, since --gp defaults to 0. */
+.gateway-impact-converge {
+  position: relative;
+  overflow: hidden;
+  max-width: 58rem;
+  margin: 0 auto clamp(1.5rem, 3vw, 2.5rem);
+  min-height: clamp(11rem, 20vw, 15rem);
+}
+
+.gateway-impact-paths {
+  display: none;
+}
+
+.gateway-impact-scatter {
+  --gp: 0;
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.65rem;
+  padding-block: clamp(2rem, 5vw, 3.25rem);
+}
+
+/* Each stat is deliberately one drawn-out line, not a big-number-plus-
+   caption pair — the visitor has to actually read it, the same density
+   the section's own story is about. Movement lives on hover only (see
+   .gateway-impact-stat-inner below), not on scroll — scrolling settles
+   the layout into place. One uniform rise, not six independent
+   directions -- every stat arrives the same way, so it reads as one
+   coordinated settle rather than six things doing their own thing. */
+.gateway-impact-stat {
+  text-align: left;
+  transform: translateY(calc(16px * var(--gp, 0)));
+  opacity: calc(1 - var(--gp, 0) * 0.65);
+}
+
+.gateway-impact-stat-line {
+  margin: 0;
+  color: rgba(255, 253, 247, 0.78);
+  font-size: clamp(0.86rem, 1.6vw, 1rem);
+  line-height: 1.4;
+}
+
+.gateway-impact-stat-line strong {
+  color: #fffdf7;
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+/* Hover move: a small, deliberate shift, never on the same element GSAP
+   writes to, so the two never fight over one transform. */
+.gateway-impact-stat-inner {
+  display: inline;
+  transition: transform 240ms ease;
+}
+
+.gateway-impact-stat-inner:hover {
+  display: inline-block;
+  transform: translateY(-2px);
+}
+
+@media (min-width: 1025px) {
+  .gateway-impact-scatter {
+    gap: 2.1rem;
+  }
+}
+
+@media (max-width: 1024px) {
+  .gateway-impact-scatter {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem 1.5rem;
+  }
+}
+
+/* Mobile: the locked §3.6 version — a single-column stack, each stat
+   arriving once from alternating screen edges (not scattering along
+   paths), color-coded bold serif type carrying the hierarchy motion
+   carried on desktop. No SVG paths, no continuous scrub. */
+@media (max-width: 640px) {
+  .gateway-impact-converge {
+    min-height: 0;
+  }
+
+  .gateway-impact-scatter {
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+    padding-block: 1.5rem;
+  }
+
+  .gateway-impact-stat {
+    text-align: left;
+    transform: translateX(calc(var(--mx, 0px) * var(--gp, 0)));
+    opacity: calc(1 - var(--gp, 0) * 0.85);
+  }
+
+  .gateway-impact-stat:nth-child(odd) {
+    --mx: -2.5rem;
+  }
+
+  .gateway-impact-stat:nth-child(even) {
+    --mx: 2.5rem;
+  }
+
+  .gateway-impact-stat-line {
+    font-size: 0.98rem;
+  }
+
+  .gateway-impact-stat--funding .gateway-impact-stat-line strong {
+    color: #7fb4dd;
+  }
+
+  .gateway-impact-stat--residents .gateway-impact-stat-line strong {
+    color: #a6c168;
+  }
+
+  .gateway-impact-stat--assistance .gateway-impact-stat-line strong {
+    color: #e0bb54;
+  }
+
+  .gateway-impact-stat--partnerships .gateway-impact-stat-line strong {
+    color: #9a94d6;
+  }
+
+  .gateway-impact-stat--coaching .gateway-impact-stat-line strong {
+    color: #e69a5c;
+  }
+
+  .gateway-impact-stat--organizations .gateway-impact-stat-line strong {
+    color: #b9a8e0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gateway-impact-stat {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+/* Constrained rather than full shell width, so the chart reads as a
+   focused instrument rather than another full-page moment. */
 .gateway-impact {
-  margin-top: var(--space-head);
+  max-width: 52rem;
+  margin: var(--space-head) auto 0;
 }
 
 .gateway-chart-total {
@@ -5791,6 +8009,8 @@ main[data-case="gateway"] .gateway-ownership .section-title {
 .gateway-impact-bar {
   animation: gateway-impact-bar-reveal 480ms var(--motion-ease, ease) both;
   transition: opacity 180ms ease;
+  transform-box: fill-box;
+  transform-origin: center bottom;
 }
 
 .gateway-impact-bar:hover {
@@ -5906,6 +8126,81 @@ main[data-case="gateway"] .gateway-ownership .section-title {
   }
 }
 
+/* Cinematic walkthrough: full-bleed dark stage, not a video player dropped
+   in a card. preload="none" so the (still fairly large) file never loads
+   until someone actually presses play. */
+.gateway-motion {
+  padding-block: clamp(3rem, 7vw, 5rem);
+  background: linear-gradient(160deg, #262f1a 0%, #3a4526 100%);
+  color: #fffdf7;
+  text-align: center;
+}
+
+.gateway-motion-head {
+  max-width: 34rem;
+  margin: 0 auto 2rem;
+}
+
+main[data-case="gateway"] .gateway-motion .eyebrow {
+  color: #ffe9cf;
+}
+
+.gateway-motion .section-title {
+  color: #fffdf7;
+}
+
+.gateway-motion-video {
+  width: min(100%, 68rem);
+  margin-inline: auto;
+  border-radius: 16px;
+  box-shadow: 0 30px 70px rgba(15, 20, 8, 0.4);
+}
+
+/* Proof: a compact testing finding leading into one large editorial
+   testimonial, not another card in a row of cards. */
+.gateway-proof-layout {
+  max-width: 46rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.gateway-proof-testing {
+  text-align: left;
+}
+
+.gateway-proof-finding {
+  max-width: 38rem;
+  margin: 0.75rem 0 0;
+  color: var(--case-muted);
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+.gateway-testimonial {
+  margin: 2.75rem 0 0;
+  padding-top: 2.25rem;
+  border-top: 1px solid var(--case-line);
+}
+
+.gateway-testimonial p {
+  font-family: var(--font-serif);
+  font-size: clamp(1.4rem, 3.4vw, 2.1rem);
+  font-weight: 600;
+  line-height: 1.32;
+  color: var(--case-ink);
+}
+
+.gateway-testimonial cite {
+  display: block;
+  margin-top: 1.1rem;
+  color: var(--case-accent);
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-style: normal;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
 .gateway-progress {
   border-bottom: 1px solid var(--case-line);
 }
@@ -5950,25 +8245,11 @@ main[data-case="gateway"] .gateway-ownership .section-title {
   .case-hero--gateway .subpage-title {
     max-width: 12ch;
   }
-
-  .case-hero--gateway::before {
-    top: 44%;
-    left: 0;
-    width: 100%;
-    -webkit-mask-image: linear-gradient(180deg, transparent, #000 35%);
-    mask-image: linear-gradient(180deg, transparent, #000 35%);
-  }
-
 }
 
 @media (max-width: 900px) {
-  .gateway-ownership-layout,
-  .gateway-interface-grid {
+  .gateway-ownership-layout {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .gateway-interface--events img {
-    width: min(70%, 22rem);
   }
 }
 
@@ -5997,28 +8278,12 @@ main[data-case="gateway"] .gateway-ownership .section-title {
   .gateway-ownership-list li:last-child {
     grid-column: auto;
   }
-
-  .gateway-interface {
-    padding: 0.85rem;
-    border-radius: 17px;
-  }
-
-  .gateway-interface--events img {
-    width: min(82%, 20rem);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .case-hero--gateway::before,
   .case-hero--gateway .subpage-frame,
-  .case-hero--gateway .case-device,
-  .gateway-butterfly {
+  .case-hero--gateway .case-device {
     animation: none !important;
-  }
-
-  .gateway-snapshot .panel::before,
-  .gateway-snapshot .panel.is-visible::before {
-    transform: scaleX(1);
   }
 
   .gateway-ownership-list li,
@@ -7662,27 +9927,6 @@ main[data-case="gateway"].case-study--immersive {
   --immersive-button-ink: #293322;
 }
 
-main[data-case="gateway"] .case-hero--immersive::before {
-  inset: 0 0 0 43%;
-  width: auto;
-  background-image:
-    linear-gradient(rgba(255, 253, 247, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 253, 247, 0.06) 1px, transparent 1px);
-  background-size: 38px 38px;
-  opacity: 0.48;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 34%);
-  mask-image: linear-gradient(90deg, transparent, #000 34%);
-}
-
-main[data-case="gateway"] .case-hero--immersive::after {
-  right: -6rem;
-  bottom: -8rem;
-  width: 27rem;
-  aspect-ratio: 1;
-  border: 1px solid rgba(255, 220, 158, 0.19);
-  border-radius: 50%;
-}
-
 main[data-case="gateway"] .case-hero--immersive .case-device--secondary {
   right: -1%;
   width: 34%;
@@ -7737,7 +9981,9 @@ main[data-case="immigrants-rising"] .case-hero--immersive .case-device--secondar
 main[data-case="mindfulness"].case-study--immersive {
   --immersive-hero-bg:
     radial-gradient(circle at 88% 18%, rgba(199, 211, 174, 0.22), transparent 28rem),
-    radial-gradient(circle at 9% 91%, rgba(151, 103, 73, 0.18), transparent 24rem),
+    /* Green-gray, not the brown rgba(151, 103, 73) this used to be --
+       matches the same "no brown" correction applied to --case-accent-2. */
+    radial-gradient(circle at 9% 91%, rgba(124, 138, 108, 0.18), transparent 24rem),
     linear-gradient(140deg, #283a2e 0%, #3f5742 55%, #667054 100%);
   --immersive-accent: #ead6a4;
   --immersive-button-ink: #2c392e;
@@ -7760,7 +10006,9 @@ main[data-case="mindfulness"] .case-hero--immersive::after {
   bottom: -6rem;
   width: 28rem;
   height: 18rem;
-  background: radial-gradient(ellipse, rgba(154, 103, 73, 0.22), transparent 68%);
+  /* Green-gray, matching the same fix on .case-hero--world::after above --
+     was a hardcoded brown rgba(154, 103, 73). */
+  background: radial-gradient(ellipse, rgba(124, 138, 108, 0.22), transparent 68%);
 }
 
 main[data-case="mindfulness"] .case-hero--immersive .case-device--primary {
@@ -8168,10 +10416,13 @@ main[data-case="brightside"].case-study--showcase.case-study--immersive {
     linear-gradient(125deg, #04222f 0%, #0a3646 55%, #12495a 100%);
 }
 
+/* Real photography, supplied directly by Kymari for this hero (replacing
+   the earlier honest-abstraction color field, which stood in only because
+   no legitimate GRC environmental photo existed yet). */
 main[data-case="gateway"].case-study--showcase.case-study--immersive {
   --immersive-hero-bg:
-    linear-gradient(90deg, rgba(35, 50, 27, 0.99) 0%, rgba(48, 66, 35, 0.94) 43%, rgba(39, 54, 31, 0.38) 100%),
-    url("/assets/gateway-blue-butterfly.jpg") center 48% / cover no-repeat;
+    linear-gradient(90deg, rgba(31, 41, 20, 0.97) 0%, rgba(45, 58, 28, 0.9) 46%, rgba(48, 61, 30, 0.4) 100%),
+    url("/assets/grc-hero-background.jpg") center 30% / cover no-repeat;
 }
 
 main[data-case="immigrants-rising"].case-study--showcase.case-study--immersive {
@@ -8180,10 +10431,15 @@ main[data-case="immigrants-rising"].case-study--showcase.case-study--immersive {
     url("/assets/immigrants-rising-education.jpg") center / cover no-repeat;
 }
 
+/* Real photo, sourced this round from the project's own material rather
+   than the earlier generic sound-bowls crop: Desiree with the real
+   candlelit circle of light behind her. Cropped differently here (top-
+   weighted) than its other appearance in the editorial section below, so
+   the two moments don't read as a repeated image. */
 main[data-case="mindfulness"].case-study--showcase.case-study--immersive {
   --immersive-hero-bg:
     linear-gradient(90deg, rgba(31, 48, 34, 0.99) 0%, rgba(46, 65, 45, 0.94) 44%, rgba(49, 66, 44, 0.42) 100%),
-    url("/assets/mindfulness-sound-bowls.jpg") center 58% / cover no-repeat;
+    url("/assets/mindfulness-circle-light.jpg") center 15% / cover no-repeat;
 }
 
 main[data-case="we-are-one"].case-study--showcase.case-study--immersive {
@@ -8216,32 +10472,11 @@ main[data-case="triptag"].case-study--showcase .case-hero--world::after {
   display: none;
 }
 
+/* No grid, ring, or butterfly motif here: the real photo behind the copy
+   already supplies the atmosphere and texture, same approach as
+   Mindfulness/Immigrants Rising below. */
 main[data-case="gateway"].case-study--showcase .case-hero--immersive::before {
-  inset: 0;
-  width: auto;
-  height: auto;
-  background: radial-gradient(circle at 82% 46%, rgba(87, 151, 204, 0.22), transparent 18rem);
-  opacity: 1;
-  -webkit-mask-image: none;
-  mask-image: none;
-}
-
-main[data-case="gateway"].case-study--showcase .case-hero--immersive::after {
-  display: block;
-  top: auto;
-  right: clamp(-2rem, 1vw, 1rem);
-  bottom: clamp(1rem, 5%, 3rem);
-  z-index: 1;
-  width: clamp(10rem, 18vw, 17rem);
-  height: auto;
-  aspect-ratio: 640 / 426;
-  border: 0;
-  border-radius: 0;
-  background: url("/assets/grc-blue-butterfly.png") center / contain no-repeat;
-  box-shadow: none;
-  filter: saturate(0.92) drop-shadow(0 12px 22px rgba(8, 27, 32, 0.2));
-  opacity: 0.28;
-  transform: rotate(-5deg);
+  display: none;
 }
 
 main[data-case="immigrants-rising"].case-study--showcase .case-hero--immersive::before {
@@ -8256,8 +10491,16 @@ main[data-case="immigrants-rising"].case-study--showcase .case-hero--immersive::
   display: none;
 }
 
+/* No circle behind the device pair here; the color field carries the
+   atmosphere instead. */
+main[data-case="gateway"].case-study--showcase .case-hero--immersive::after {
+  display: none;
+}
+
+/* No circle glow behind the device pair here either; the real photo
+   already supplies the light. */
 main[data-case="mindfulness"].case-study--showcase .case-hero--immersive::before {
-  background: radial-gradient(circle, rgba(250, 244, 218, 0.16), transparent 66%);
+  display: none;
 }
 
 main[data-case="mindfulness"].case-study--showcase .case-hero--immersive::after {
@@ -8407,6 +10650,31 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
   grid-template-columns: minmax(0, 1.48fr) minmax(17rem, 0.52fr);
 }
 
+/* Funding now gets its own deep-dive just below (the live impact chart), so
+   this section shows Events alone, larger, instead of repeating the same
+   funding screenshot the hero already showed. */
+.gateway-interface-section.case-screen-showcase .gateway-interface-grid--single {
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 26rem;
+  margin-inline: auto;
+}
+
+.gateway-interface-grid--single .gateway-interface--events img {
+  width: min(100%, 28rem);
+}
+
+/* At tablet widths, 26rem leaves lopsided empty margins on either side;
+   widen it so the card reads as intentional rather than stranded. */
+@media (min-width: 640px) and (max-width: 1080px) {
+  .gateway-interface-section.case-screen-showcase .gateway-interface-grid--single {
+    max-width: min(85%, 34rem);
+  }
+
+  .gateway-interface-grid--single .gateway-interface--events img {
+    width: min(100%, 32rem);
+  }
+}
+
 .gateway-interface-section.case-screen-showcase .gateway-interface {
   padding: clamp(1rem, 2.2vw, 1.75rem);
 }
@@ -8451,6 +10719,167 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
   transition:
     opacity 900ms ease 420ms,
     transform 1150ms var(--motion-ease) 420ms;
+}
+
+/* Events showcase: title + blurb on one side, the real tablet screenshot
+   on the other, with numbered pins over the actual UI so a recruiter can
+   match each callout to the feature it describes without reading the
+   whole interaction demo below. */
+/* .gateway-events-showcase intentionally carries no section-level color
+   wash -- the tint that used to live here came back out at Kymari's
+   request rather than sitting on this section as its own colored block.
+   It reads as a plain section again, matching its neighbors; the
+   fragment cards below still communicate "dull, no focus-area color" on
+   their own, via plain date + title with no colored dots. */
+
+.gateway-events-layout {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: clamp(2rem, 4vw, 3.75rem);
+  align-items: center;
+}
+
+.gateway-callout-list {
+  display: grid;
+  gap: 0.8rem;
+  margin: 1.6rem 0 0;
+  padding: 0;
+  list-style: none;
+  max-width: 30rem;
+}
+
+.gateway-callout-list li {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  color: var(--ink);
+  font-size: 0.95rem;
+  line-height: 1.45;
+}
+
+.gateway-callout-num {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 1.45rem;
+  height: 1.45rem;
+  margin-top: 0.05em;
+  border-radius: 50%;
+  background: #d68033;
+  color: #fffdf7;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* GRC Events — "the problem, then the fix." Ten real representative event
+   fragments (the same data as the working demo below) start dense; as the
+   section scrolls, most recede while two stay dominant, reading as
+   information organizing itself. No search/filter replicas and no focus-
+   area colors here — those are the real solution, and they already exist,
+   fully real, in the working demo this resolves into. Duplicating them as
+   fake controls above the real ones would read as broken, not narrative.
+   This block is decorative (aria-hidden). CSS default (no-JS/reduced-
+   motion) below is the resolved state, matching the site's "never hidden
+   without JS" pattern — GSAP only sets a denser starting point and scrubs
+   back to here. */
+.gateway-events-converge {
+  --gp: 1;
+  --scatter-scale: 1;
+  margin: clamp(1.5rem, 3vw, 2.25rem) 0;
+  padding: clamp(1.25rem, 2.5vw, 1.75rem);
+  border: 1px solid var(--case-line);
+  border-radius: 22px;
+  background: #fffdf7;
+  box-shadow: 0 14px 34px rgba(78, 71, 60, 0.08);
+}
+
+.gateway-events-scatter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.gateway-events-fragment {
+  flex: 1 1 12rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid var(--case-line);
+  border-radius: 12px;
+  background: var(--case-bg-alt, #f7f5ee);
+  opacity: calc(1 - var(--gp) * 0.82);
+  transform: scale(calc(1 - var(--gp) * var(--scatter-scale) * 0.05));
+}
+
+.gateway-events-fragment--keep {
+  opacity: 1;
+  border-color: var(--case-accent);
+  background: #fffdf7;
+  box-shadow: 0 6px 16px rgba(96, 113, 59, 0.18);
+  transform: scale(calc(1 + var(--gp) * var(--scatter-scale) * 0.03));
+}
+
+.gateway-events-fragment-title {
+  margin: 0 0 0.2rem;
+  color: var(--ink);
+  font-size: 0.86rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.gateway-events-fragment-meta {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.gateway-events-note {
+  margin-top: 0.85rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+@media (max-width: 1024px) {
+  .gateway-events-converge {
+    --scatter-scale: 0.4;
+  }
+}
+
+@media (max-width: 640px) {
+  .gateway-events-converge {
+    --scatter-scale: 0;
+  }
+
+  .gateway-events-fragment {
+    flex: 1 1 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gateway-events-fragment {
+    opacity: calc(1 - var(--gp, 1) * 0.82) !important;
+    transform: none !important;
+  }
+}
+
+@media (max-width: 860px) {
+  .gateway-events-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .gateway-events-media {
+    order: -1;
+    max-width: 26rem;
+    margin-inline: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .gateway-callout-marker {
+    width: 1.3rem;
+    height: 1.3rem;
+    font-size: 0.66rem;
+  }
 }
 
 .reveal-ready .case-study--showcase .case-screen-head[data-reveal] > * {
@@ -8613,6 +11042,497 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
 
   main[data-case="gateway"].case-study--showcase .case-hero--immersive::after {
     opacity: 0.28;
+  }
+}
+
+/* ===== Part 1 pass (Aug 2026): color/rhythm/whimsy additions ===== */
+
+/* Small colored "mark" reused from .gateway-audience-mark's idiom to give
+   each process-quartet section (team / scale / prioritization / my focus)
+   a slightly different flavor -- green anchors the team-wide process, then
+   gold/purple/blue punctuate the three individual sections that follow,
+   without touching the shared orange numbered-step convention used here
+   and in the Events showcase below. */
+.gateway-evidence-mark {
+  display: block;
+  width: 2.25rem;
+  height: 3px;
+  margin-bottom: 0.85rem;
+}
+
+.gateway-evidence-mark--green {
+  background: var(--case-accent);
+}
+
+.gateway-evidence-mark--gold {
+  background: var(--case-gold);
+}
+
+.gateway-evidence-mark--purple {
+  background: var(--case-purple);
+}
+
+.gateway-evidence-mark--blue {
+  background: var(--case-blue);
+}
+
+/* Prioritization's research quote gets its own accent instead of the
+   orange used for the events callout numbers and the hero button, so it
+   reads as this section's own moment. */
+.gateway-priorities .gateway-quote {
+  border-left-color: var(--case-purple);
+}
+
+/* Evidence figures pick up a whisper of their section's accent in the
+   image border, tying the mark above to the artifact below it. */
+.gateway-scale-layout .gateway-evidence-figure img {
+  border-color: rgba(201, 154, 30, 0.35);
+}
+
+.gateway-priorities-layout .gateway-evidence-figure img {
+  border-color: rgba(107, 102, 147, 0.35);
+}
+
+.gateway-focus-layout .gateway-evidence-figure img {
+  border-color: rgba(85, 147, 187, 0.35);
+}
+
+/* Hero: one restrained touch, not a redesign -- the role-snapshot divider
+   picks up a soft warm gradient instead of a flat white line. */
+.gateway-role-snapshot {
+  border-top-color: transparent;
+  background-image: linear-gradient(90deg, rgba(223, 135, 52, 0.55), rgba(255, 253, 247, 0.08) 60%);
+  background-position: top;
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+}
+
+/* Ownership list: stronger hover/focus states without recoloring the list
+   at rest. Now that the section itself carries the confident purple
+   accent, every card picks up the same light-purple edge on interaction
+   -- one accent, not a cycle through the wider palette. */
+.gateway-ownership-list li {
+  border-left: 3px solid transparent;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .gateway-ownership-list li:hover {
+    border-left-color: var(--case-purple-soft);
+    background: rgba(255, 253, 247, 0.14);
+    transform: translateY(-2px);
+  }
+}
+
+.gateway-ownership-list li:focus-within {
+  border-left-color: var(--case-purple-soft);
+  background: rgba(255, 253, 247, 0.14);
+}
+
+/* Grant Writers stats: a small colored tick per figure instead of one
+   shared border-top, so the row reads as three designed instruments, not
+   a plain three-column stat block. */
+.gateway-grants-stats li {
+  position: relative;
+  padding-top: 0.6rem;
+}
+
+.gateway-grants-stats li::before {
+  content: "";
+  position: absolute;
+  top: -1.75rem;
+  left: 0;
+  width: 1.75rem;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.gateway-grants-stats li:nth-child(1)::before {
+  background: var(--case-accent);
+}
+
+.gateway-grants-stats li:nth-child(2)::before {
+  background: var(--case-blue);
+}
+
+.gateway-grants-stats li:nth-child(3)::before {
+  background: var(--case-gold);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .gateway-grants-stats li {
+    transition: transform 220ms ease;
+  }
+
+  .gateway-grants-stats li:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* Technical section: a small editor-chrome bar above the real code block,
+   selling "this is actual source" the way a code editor's own window
+   chrome does -- three quiet dots in the page's own palette, not the
+   literal red/yellow/green traffic-light cliche. */
+.gateway-code-chrome {
+  display: flex;
+  gap: 0.4rem;
+  padding-left: 0.15rem;
+}
+
+.gateway-code-chrome span {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  opacity: 0.85;
+}
+
+.gateway-code-chrome span:nth-child(1) {
+  background: var(--case-accent);
+}
+
+.gateway-code-chrome span:nth-child(2) {
+  background: var(--case-gold);
+}
+
+.gateway-code-chrome span:nth-child(3) {
+  background: var(--case-accent-2);
+}
+
+.gateway-code {
+  box-shadow: 0 26px 56px rgba(20, 24, 12, 0.3);
+}
+
+/* A quiet warm seam where the neutral Technical section gives way to the
+   dark green Impact band below -- a small transition beat rather than a
+   hard cut. */
+.gateway-data-story {
+  position: relative;
+}
+
+.gateway-data-story::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 5rem;
+  background: radial-gradient(60% 100% at 50% 0%, rgba(240, 204, 98, 0.16), transparent 75%);
+  pointer-events: none;
+}
+
+/* Impact tabs: a small colored dot per category, reusing the exact colors
+   already used for the mobile chart's per-category bold type -- one
+   source of truth for "which color means which metric" across the whole
+   section, not a second invented palette. */
+.gateway-impact-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.gateway-impact-tab-dot {
+  display: inline-block;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: var(--dot-color, currentColor);
+}
+
+/* Proof: a large, quiet serif quotation mark behind the testimonial, the
+   understated version of the section closing on a stronger, more
+   memorable note. */
+.gateway-testimonial {
+  position: relative;
+}
+
+.gateway-testimonial::before {
+  content: "\201C";
+  position: absolute;
+  top: -1.1rem;
+  left: -0.25rem;
+  z-index: 0;
+  color: var(--case-accent-soft);
+  font-family: var(--font-serif);
+  font-size: 6rem;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.5;
+}
+
+.gateway-testimonial p,
+.gateway-testimonial cite {
+  position: relative;
+  z-index: 1;
+}
+
+/* A quiet cool seam where the dark Motion band gives way back to the
+   cream Proof section -- the bookend to the Technical/Impact seam above. */
+.gateway-proof {
+  position: relative;
+}
+
+.gateway-proof::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4rem;
+  background: radial-gradient(60% 100% at 50% 0%, rgba(107, 102, 147, 0.12), transparent 75%);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gateway-ownership-list li,
+  .gateway-grants-stats li {
+    transition: none;
+  }
+}
+
+/* ===== Part 1c (Aug 27 2026): revised per Kymari's review of Part 1b.
+   Hero entry-shapes removed (didn't work). Process steps rebuilt as a bold
+   rainbow line with muted circles instead of six flat saturated dots, drawn
+   as per-step segments (not one long div) so the line reaches every
+   circle's true center no matter how much a given step's text wraps at a
+   given viewport width -- no JS measurement needed. Project details
+   dropped from a boxed/colored panel to a single quiet caption line, since
+   two of its five fields duplicated the title/hero and the rest didn't
+   need a whole section. Audiences gain a hover wash using each card's own
+   existing accent. ===== */
+
+/* Project details, replacing the old boxed panel: one quiet line under the
+   hero, no card, no color. */
+.gateway-status-line {
+  margin-top: 1.5rem;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid var(--case-line);
+  color: var(--case-muted);
+  font-size: 0.82rem;
+  letter-spacing: 0.02em;
+}
+
+/* "How we got there": the mark previewing the section becomes a thin
+   sliver in the same curated four-stop palette as the spine below it
+   (green -> orange -> purple -> blue), not the full six-stop rainbow. */
+.gateway-evidence-mark--green {
+  background: linear-gradient(
+    90deg,
+    var(--case-accent),
+    var(--case-accent-2),
+    var(--case-purple),
+    var(--case-blue)
+  );
+}
+
+/* The process spine: one continuous line (not per-step segments) running
+   through the center column, revealed with a single scaleY fill so it
+   reads as a real spine -- "a real moment, not a margin decoration" --
+   rather than per-step confetti. Colored with the curated four-stop
+   palette (green -> orange -> purple -> blue) used for chapter
+   punctuation across the rest of the page, not the full six-stop
+   rainbow: a quiet progress indicator, not a signature animation
+   competing with Impact or Events for attention. Six real steps
+   alternate left/right of the spine as you scroll past them. */
+.gateway-process-steps {
+  position: relative;
+  max-width: 48rem;
+  margin-inline: auto;
+  row-gap: 0.75rem;
+}
+
+/* Six equal-height rows (below) turn this into a real evenly-spaced path
+   rather than a list whose gaps track each caption's line count. With
+   even rows, the spine's gradient stops can be computed to land exactly
+   on every badge's true position instead of approximating it: each
+   stop below is that step's vertical center within six equal sixths
+   (8.33%, 25%, 41.67%, 58.33%, 75%, 91.67%), paired so steps sharing a
+   color (1+2 green, 4+5 purple) sit on a flat plateau and only the
+   changeover between different-colored steps blends. */
+.gateway-process-steps::before {
+  content: "";
+  position: absolute;
+  top: 0.7rem;
+  bottom: 0.7rem;
+  left: 50%;
+  width: 3px;
+  border-radius: 2px;
+  background: linear-gradient(
+    180deg,
+    var(--case-accent) 0%,
+    var(--case-accent) 26%,
+    var(--case-accent-2) 41.3%,
+    var(--case-purple) 57%,
+    var(--case-purple) 78%,
+    var(--case-blue) 91%,
+    var(--case-blue) 100%
+  );
+  transform: translateX(-50%) scaleY(0);
+  transform-origin: top;
+  transition: transform 900ms var(--motion-ease);
+}
+
+.reveal-ready .gateway-process-steps.is-visible::before {
+  transform: translateX(-50%) scaleY(1);
+}
+
+.gateway-process-steps li {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 1.5rem;
+  min-height: clamp(5.5rem, 9vw, 7rem);
+  transition:
+    opacity 550ms var(--motion-ease),
+    transform 550ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Each step pops onto the path with a small overshoot rather than just
+   fading up -- reads as a waypoint being placed down, not a paragraph
+   arriving. Reuses the existing data-reveal-sequence stagger (already on
+   the <ol>) for per-step timing; only the motion itself is overridden
+   here, so the six steps still land one after another down the path. */
+.reveal-ready .gateway-process-steps:not(.is-visible) > li {
+  opacity: 0;
+  transform: scale(0.7) translateY(14px);
+}
+
+.reveal-ready .gateway-process-steps.is-visible > li {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+.gateway-process-steps .gateway-callout-num {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: center;
+  color: var(--case-ink);
+}
+
+.gateway-process-step-text {
+  grid-column: 1;
+  grid-row: 1;
+  text-align: right;
+}
+
+.gateway-process-steps li:nth-child(even) .gateway-process-step-text {
+  grid-column: 3;
+  text-align: left;
+}
+
+.gateway-process-steps--rainbow li:nth-child(1) .gateway-callout-num,
+.gateway-process-steps--rainbow li:nth-child(2) .gateway-callout-num {
+  background: color-mix(in srgb, var(--case-accent) 46%, var(--case-surface));
+}
+
+.gateway-process-steps--rainbow li:nth-child(3) .gateway-callout-num {
+  background: color-mix(in srgb, var(--case-accent-2) 46%, var(--case-surface));
+}
+
+.gateway-process-steps--rainbow li:nth-child(4) .gateway-callout-num,
+.gateway-process-steps--rainbow li:nth-child(5) .gateway-callout-num {
+  background: color-mix(in srgb, var(--case-purple) 46%, var(--case-surface));
+}
+
+.gateway-process-steps--rainbow li:nth-child(6) .gateway-callout-num {
+  background: color-mix(in srgb, var(--case-blue) 46%, var(--case-surface));
+}
+
+/* Mobile: no room for two side columns around a center spine, so this
+   collapses to a single left-aligned column with the spine running down
+   the left edge -- same seven-stop plateau palette, same six steps and
+   order, same even row heights (a touch shorter -- the single wide
+   column wraps less than desktop's half-width columns did). */
+@media (max-width: 760px) {
+  .gateway-process-steps::before {
+    left: 0.66rem;
+    transform: scaleY(0);
+  }
+
+  .reveal-ready .gateway-process-steps.is-visible::before {
+    transform: scaleY(1);
+  }
+
+  .gateway-process-steps li {
+    grid-template-columns: auto 1fr;
+    column-gap: 0.9rem;
+    min-height: clamp(4rem, 16vw, 5rem);
+  }
+
+  .gateway-process-steps .gateway-callout-num {
+    grid-column: 1;
+  }
+
+  .gateway-process-step-text,
+  .gateway-process-steps li:nth-child(even) .gateway-process-step-text {
+    grid-column: 2;
+    text-align: left;
+  }
+}
+
+/* Whimsy: a small real-fact chip (the actual implementation stack, already
+   stated in the hero) slides in a few px from the right as the section
+   scrolls into view -- a real detail entering, not decoration. */
+.gateway-process-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.gateway-process-chip-dot {
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--case-sun), var(--case-rust));
+}
+
+/* Audiences: a soft wash of each card's own accent on hover, plus a
+   thicker mark -- a discovery moment, not a change to the resting state. */
+.gateway-audience {
+  position: relative;
+  padding: 1rem 1.1rem;
+  margin: -1rem -1.1rem;
+  border-radius: var(--radius-md);
+  transition: background-color 260ms ease;
+}
+
+.gateway-audience-mark {
+  transition: height 220ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .gateway-audience:hover {
+    background-color: rgba(223, 135, 52, 0.2);
+  }
+
+  .gateway-audience--2:hover {
+    background-color: rgba(91, 88, 110, 0.2);
+  }
+
+  .gateway-audience--3:hover {
+    background-color: rgba(54, 182, 221, 0.2);
+  }
+
+  .gateway-audience:hover .gateway-audience-mark {
+    height: 5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gateway-process-steps::before {
+    transform: translateX(-50%) scaleY(1);
+    transition: none;
+  }
+
+  .gateway-process-steps li {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .gateway-audience {
+    transition: none;
+  }
+
+  .gateway-audience-mark {
+    transition: none;
   }
 }
 
