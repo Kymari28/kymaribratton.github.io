@@ -1,0 +1,172 @@
+
+/* ===== Part 1b (Aug 27 2026): more whimsy at the beginning of the page.
+   Kymari's read: the ending (Ownership onward) had come alive, but Hero →
+   Snapshot → Process still read flat and report-like before the color
+   started. These tokens are sampled directly from the real calendar
+   background art (the sun/rust/sky of its own corner blobs), not invented,
+   so the earliest color in the page and the color behind the working demo
+   later on are provably the same source. ===== */
+
+.gateway-detail-mark {
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  margin-right: 0.55rem;
+  margin-bottom: 0.08rem;
+  border-radius: 50%;
+  background: var(--dot-color, var(--case-muted));
+}
+
+/* Hero: the two entry-shape hooks case-immersion.js was already prepared
+   to animate (parallax + settle-in) had no markup behind them -- this
+   gives them real elements instead of leaving that motion inert. Both sit
+   behind the copy/visual (z-index: 1 there, unset here) and are clipped by
+   the hero's own overflow:hidden, so they read as background atmosphere,
+   not new foreground content. */
+.gateway-entry-shape {
+  position: absolute;
+  pointer-events: none;
+}
+
+.gateway-entry-shape--bar {
+  top: 14%;
+  left: 2.5rem;
+  width: 4px;
+  height: 46%;
+  border-radius: 3px;
+  background: linear-gradient(180deg, var(--case-sun), var(--case-rust));
+}
+
+.gateway-entry-shape--dots {
+  top: 9%;
+  right: 4%;
+  width: 6.5rem;
+  height: 5.5rem;
+}
+
+.gateway-entry-shape--dots i {
+  position: absolute;
+  top: calc(var(--dx, 0) * 100%);
+  left: calc((1 - var(--dx, 0)) * 100%);
+  width: 0.32rem;
+  height: 0.32rem;
+  border-radius: 50%;
+  background: var(--case-sun);
+}
+
+.gateway-entry-shape--dots i:nth-child(2) {
+  background: var(--case-sky);
+}
+
+.gateway-entry-shape--dots i:nth-child(3) {
+  background: var(--case-rust);
+}
+
+.gateway-entry-shape--dots i:nth-child(4) {
+  background: var(--case-sky);
+}
+
+.gateway-entry-shape--dots i:nth-child(5) {
+  background: var(--case-sun);
+}
+
+.gateway-entry-shape--dots i:nth-child(6) {
+  width: 0.22rem;
+  height: 0.22rem;
+  background: var(--case-rust);
+}
+
+@media (max-width: 860px) {
+  .gateway-entry-shape--bar {
+    left: 1.25rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gateway-entry-shape {
+    opacity: 0.5;
+  }
+
+  .gateway-entry-shape--dots {
+    opacity: 0.55;
+  }
+}
+
+/* Snapshot: the reveal line becomes a warm sweep across the real palette
+   (including the calendar-sampled sun/rust) instead of a single orange
+   bar -- the first color statement on the page after the hero itself. */
+.gateway-snapshot .panel::before {
+  background: linear-gradient(
+    90deg,
+    var(--case-accent),
+    var(--case-rust) 35%,
+    var(--case-sun) 60%,
+    var(--case-purple) 82%,
+    var(--case-sky)
+  );
+}
+
+/* Process (team): a soft warm wash so the section isn't flat cream between
+   the vivid hero and the vivid Ownership band that follows, plus the
+   numbered steps cycle through the same real palette instead of uniform
+   orange -- six steps, six colors, still restrained (small circles, not a
+   rainbow background). */
+.gateway-process {
+  position: relative;
+  overflow: hidden;
+}
+
+.gateway-process::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(26rem 18rem at -6% 0%, rgba(255, 210, 105, 0.12), transparent 60%),
+    radial-gradient(24rem 20rem at 106% 100%, rgba(213, 145, 100, 0.1), transparent 60%);
+  pointer-events: none;
+}
+
+.gateway-process > .shell {
+  position: relative;
+  z-index: 1;
+}
+
+.gateway-process-steps--rainbow li:nth-child(1) .gateway-callout-num {
+  background: var(--case-accent);
+}
+
+.gateway-process-steps--rainbow li:nth-child(2) .gateway-callout-num {
+  background: var(--case-rust);
+}
+
+.gateway-process-steps--rainbow li:nth-child(3) .gateway-callout-num {
+  background: var(--case-sun);
+  color: #3d2f0c;
+}
+
+.gateway-process-steps--rainbow li:nth-child(4) .gateway-callout-num {
+  background: var(--case-purple);
+}
+
+.gateway-process-steps--rainbow li:nth-child(5) .gateway-callout-num {
+  background: var(--case-sky);
+}
+
+.gateway-process-steps--rainbow li:nth-child(6) .gateway-callout-num {
+  background: var(--case-accent-2);
+}
+
+.gateway-process-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.gateway-process-chip-dot {
+  display: inline-block;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--case-sun), var(--case-rust));
+}

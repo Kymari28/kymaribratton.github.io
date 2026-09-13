@@ -1,0 +1,266 @@
+
+/* ===== Part 1 pass (Aug 2026): color/rhythm/whimsy additions ===== */
+
+/* Small colored "mark" reused from .gateway-audience-mark's idiom to give
+   each process-quartet section (team / scale / prioritization / my focus)
+   a slightly different flavor -- green anchors the team-wide process, then
+   gold/purple/blue punctuate the three individual sections that follow,
+   without touching the shared orange numbered-step convention used here
+   and in the Events showcase below. */
+.gateway-evidence-mark {
+  display: block;
+  width: 2.25rem;
+  height: 3px;
+  margin-bottom: 0.85rem;
+}
+
+.gateway-evidence-mark--green {
+  background: var(--case-accent);
+}
+
+.gateway-evidence-mark--gold {
+  background: var(--case-gold);
+}
+
+.gateway-evidence-mark--purple {
+  background: var(--case-purple);
+}
+
+.gateway-evidence-mark--blue {
+  background: var(--case-blue);
+}
+
+/* Prioritization's research quote gets its own accent instead of the
+   orange used for the events callout numbers and the hero button, so it
+   reads as this section's own moment. */
+.gateway-priorities .gateway-quote {
+  border-left-color: var(--case-purple);
+}
+
+/* Evidence figures pick up a whisper of their section's accent in the
+   image border, tying the mark above to the artifact below it. */
+.gateway-scale-layout .gateway-evidence-figure img {
+  border-color: rgba(201, 154, 30, 0.35);
+}
+
+.gateway-priorities-layout .gateway-evidence-figure img {
+  border-color: rgba(107, 102, 147, 0.35);
+}
+
+.gateway-focus-layout .gateway-evidence-figure img {
+  border-color: rgba(85, 147, 187, 0.35);
+}
+
+/* Hero: one restrained touch, not a redesign -- the role-snapshot divider
+   picks up a soft warm gradient instead of a flat white line. */
+.gateway-role-snapshot {
+  border-top-color: transparent;
+  background-image: linear-gradient(90deg, rgba(223, 135, 52, 0.55), rgba(255, 253, 247, 0.08) 60%);
+  background-position: top;
+  background-size: 100% 1px;
+  background-repeat: no-repeat;
+}
+
+/* Ownership list: stronger hover/focus states without recoloring the list
+   at rest. Each card picks up a thin accent edge that cycles through the
+   page's wider palette on interaction only -- discovery, not decoration
+   sitting there unearned. */
+.gateway-ownership-list li {
+  border-left: 3px solid transparent;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .gateway-ownership-list li:hover {
+    border-left-color: var(--case-accent-2);
+    background: rgba(255, 253, 247, 0.14);
+    transform: translateY(-2px);
+  }
+
+  .gateway-ownership-list li:nth-child(3n+2):hover {
+    border-left-color: #5593bb;
+  }
+
+  .gateway-ownership-list li:nth-child(3n+3):hover {
+    border-left-color: #c9c3e3;
+  }
+}
+
+.gateway-ownership-list li:focus-within {
+  border-left-color: var(--case-highlight);
+  background: rgba(255, 253, 247, 0.14);
+}
+
+/* Grant Writers stats: a small colored tick per figure instead of one
+   shared border-top, so the row reads as three designed instruments, not
+   a plain three-column stat block. */
+.gateway-grants-stats li {
+  position: relative;
+  padding-top: 0.6rem;
+}
+
+.gateway-grants-stats li::before {
+  content: "";
+  position: absolute;
+  top: -1.75rem;
+  left: 0;
+  width: 1.75rem;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.gateway-grants-stats li:nth-child(1)::before {
+  background: var(--case-accent);
+}
+
+.gateway-grants-stats li:nth-child(2)::before {
+  background: var(--case-blue);
+}
+
+.gateway-grants-stats li:nth-child(3)::before {
+  background: var(--case-gold);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .gateway-grants-stats li {
+    transition: transform 220ms ease;
+  }
+
+  .gateway-grants-stats li:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* Events showcase fragments: a small dot in each card's meta line, colored
+   to match the real focus-area taxonomy used in the working demo below --
+   the scattered/converging visual is telling the truth about categories,
+   not decorating at random. */
+.gateway-events-fragment-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.gateway-events-fragment-dot {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--dot-color, var(--case-muted));
+}
+
+/* Technical section: a small editor-chrome bar above the real code block,
+   selling "this is actual source" the way a code editor's own window
+   chrome does -- three quiet dots in the page's own palette, not the
+   literal red/yellow/green traffic-light cliche. */
+.gateway-code-chrome {
+  display: flex;
+  gap: 0.4rem;
+  padding-left: 0.15rem;
+}
+
+.gateway-code-chrome span {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  opacity: 0.85;
+}
+
+.gateway-code-chrome span:nth-child(1) {
+  background: var(--case-accent);
+}
+
+.gateway-code-chrome span:nth-child(2) {
+  background: var(--case-gold);
+}
+
+.gateway-code-chrome span:nth-child(3) {
+  background: var(--case-accent-2);
+}
+
+.gateway-code {
+  box-shadow: 0 26px 56px rgba(20, 24, 12, 0.3);
+}
+
+/* A quiet warm seam where the neutral Technical section gives way to the
+   dark green Impact band below -- a small transition beat rather than a
+   hard cut. */
+.gateway-data-story {
+  position: relative;
+}
+
+.gateway-data-story::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 5rem;
+  background: radial-gradient(60% 100% at 50% 0%, rgba(240, 204, 98, 0.16), transparent 75%);
+  pointer-events: none;
+}
+
+/* Impact tabs: a small colored dot per category, reusing the exact colors
+   already used for the mobile chart's per-category bold type -- one
+   source of truth for "which color means which metric" across the whole
+   section, not a second invented palette. */
+.gateway-impact-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.gateway-impact-tab-dot {
+  display: inline-block;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: var(--dot-color, currentColor);
+}
+
+/* Proof: a large, quiet serif quotation mark behind the testimonial, the
+   understated version of the section closing on a stronger, more
+   memorable note. */
+.gateway-testimonial {
+  position: relative;
+}
+
+.gateway-testimonial::before {
+  content: "\201C";
+  position: absolute;
+  top: -1.1rem;
+  left: -0.25rem;
+  z-index: 0;
+  color: var(--case-accent-soft);
+  font-family: var(--font-serif);
+  font-size: 6rem;
+  font-weight: 700;
+  line-height: 1;
+  opacity: 0.5;
+}
+
+.gateway-testimonial p,
+.gateway-testimonial cite {
+  position: relative;
+  z-index: 1;
+}
+
+/* A quiet cool seam where the dark Motion band gives way back to the
+   cream Proof section -- the bookend to the Technical/Impact seam above. */
+.gateway-proof {
+  position: relative;
+}
+
+.gateway-proof::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4rem;
+  background: radial-gradient(60% 100% at 50% 0%, rgba(107, 102, 147, 0.12), transparent 75%);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gateway-ownership-list li,
+  .gateway-grants-stats li {
+    transition: none;
+  }
+}

@@ -143,6 +143,7 @@
       var active = button.dataset.demoView === view;
       button.classList.toggle("is-active", active);
       button.setAttribute("aria-selected", String(active));
+      button.setAttribute("tabindex", active ? "0" : "-1");
     });
     els.calView.hidden = view !== "calendar";
     els.gridView.hidden = view !== "grid";
@@ -378,6 +379,21 @@
   els.views.forEach(function (button) {
     button.addEventListener("click", function () {
       setView(button.dataset.demoView);
+    });
+
+    button.addEventListener("keydown", function (event) {
+      var currentIndex = els.views.indexOf(button);
+      var nextIndex = currentIndex;
+
+      if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % els.views.length;
+      else if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + els.views.length) % els.views.length;
+      else if (event.key === "Home") nextIndex = 0;
+      else if (event.key === "End") nextIndex = els.views.length - 1;
+      else return;
+
+      event.preventDefault();
+      setView(els.views[nextIndex].dataset.demoView);
+      els.views[nextIndex].focus();
     });
   });
 
