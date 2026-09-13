@@ -2723,6 +2723,95 @@ main[data-case="immigrants-rising"] .immigrants-flow-note {
   line-height: 1.7;
 }
 
+/* Immigrants Rising guidance: contrast the dense policy state with the
+   clearer, actionable eligibility guidance in the finished case study. */
+main[data-case="immigrants-rising"] .immigrants-shift {
+  display: flex;
+  align-items: stretch;
+  gap: clamp(1rem, 3vw, 1.75rem);
+  margin-top: clamp(2rem, 4vw, 3rem);
+}
+
+main[data-case="immigrants-rising"] .immigrants-shift-side {
+  flex: 1 1 0;
+  padding: var(--space-card);
+  border: 1px solid var(--case-line);
+  border-radius: var(--radius-md);
+}
+
+main[data-case="immigrants-rising"] .immigrants-shift-side--before {
+  background: var(--case-bg-alt);
+}
+
+main[data-case="immigrants-rising"] .immigrants-shift-side--before p:not(.immigrants-shift-label) {
+  color: var(--case-muted);
+}
+
+main[data-case="immigrants-rising"] .immigrants-shift-side--after {
+  border-color: var(--case-accent);
+  background: var(--case-surface);
+}
+
+main[data-case="immigrants-rising"] .immigrants-shift-side--after p:not(.immigrants-shift-label) {
+  color: var(--case-ink);
+  font-weight: 500;
+}
+
+main[data-case="immigrants-rising"] .immigrants-shift-label {
+  margin: 0 0 0.6rem;
+  color: var(--case-accent);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+main[data-case="immigrants-rising"] .immigrants-shift-side p {
+  margin: 0;
+  font-size: 0.98rem;
+  line-height: 1.65;
+}
+
+main[data-case="immigrants-rising"] .immigrants-shift-arrow {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  color: var(--case-accent);
+}
+
+@media (max-width: 720px) {
+  main[data-case="immigrants-rising"] .immigrants-shift {
+    flex-direction: column;
+  }
+
+  main[data-case="immigrants-rising"] .immigrants-shift-arrow {
+    padding: 0.25rem 0;
+    transform: rotate(90deg);
+  }
+}
+
+main[data-case="immigrants-rising"] .immigrants-priority-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: clamp(2rem, 4vw, 3rem);
+}
+
+@media (max-width: 560px) {
+  main[data-case="immigrants-rising"] .immigrants-priority-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+main[data-case="immigrants-rising"] .immigrants-priority-grid .panel h3 {
+  margin-top: 0;
+  font-size: 1.15rem;
+}
+
+main[data-case="immigrants-rising"] .immigrants-priority-grid .panel p {
+  margin-top: 0.5rem;
+  font-size: 0.94rem;
+}
+
 @media (max-width: 640px) {
   main[data-case="immigrants-rising"] .immigrants-steps {
     flex-direction: column;
