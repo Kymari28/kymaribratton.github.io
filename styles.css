@@ -297,29 +297,56 @@ ul {
 }
 
 .nav a {
+  position: relative;
   display: inline-flex;
   align-items: center;
   min-height: 2.75rem;
   padding: 0.4rem 0.75rem;
-  border-radius: var(--radius-pill);
   color: var(--ink);
   font-size: 0.95rem;
   font-weight: 500;
   text-decoration: none;
-  transition:
-    background-color 160ms ease,
-    color 160ms ease;
+  transition: color 160ms ease;
 }
 
-.nav a:hover {
-  background: var(--sage-wash);
+/* Underline sweep: hidden flush right, draws in right-to-left on hover/focus,
+   and sits fully drawn (no animation) under the current page. */
+.nav a::after {
+  content: "";
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.45rem;
+  height: 2px;
+  background: var(--sage-deep);
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nav a:hover,
+.nav a:focus-visible {
   color: var(--sage-deep);
+}
+
+.nav a:hover::after,
+.nav a:focus-visible::after {
+  transform: scaleX(1);
 }
 
 .nav a[aria-current="page"] {
   color: var(--sage-deep);
   font-weight: 600;
-  background: var(--sage-wash);
+}
+
+.nav a[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav a::after {
+    transition: none;
+  }
 }
 
 /* ---------- 7. Buttons + links -------------------------------------------- */
@@ -1277,6 +1304,116 @@ main[data-case] .button--primary {
   height: 100%;
   object-fit: cover;
   object-position: 50% 42%;
+}
+
+/* ---- Travel gallery (About page) ---------------------------------------- */
+.travel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
+  gap: 1.5rem;
+  list-style: none;
+}
+
+.travel-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.travel-frame {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(165deg, var(--sage-wash), var(--blush-wash));
+  box-shadow: var(--shadow-media);
+}
+
+.travel-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 260ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.travel-caption {
+  margin: 0;
+  color: var(--sage-deep);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* ---- Playful entrance + hover for the travel gallery --------------------
+   A deliberate departure from the site's calm Premium fade: bounce-settle
+   easing, per-card rotation wobble, and an uneven ("wave") stagger instead
+   of the sitewide linear one. Disney: anticipation + arcs + exaggeration. */
+.reveal-ready [data-reveal-sequence].travel-grid > * {
+  transition:
+    opacity 320ms cubic-bezier(0.175, 0.885, 0.32, 1.275),
+    transform 320ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.reveal-ready [data-reveal-sequence].travel-grid:not(.is-visible) > * {
+  opacity: 0;
+  transform: scale(0.72) rotate(-6deg);
+}
+
+.reveal-ready [data-reveal-sequence].travel-grid:not(.is-visible) > *:nth-child(even) {
+  transform: scale(0.72) rotate(6deg);
+}
+
+.reveal-ready [data-reveal-sequence].travel-grid.is-visible > * {
+  transform: scale(1) rotate(0deg);
+}
+
+.reveal-ready [data-reveal-sequence].travel-grid.is-visible > *:nth-child(1) {
+  transition-delay: 0ms;
+}
+.reveal-ready [data-reveal-sequence].travel-grid.is-visible > *:nth-child(2) {
+  transition-delay: 110ms;
+}
+.reveal-ready [data-reveal-sequence].travel-grid.is-visible > *:nth-child(3) {
+  transition-delay: 180ms;
+}
+.reveal-ready [data-reveal-sequence].travel-grid.is-visible > *:nth-child(4) {
+  transition-delay: 260ms;
+}
+.reveal-ready [data-reveal-sequence].travel-grid.is-visible > *:nth-child(5) {
+  transition-delay: 340ms;
+}
+.reveal-ready [data-reveal-sequence].travel-grid.is-visible > *:nth-child(6) {
+  transition-delay: 400ms;
+}
+
+.travel-card .travel-frame {
+  transition: transform 260ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.travel-card:hover .travel-frame {
+  transform: scale(1.04) rotate(-2deg);
+}
+
+.travel-card:nth-child(even):hover .travel-frame {
+  transform: scale(1.04) rotate(2deg);
+}
+
+.travel-card:hover .travel-frame img {
+  transform: scale(1.1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal-ready [data-reveal-sequence].travel-grid:not(.is-visible) > * {
+    transform: none;
+  }
+  .travel-card:hover .travel-frame,
+  .travel-card:hover .travel-frame img {
+    transform: none;
+  }
 }
 
 .grid-2 {
@@ -3477,6 +3614,69 @@ main[data-case="we-are-one"] .stat {
   text-align: center;
 }
 
+.contact-hero--glow {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.contact-hero--glow::before,
+.contact-hero--glow::after {
+  content: "";
+  position: absolute;
+  top: 42%;
+  width: 20rem;
+  height: 20rem;
+  border-radius: 50%;
+  filter: blur(70px);
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.8;
+  animation: hero-glow-pulse 16s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.contact-hero--glow::before {
+  left: 10%;
+  background: var(--sage-wash);
+  transform: translate(-50%, calc(-50% + var(--glow-shift-a, 0px)));
+}
+
+.contact-hero--glow::after {
+  right: 6%;
+  width: 16rem;
+  height: 16rem;
+  background: var(--blush-wash);
+  transform: translate(50%, calc(-50% + var(--glow-shift-b, 0px)));
+  animation-delay: 8s;
+}
+
+@keyframes hero-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.65;
+    scale: 1;
+  }
+  50% {
+    opacity: 1;
+    scale: 1.12;
+  }
+}
+
+@media (max-width: 700px) {
+  .contact-hero--glow::before,
+  .contact-hero--glow::after {
+    width: 13rem;
+    height: 13rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-hero--glow::before,
+  .contact-hero--glow::after {
+    animation: none;
+  }
+}
+
 .contact-hero .subpage-lede {
   max-width: 38rem;
   margin-inline: auto;
@@ -3493,6 +3693,15 @@ main[data-case="we-are-one"] .stat {
   margin-top: 1.5rem;
   color: var(--muted);
   font-size: 0.95rem;
+}
+
+.availability--center {
+  display: flex;
+  justify-content: center;
+}
+
+.hero-status--center {
+  justify-content: center;
 }
 
 .availability::before {
@@ -5477,7 +5686,7 @@ main[data-case="gateway"] .gateway-ownership .section-title {
 }
 
 .gateway-impact-tab {
-  min-height: 2.5rem;
+  min-height: 2.75rem;
   padding: 0.5rem 1.05rem;
   border: 1.5px solid rgba(255, 253, 247, 0.45);
   border-radius: var(--radius-pill);
@@ -7404,8 +7613,9 @@ main[data-case="24seven"] .case-hero--immersive .case-device--secondary {
 
 main[data-case="brightside"].case-study--immersive {
   --immersive-hero-bg:
-    linear-gradient(90deg, rgba(7, 38, 51, 0.98) 0%, rgba(12, 57, 70, 0.9) 45%, rgba(14, 68, 81, 0.54) 100%),
-    url("/assets/brightside-mental-health-atmosphere.jpg") center / cover no-repeat;
+    radial-gradient(circle, rgba(158, 223, 216, 0.22) 0 2px, transparent 3px) 4px 4px / 52px 52px,
+    radial-gradient(circle, rgba(158, 223, 216, 0.12) 0 1.5px, transparent 2.5px) 30px 28px / 52px 52px,
+    linear-gradient(125deg, #04222f 0%, #0a3646 55%, #12495a 100%);
   --immersive-accent: #a9eee6;
   --immersive-button-ink: #153b43;
 }
@@ -8403,5 +8613,213 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
 
   main[data-case="gateway"].case-study--showcase .case-hero--immersive::after {
     opacity: 0.28;
+  }
+}
+
+
+/* Mindfulness challenge image parallax transition, restored from the newer work. */
+.mindfulness-challenge-media[data-reveal] img {
+  transition: transform 200ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mindfulness-challenge-media[data-reveal] img {
+    transition: none !important;
+  }
+}
+
+/* =====================================================================
+   Work with me: distinctive premium motion
+   -----------------------------------------------------------------------
+   Kymari felt the page read flat next to the rest of the site after the
+   storytelling pass, even though every section already used the shared
+   [data-reveal] system. This block gives the page its own slower,
+   eased, no-bounce cascade (the "luxury" personality already used for
+   the hero copy and glow) instead of the sitewide default, plus two
+   scroll-linked touches, so it stands apart rather than repeating the
+   same 70ms-increment stagger every other page uses. Scoped entirely to
+   main[data-page="work-with-me"] so nothing here touches another page.
+   ===================================================================== */
+
+/* ---- Hero: each real piece gets its own arrival instead of the whole
+   block moving as one unit. Wrapper neutralised, same technique as the
+   homepage hero entrance above. */
+.reveal-ready main[data-page="work-with-me"] .contact-hero > [data-reveal-sequence] {
+  opacity: 1;
+  transform: none;
+  transition: none;
+}
+
+.reveal-ready main[data-page="work-with-me"] .contact-hero [data-reveal-sequence] > * {
+  transition:
+    opacity 650ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 650ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reveal-ready main[data-page="work-with-me"] .contact-hero [data-reveal-sequence]:not(.is-visible) .display-title {
+  transform: translateY(18px) scale(0.98);
+}
+
+.reveal-ready main[data-page="work-with-me"] .contact-hero [data-reveal-sequence].is-visible .eyebrow--rule {
+  transition-delay: 80ms;
+}
+.reveal-ready main[data-page="work-with-me"] .contact-hero [data-reveal-sequence].is-visible .display-title {
+  transition-delay: 220ms;
+  transition-duration: 760ms;
+}
+.reveal-ready main[data-page="work-with-me"] .contact-hero [data-reveal-sequence].is-visible .subpage-lede {
+  transition-delay: 420ms;
+}
+.reveal-ready main[data-page="work-with-me"] .contact-hero [data-reveal-sequence].is-visible .hero-status {
+  transition-delay: 580ms;
+}
+.reveal-ready main[data-page="work-with-me"] .contact-hero [data-reveal-sequence].is-visible .availability {
+  transition-delay: 660ms;
+}
+.reveal-ready main[data-page="work-with-me"] .contact-hero [data-reveal-sequence].is-visible .button-row {
+  transition-delay: 740ms;
+}
+
+/* ---- Section eyebrows: the rule-lines either side of the label draw in
+   from the text outward, a small signature detail unique to this page. */
+.reveal-ready main[data-page="work-with-me"] .section-head .eyebrow--rule::before,
+.reveal-ready main[data-page="work-with-me"] .section-head .eyebrow--rule::after {
+  transition: transform 420ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.reveal-ready main[data-page="work-with-me"] .section-head .eyebrow--rule::before {
+  transform-origin: right;
+}
+.reveal-ready main[data-page="work-with-me"] .section-head .eyebrow--rule::after {
+  transform-origin: left;
+}
+.reveal-ready main[data-page="work-with-me"] .section-head:not(.is-visible) .eyebrow--rule::before,
+.reveal-ready main[data-page="work-with-me"] .section-head:not(.is-visible) .eyebrow--rule::after {
+  transform: scaleX(0);
+}
+
+/* ---- Every other [data-reveal] on the page (section heads, service
+   panels, process cards, project cards, the closing CTA) gets the same
+   slower premium settle - a touch more rise, a subtle 98%->100% scale,
+   no bounce - instead of the sitewide flat 600ms fade. */
+.reveal-ready main[data-page="work-with-me"] [data-reveal] {
+  transform: translateY(22px) scale(0.98);
+  transition:
+    opacity 620ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 620ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.reveal-ready main[data-page="work-with-me"] [data-reveal].is-visible {
+  transform: none;
+}
+
+/* Light stagger across each row, keyed to real position instead of the
+   generic sequence system (these cards each carry their own [data-reveal],
+   not a shared sequence wrapper). */
+.reveal-ready main[data-page="work-with-me"] .grid-3--five > [data-reveal].is-visible:nth-child(1) { transition-delay: 0ms; }
+.reveal-ready main[data-page="work-with-me"] .grid-3--five > [data-reveal].is-visible:nth-child(2) { transition-delay: 90ms; }
+.reveal-ready main[data-page="work-with-me"] .grid-3--five > [data-reveal].is-visible:nth-child(3) { transition-delay: 180ms; }
+.reveal-ready main[data-page="work-with-me"] .grid-3--five > [data-reveal].is-visible:nth-child(4) { transition-delay: 270ms; }
+.reveal-ready main[data-page="work-with-me"] .grid-3--five > [data-reveal].is-visible:nth-child(5) { transition-delay: 360ms; }
+
+.reveal-ready main[data-page="work-with-me"] .grid-3:not(.grid-3--five) > [data-reveal].is-visible:nth-child(1) { transition-delay: 0ms; }
+.reveal-ready main[data-page="work-with-me"] .grid-3:not(.grid-3--five) > [data-reveal].is-visible:nth-child(2) { transition-delay: 110ms; }
+.reveal-ready main[data-page="work-with-me"] .grid-3:not(.grid-3--five) > [data-reveal].is-visible:nth-child(3) { transition-delay: 220ms; }
+
+.reveal-ready main[data-page="work-with-me"] .work-grid > li:nth-child(1) [data-reveal].is-visible { transition-delay: 0ms; }
+.reveal-ready main[data-page="work-with-me"] .work-grid > li:nth-child(2) [data-reveal].is-visible { transition-delay: 140ms; }
+.reveal-ready main[data-page="work-with-me"] .work-grid > li:nth-child(3) [data-reveal].is-visible { transition-delay: 280ms; }
+
+/* ---- Scroll movement: the hero glow drifts a little as you scroll past
+   it (--glow-shift-a/b set by script.js), layered on top of its own slow
+   ambient pulse. */
+@media (prefers-reduced-motion: reduce) {
+  main[data-page="work-with-me"] .contact-hero--glow::before,
+  main[data-page="work-with-me"] .contact-hero--glow::after {
+    transform: none;
+  }
+}
+
+
+
+/* =====================================================================
+   Work with me: motion tied to what each section is actually saying
+   -----------------------------------------------------------------------
+   Kymari didn't like the decorative progress line under "How I Work" -
+   it didn't mean anything, it was just there. These three replace it
+   with motion that's actually about the content it's attached to:
+   Services items check in like a checklist (this is literally a list of
+   what's included), each process step's number stamps in a beat after
+   its content (marking the step, not just decorating the card), and
+   project cover images sharpen into focus on arrival (this is proof -
+   real client work resolving into view, not a generic pop-in). Nothing
+   here is a new decorative element; all three reuse pieces already on
+   the page. Scoped to main[data-page="work-with-me"] only.
+   ===================================================================== */
+
+/* ---- Services: each capability checks in, left to right, once its
+   panel has arrived - reinforcing "here's exactly what's included"
+   rather than the panel just appearing as one flat block. */
+.reveal-ready main[data-page="work-with-me"] .panel .detail-list li {
+  opacity: 0;
+  transform: translate3d(-10px, 0, 0);
+  transition:
+    opacity 420ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 420ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.reveal-ready main[data-page="work-with-me"] .panel.is-visible .detail-list li {
+  opacity: 1;
+  transform: none;
+}
+.reveal-ready main[data-page="work-with-me"] .panel.is-visible .detail-list li:nth-child(1) { transition-delay: 260ms; }
+.reveal-ready main[data-page="work-with-me"] .panel.is-visible .detail-list li:nth-child(2) { transition-delay: 320ms; }
+.reveal-ready main[data-page="work-with-me"] .panel.is-visible .detail-list li:nth-child(3) { transition-delay: 380ms; }
+.reveal-ready main[data-page="work-with-me"] .panel.is-visible .detail-list li:nth-child(4) { transition-delay: 440ms; }
+.reveal-ready main[data-page="work-with-me"] .panel.is-visible .detail-list li:nth-child(5) { transition-delay: 500ms; }
+
+/* ---- Process: the step number stamps in a beat after its card's
+   content, like the step getting marked once you've read it, instead
+   of a separate line trying to represent the same "this is a sequence"
+   idea in the abstract. */
+.reveal-ready main[data-page="work-with-me"] .value-card .value-num {
+  opacity: 0;
+  transform: scale(1.2);
+  transition:
+    opacity 380ms cubic-bezier(0.4, 0, 0.2, 1),
+    transform 380ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.reveal-ready main[data-page="work-with-me"] .value-card.is-visible .value-num {
+  opacity: 1;
+  transform: none;
+}
+.reveal-ready main[data-page="work-with-me"] .grid-3--five > .value-card.is-visible:nth-child(1) .value-num { transition-delay: 180ms; }
+.reveal-ready main[data-page="work-with-me"] .grid-3--five > .value-card.is-visible:nth-child(2) .value-num { transition-delay: 270ms; }
+.reveal-ready main[data-page="work-with-me"] .grid-3--five > .value-card.is-visible:nth-child(3) .value-num { transition-delay: 360ms; }
+.reveal-ready main[data-page="work-with-me"] .grid-3--five > .value-card.is-visible:nth-child(4) .value-num { transition-delay: 450ms; }
+.reveal-ready main[data-page="work-with-me"] .grid-3--five > .value-card.is-visible:nth-child(5) .value-num { transition-delay: 540ms; }
+
+/* ---- Selected Projects: the cover image sharpens into focus after its
+   card arrives - these are the real proof of the work, so they resolve
+   into view rather than just fading in flat like everything else.
+   Filter only (not transform), so the existing hover zoom on these same
+   images is untouched. */
+.reveal-ready main[data-page="work-with-me"] .work-cover img {
+  filter: blur(9px);
+  transition:
+    transform 500ms ease,
+    filter 750ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+.reveal-ready main[data-page="work-with-me"] .work-card.is-visible .work-cover img {
+  filter: blur(0);
+}
+.reveal-ready main[data-page="work-with-me"] .work-grid > li:nth-child(1) .work-card.is-visible .work-cover img { transition-delay: 120ms; }
+.reveal-ready main[data-page="work-with-me"] .work-grid > li:nth-child(2) .work-card.is-visible .work-cover img { transition-delay: 260ms; }
+.reveal-ready main[data-page="work-with-me"] .work-grid > li:nth-child(3) .work-card.is-visible .work-cover img { transition-delay: 400ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  main[data-page="work-with-me"] .panel .detail-list li,
+  main[data-page="work-with-me"] .value-card .value-num,
+  main[data-page="work-with-me"] .work-cover img {
+    opacity: 1;
+    transform: none;
+    filter: none;
   }
 }

@@ -58,6 +58,75 @@
     }, 2000);
   }
 
+  /* ---- Mindfulness with Desiree: Timeline + Challenge photo parallax ----
+     Approved motion spec's one "static section allowed to use parallax":
+     the real photo drifts a few px slower than the copy beside it while the
+     section is in view. Plain scroll + rAF, no dependency, fully skipped
+     under prefers-reduced-motion (the CSS also hard-disables the transition
+     as a second safety net). Round 8: briefly removed on a hypothesis that
+     this was making the photo look "edited"/grainy - Kymari asked for it
+     back (the grain report turned out to be about the photo itself, not
+     this), so it's restored here unchanged. */
+  var challengeImg = document.querySelector(".mindfulness-challenge-media img");
+  if (challengeImg && !prefersReducedMotion) {
+    var challengeSection = challengeImg.closest(".mindfulness-challenge");
+    var challengeTicking = false;
+    var updateChallengeParallax = function () {
+      challengeTicking = false;
+      var rect = challengeSection.getBoundingClientRect();
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      if (rect.bottom < 0 || rect.top > vh) {
+        return;
+      }
+      var progress = (vh - rect.top) / (vh + rect.height);
+      var drift = (progress - 0.5) * 26;
+      challengeImg.style.transform = "translateY(" + drift.toFixed(1) + "px)";
+    };
+    window.addEventListener(
+      "scroll",
+      function () {
+        if (!challengeTicking) {
+          challengeTicking = true;
+          window.requestAnimationFrame(updateChallengeParallax);
+        }
+      },
+      { passive: true }
+    );
+    updateChallengeParallax();
+  }
+
+  /* ---- Work with me: hero glow drift on scroll ----
+     Same plain scroll + rAF approach as the Mindfulness parallax above,
+     fully skipped under prefers-reduced-motion. The selector only exists
+     on the work-with-me page, so this safely no-ops everywhere else. */
+  var heroGlow = document.querySelector(".contact-hero--glow");
+  if (heroGlow && !prefersReducedMotion) {
+    var glowTicking = false;
+    var updateGlow = function () {
+      glowTicking = false;
+      var rect = heroGlow.getBoundingClientRect();
+      var vh = window.innerHeight || document.documentElement.clientHeight;
+      if (rect.bottom < 0 || rect.top > vh) {
+        return;
+      }
+      var progress = (vh - rect.top) / (vh + rect.height);
+      var shift = (progress - 0.5) * 40;
+      heroGlow.style.setProperty("--glow-shift-a", shift.toFixed(1) + "px");
+      heroGlow.style.setProperty("--glow-shift-b", (-shift * 0.7).toFixed(1) + "px");
+    };
+    window.addEventListener(
+      "scroll",
+      function () {
+        if (!glowTicking) {
+          glowTicking = true;
+          window.requestAnimationFrame(updateGlow);
+        }
+      },
+      { passive: true }
+    );
+    updateGlow();
+  }
+
   /* ---- Project-stage pointer depth ----
      The approved card hover transforms stay on the picture wrappers. Pointer
      response lives only on the inner device images, so the card, copy, and

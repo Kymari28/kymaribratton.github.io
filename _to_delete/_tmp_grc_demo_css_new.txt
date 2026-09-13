@@ -1,0 +1,639 @@
+.gateway-demo {
+  position: relative;
+  background:
+    radial-gradient(46rem 30rem at -6% 0%, rgba(223, 135, 52, 0.16), transparent 62%),
+    radial-gradient(50rem 34rem at 106% 100%, rgba(107, 102, 173, 0.15), transparent 64%),
+    var(--case-bg);
+}
+
+/* Whimsy: a small one-time label appearing just above the real demo as it
+   scrolls into view, naming the thing that makes it different from every
+   other screenshot on the page. Settles once, never repeats, never sits
+   over the controls themselves. */
+.gateway-demo-annotation {
+  max-width: 42rem;
+  margin: 1.5rem auto 0;
+  color: var(--case-accent-3, #5b586e);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* Deliberately not full shell width: a focused instrument to try, not
+   another full-page section. Widened slightly from the first pass so the
+   richer calendar composition below has room to breathe. */
+.gateway-demo-app {
+  max-width: 56rem;
+  margin: 2.25rem auto 0;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid var(--case-line);
+  border-radius: 22px;
+  background: var(--case-surface);
+  box-shadow: 0 20px 44px rgba(60, 54, 34, 0.08);
+}
+
+@media (max-width: 720px) {
+  .gateway-demo-app {
+    max-width: none;
+  }
+}
+
+.gateway-demo-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem;
+}
+
+.gateway-demo-control-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  color: var(--case-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gateway-demo-views {
+  display: inline-flex;
+  padding: 0.25rem;
+  border: 1px solid var(--case-line);
+  border-radius: var(--radius-pill);
+  background: var(--case-bg-alt);
+}
+
+.gateway-demo-view {
+  padding: 0.5rem 1.05rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--case-muted);
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 200ms ease, color 200ms ease, box-shadow 200ms ease;
+}
+
+.gateway-demo-view.is-active {
+  background: var(--case-accent-2);
+  color: #fffdf7;
+  box-shadow: 0 6px 14px rgba(223, 135, 52, 0.28);
+}
+
+.gateway-demo-search input {
+  width: min(100%, 15rem);
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--case-line);
+  border-radius: var(--radius-pill);
+  background: var(--case-bg-alt);
+  color: var(--case-ink);
+  font-size: 0.88rem;
+}
+
+.gateway-demo-search input:focus-visible {
+  outline: 2px solid var(--case-accent);
+  outline-offset: 1px;
+}
+
+.gateway-demo-filters-group {
+  margin-top: 1.1rem;
+}
+
+.gateway-demo-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.gateway-demo-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--case-line);
+  border-radius: var(--radius-pill);
+  background: var(--case-surface);
+  color: var(--case-muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background 200ms ease,
+    color 200ms ease,
+    border-color 200ms ease;
+}
+
+.gateway-demo-filter-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.55;
+}
+
+.gateway-demo-filter.is-active {
+  border-color: transparent;
+  background: var(--case-accent);
+  color: #fffdf7;
+}
+
+.gateway-demo-filter.is-active .gateway-demo-filter-dot {
+  background: #fffdf7;
+  opacity: 0.9;
+}
+
+.gateway-demo-body {
+  margin-top: 1.5rem;
+}
+
+/* Calendar view echoes the real page's side-by-side composition: calendar
+   on the left, "Select a date" detail on the right. Grid view (a full list
+   of cards) doesn't need that split, so this only engages while the
+   calendar is the visible view. */
+@media (min-width: 860px) {
+  .gateway-demo-body:has(.gateway-demo-calendar:not([hidden])) {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 1.5rem;
+  }
+
+  .gateway-demo-body:has(.gateway-demo-calendar:not([hidden])) .gateway-demo-detail {
+    margin-top: 0;
+  }
+}
+
+/* The atmosphere layer behind the calendar: soft project-derived color
+   fields plus a scattered dot cluster, echoing the real page's layered
+   background without literally copying it. Restrained opacity so the
+   grid and detail panel on top stay easy to read. Decorative, so it's
+   hidden from assistive tech and skipped for reduced motion doesn't
+   apply here (it's static, not animated). */
+.gateway-demo-calendar {
+  position: relative;
+  border: 1px solid var(--case-line);
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--case-bg-alt);
+  box-shadow: 0 16px 36px rgba(45, 55, 23, 0.12);
+}
+
+.gateway-demo-cal-head {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.1rem 1.25rem;
+  background: linear-gradient(120deg, #4a5a28, #5c6e33);
+  color: #fdfaf0;
+}
+
+.gateway-demo-cal-month {
+  flex: 1;
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #fdfaf0;
+}
+
+.gateway-demo-cal-nav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 253, 247, 0.92);
+  color: #3d4a20;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: transform 160ms ease, background 160ms ease;
+}
+
+.gateway-demo-cal-nav:hover {
+  background: #fffdf7;
+  transform: translateY(-1px);
+}
+
+.gateway-demo-cal-today {
+  padding: 0.45rem 0.95rem;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: var(--case-accent-2);
+  color: #fffdf7;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 160ms ease;
+}
+
+.gateway-demo-cal-today:hover {
+  filter: brightness(1.06);
+}
+
+.gateway-demo-cal-atmosphere {
+  position: relative;
+  padding: 1.5rem 1.25rem 1.25rem;
+  overflow: hidden;
+}
+
+.gateway-demo-cal-atmosphere::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(20rem 14rem at -8% -14%, rgba(240, 204, 98, 0.4), transparent 62%),
+    radial-gradient(18rem 16rem at 108% 8%, rgba(223, 135, 52, 0.24), transparent 60%),
+    radial-gradient(22rem 18rem at 104% 96%, rgba(107, 102, 147, 0.16), transparent 58%);
+}
+
+.gateway-demo-cal-atmosphere::after {
+  content: "";
+  position: absolute;
+  top: 1rem;
+  right: 2.5rem;
+  z-index: 0;
+  width: 9rem;
+  height: 9rem;
+  background-image: radial-gradient(circle, rgba(45, 55, 23, 0.24) 1.5px, transparent 1.6px);
+  background-size: 14px 14px;
+  opacity: 0.55;
+}
+
+.gateway-demo-cal-weekdays,
+.gateway-demo-cal-grid,
+.gateway-demo-detail {
+  position: relative;
+  z-index: 1;
+}
+
+.gateway-demo-cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  color: var(--case-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.gateway-demo-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.35rem;
+  margin-top: 0.6rem;
+}
+
+.gateway-demo-cal-cell {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.3rem;
+  aspect-ratio: 1;
+  padding: 0.4rem 0.2rem;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: rgba(255, 253, 247, 0.82);
+  color: var(--case-ink);
+  font-size: 0.86rem;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.gateway-demo-cal-cell--outside {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  aspect-ratio: 1;
+  padding: 0.4rem 0.2rem;
+  color: var(--case-muted);
+  font-size: 0.86rem;
+  opacity: 0.3;
+}
+
+.gateway-demo-cal-cell:hover {
+  background: #fffdf7;
+  border-color: var(--case-line);
+  transform: translateY(-1px);
+}
+
+.gateway-demo-cal-daynum {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.15rem;
+}
+
+.gateway-demo-cal-count {
+  font-size: 0.66rem;
+  font-weight: 700;
+  opacity: 0.75;
+}
+
+/* Three real calendar states, matched to the live page: today reads as a
+   filled dark-green cell, a day with events (not yet selected) reads as a
+   soft lavender/purple fill, and the active selection reads as orange --
+   the same "today / has events / selected" language the real Wix calendar
+   uses, not a generic single-color highlight. */
+.gateway-demo-cal-cell.has-events {
+  background: var(--case-purple-soft);
+  color: #2c2a3d;
+}
+
+.gateway-demo-cal-cell.is-today {
+  background: var(--case-today);
+  border-color: transparent;
+  color: #fdfaf0;
+}
+
+.gateway-demo-cal-cell.is-selected {
+  background: var(--case-accent-2);
+  border-color: transparent;
+  color: #fffdf7;
+}
+
+.gateway-demo-cal-dots {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.gateway-demo-cal-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(255, 253, 247, 0.7);
+}
+
+.gateway-demo-grid[hidden] {
+  display: none;
+}
+
+.gateway-demo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
+  gap: 1.1rem;
+}
+
+/* Grid cards get a colored "cover" band standing in for the real page's
+   event image -- a category icon on project color, not a fabricated
+   photo, since this is placeholder demo data. */
+.gateway-demo-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--case-line);
+  border-radius: 16px;
+  background: var(--case-surface);
+  box-shadow: 0 12px 26px rgba(45, 55, 23, 0.08);
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.gateway-demo-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px rgba(45, 55, 23, 0.14);
+}
+
+.gateway-demo-card-cover {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 6.5rem;
+  color: #fffdf7;
+}
+
+.gateway-demo-card-icon svg {
+  width: 2.1rem;
+  height: 2.1rem;
+  opacity: 0.85;
+}
+
+.gateway-demo-card-badge {
+  position: absolute;
+  top: 0.7rem;
+  right: 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  background: rgba(255, 253, 247, 0.28);
+}
+
+.gateway-demo-card-badge svg {
+  width: 1.05rem;
+  height: 1.05rem;
+}
+
+.gateway-demo-card-body {
+  padding: 1.1rem 1.15rem 1.25rem;
+}
+
+.gateway-demo-card-focus {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius-pill);
+  color: #fffdf7;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.gateway-demo-card-title {
+  margin-top: 0.6rem;
+  font-family: var(--font-serif);
+  color: var(--case-ink);
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.gateway-demo-field {
+  margin-top: 0.3rem;
+  color: var(--case-muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.gateway-demo-field-label {
+  display: inline-block;
+  min-width: 4.6rem;
+  color: var(--case-ink);
+  font-weight: 700;
+}
+
+/* A visual-only next step under each card (not a real link or button --
+   there's no real event detail page for this recreation to send it to),
+   restoring the "where to go next" affordance real event listings need
+   without pretending it's functional. Not focusable/announced as
+   interactive, since it genuinely isn't. */
+.gateway-demo-card-cta {
+  display: inline-block;
+  margin-top: 0.75rem;
+  color: var(--case-accent-2);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.gateway-demo-empty {
+  padding: 1.5rem 0;
+  color: var(--case-muted);
+  font-size: 0.92rem;
+  text-align: center;
+}
+
+.gateway-demo-detail {
+  margin-top: 1.25rem;
+}
+
+/* The detail panel: a sage-green gradient with the same restrained dot
+   texture as the calendar atmosphere above, so selecting a date feels
+   continuous with the calendar rather than opening an unrelated card. */
+.gateway-demo-detail-panel {
+  position: relative;
+  overflow: hidden;
+  padding: 1.35rem 1.4rem 1.5rem;
+  border: 1px solid var(--case-line);
+  border-radius: 16px;
+  background:
+    radial-gradient(16rem 12rem at 100% 0%, rgba(240, 204, 98, 0.22), transparent 60%),
+    linear-gradient(165deg, #eef1e3, #dbe3cd 70%);
+}
+
+.gateway-demo-detail-panel::after {
+  content: "";
+  position: absolute;
+  bottom: -1.5rem;
+  right: -1.5rem;
+  width: 8rem;
+  height: 8rem;
+  background-image: radial-gradient(circle, rgba(45, 55, 23, 0.18) 1.4px, transparent 1.5px);
+  background-size: 13px 13px;
+  opacity: 0.6;
+}
+
+.gateway-demo-detail-head {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.gateway-demo-detail-date {
+  color: var(--case-muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.gateway-demo-detail-pager {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--case-ink);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.gateway-demo-detail-pager button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 253, 247, 0.85);
+  color: var(--case-ink);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease;
+}
+
+.gateway-demo-detail-pager button:hover {
+  background: #fffdf7;
+  transform: translateY(-1px);
+}
+
+.gateway-demo-detail-cover {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.9rem;
+  height: 5.5rem;
+  border-radius: 12px;
+}
+
+.gateway-demo-detail-panel .gateway-demo-card-focus {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.85rem;
+}
+
+.gateway-demo-detail-title {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.55rem;
+  font-family: var(--font-serif);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--case-ink);
+}
+
+.gateway-demo-detail-panel .gateway-demo-field {
+  position: relative;
+  z-index: 1;
+}
+
+.gateway-demo-detail-desc {
+  position: relative;
+  z-index: 1;
+  margin-top: 0.75rem;
+  color: var(--case-muted);
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.gateway-demo-note {
+  margin-top: 1.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--case-line);
+  color: var(--case-muted);
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
+.gateway-demo-learning {
+  max-width: 42rem;
+  margin: 2rem 0 0;
+  color: var(--case-muted);
+  font-size: 0.94rem;
+  line-height: 1.75;
+  text-align: left;
+}
+
+.gateway-demo-learning strong {
+  color: var(--case-ink);
+}
+
+.gateway-demo-note {
+  max-width: 42rem;
+  margin: 0.75rem 0 0;
+  color: var(--case-muted);
+  font-size: 0.82rem;
+  line-height: 1.6;
+  text-align: left;
+  opacity: 0.85;
+}
