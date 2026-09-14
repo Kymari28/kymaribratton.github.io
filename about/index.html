@@ -18,7 +18,7 @@
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="/styles.css?v=20260913a" rel="stylesheet"/>
+<link href="/styles.css?v=20260914b" rel="stylesheet"/>
 </head>
 <body>
 <a class="skip-link" href="#main">Skip to content</a>
@@ -90,7 +90,7 @@
 <a class="button button--secondary" href="/contact/">Get in touch</a>
 </div>
 </div>
-<div class="subpage-visual" data-reveal="">
+<div class="subpage-visual subpage-visual--about" data-reveal="">
 <figure class="about-photo-frame">
 <img alt="Kymari Bratton smiling while holding a bouquet of flowers" decoding="async" height="900" src="/assets/bouquet-photo.png" width="512"/>
 </figure>
@@ -159,7 +159,13 @@
               A few stops along the way so far.
             </p>
 </div>
-<ul class="travel-grid" data-reveal="" data-reveal-sequence="">
+<div class="travel-gallery" data-reveal="">
+<div class="travel-motion-controls">
+<button aria-controls="travel-track" aria-pressed="false" class="travel-motion-toggle" data-travel-motion-toggle="" type="button">Pause photos</button>
+</div>
+<div aria-label="Travel photo gallery" class="travel-marquee" data-travel-marquee="">
+<div class="travel-track" id="travel-track">
+<ul class="travel-sequence">
 <li class="travel-card">
 <figure class="travel-frame">
 <picture>
@@ -205,7 +211,75 @@
 </figure>
 <p class="travel-caption">Florida</p>
 </li>
+<li class="travel-card">
+<figure class="travel-frame">
+<picture>
+<source srcset="/assets/travel-seattle.webp" type="image/webp"/>
+<img alt="Kymari making a peace sign with the Pike Place Market sign behind her in Seattle" decoding="async" height="1000" loading="lazy" src="/assets/travel-seattle.png" width="800"/>
+</picture>
+</figure>
+<p class="travel-caption">Seattle</p>
+</li>
 </ul>
+<ul aria-hidden="true" class="travel-sequence">
+<li class="travel-card">
+<figure class="travel-frame">
+<picture>
+<source srcset="/assets/travel-chicago.webp" type="image/webp"/>
+<img alt="" decoding="async" height="1000" loading="lazy" src="/assets/travel-chicago.png" width="800"/>
+</picture>
+</figure>
+<p class="travel-caption">Chicago</p>
+</li>
+<li class="travel-card">
+<figure class="travel-frame">
+<picture>
+<source srcset="/assets/travel-new-orleans.webp" type="image/webp"/>
+<img alt="" decoding="async" height="1000" loading="lazy" src="/assets/travel-new-orleans.png" width="800"/>
+</picture>
+</figure>
+<p class="travel-caption">New Orleans</p>
+</li>
+<li class="travel-card">
+<figure class="travel-frame">
+<picture>
+<source srcset="/assets/travel-cabo.webp" type="image/webp"/>
+<img alt="" decoding="async" height="1000" loading="lazy" src="/assets/travel-cabo.png" width="800"/>
+</picture>
+</figure>
+<p class="travel-caption">Cabo San Lucas</p>
+</li>
+<li class="travel-card">
+<figure class="travel-frame">
+<picture>
+<source srcset="/assets/travel-desert.webp" type="image/webp"/>
+<img alt="" decoding="async" height="1000" loading="lazy" src="/assets/travel-desert.png" width="800"/>
+</picture>
+</figure>
+<p class="travel-caption">Dubai</p>
+</li>
+<li class="travel-card">
+<figure class="travel-frame">
+<picture>
+<source srcset="/assets/travel-wild-florida.webp" type="image/webp"/>
+<img alt="" decoding="async" height="1000" loading="lazy" src="/assets/travel-wild-florida.png" width="800"/>
+</picture>
+</figure>
+<p class="travel-caption">Florida</p>
+</li>
+<li class="travel-card">
+<figure class="travel-frame">
+<picture>
+<source srcset="/assets/travel-seattle.webp" type="image/webp"/>
+<img alt="" decoding="async" height="1000" loading="lazy" src="/assets/travel-seattle.png" width="800"/>
+</picture>
+</figure>
+<p class="travel-caption">Seattle</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
 </div>
 </section>
 
@@ -293,6 +367,6 @@
 <p class="footer-fine">© <span data-year="">2026</span> Kymari Bratton · Designed and built by me</p>
 </div>
 </footer>
-<script defer="" src="/script.js?v=20260913a"></script>
+<script defer="" src="/script.js?v=20260913g"></script>
 </body>
 </html>
