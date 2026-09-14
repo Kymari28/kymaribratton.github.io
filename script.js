@@ -25,6 +25,17 @@
     window.addEventListener("scroll", setStuck, { passive: true });
   }
 
+  /* ---- About: slow travel-photo loop with an explicit motion control ---- */
+  var travelMarquee = document.querySelector("[data-travel-marquee]");
+  var travelMotionToggle = document.querySelector("[data-travel-motion-toggle]");
+  if (travelMarquee && travelMotionToggle) {
+    travelMotionToggle.addEventListener("click", function () {
+      var isPaused = travelMarquee.classList.toggle("is-paused");
+      travelMotionToggle.setAttribute("aria-pressed", String(isPaused));
+      travelMotionToggle.textContent = isPaused ? "Play photos" : "Pause photos";
+    });
+  }
+
   /* ---- Reveal on scroll ----
      The hiding styles live behind .reveal-ready, which is only added here.
      If this script never runs, nothing is ever hidden. */
@@ -165,6 +176,7 @@
 
     projectStages.forEach(function (stage) {
       var card = stage.closest(".project-card");
+      if (!card) return;
       var cardStyle = window.getComputedStyle(card);
       var readStrength = function (name, fallback) {
         var value = parseFloat(cardStyle.getPropertyValue(name));
