@@ -2032,10 +2032,31 @@ main[data-case] .button--primary {
     max-width: 40rem;
   }
 
-  /* Copy first: the positioning statement should be the first thing read */
+  /* At tablet widths, keep the portrait connected to the introduction:
+     greeting first, centered portrait second, then the supporting details.
+     Above this breakpoint the original two-column hero keeps the portrait
+     on the right. */
+  .hero {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .hero-copy {
+    display: contents;
+  }
+
+  .hero-lead {
+    order: 1;
+  }
+
   .hero-visual {
+    order: 2;
     min-height: 0;
-    justify-content: flex-start;
+    justify-content: center;
+  }
+
+  .hero-details {
+    order: 3;
   }
 
   .portrait-frame {
@@ -5052,7 +5073,7 @@ main[data-case] .detail-list li {
   color: #d6a422;
 }
 
-.word-hover--designer .word-hover-text {
+.word-hover--traveler .word-hover-text {
   color: #cf6a95;
 }
 
@@ -5079,11 +5100,11 @@ main[data-case] .detail-list li {
   animation: word-gradient-sweep 2.6s ease-in-out infinite;
 }
 
-/* Designer's sweep runs through the same multi-hue palette as its
+/* Traveler's sweep runs through the same multi-hue palette as its
    particle burst below (rose, orchid, sage, sky) instead of one flat
    pink, so the word itself reads as "colorful" even before the
    particles fire. */
-.word-hover--designer:hover .word-hover-text {
+.word-hover--traveler:hover .word-hover-text {
   background-image: linear-gradient(100deg, #cf6a95, #c98fd0, #6fa86a, #6fa9d6, #cf6a95);
   background-size: 280% 100%;
   -webkit-background-clip: text;
