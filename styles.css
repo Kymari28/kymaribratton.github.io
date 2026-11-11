@@ -5632,6 +5632,30 @@ main[data-case="24seven"] .hover-word:hover .hover-word-text {
   margin-top: 0.9rem;
 }
 
+/* A headline result on a project card. Only use real, published figures
+   from the case study, labelled the same way the case study labels them. */
+.project-result {
+  margin-top: 0.9rem;
+  padding: 0.7rem 0.9rem;
+  border-left: 3px solid var(--project-accent-deep, var(--sage-deep));
+  border-radius: 0 var(--radius-sm, 8px) var(--radius-sm, 8px) 0;
+  background: rgba(169, 198, 165, 0.16);
+  color: var(--ink);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.project-result-label {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--sage-deep);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 .project-actions {
   display: flex;
   flex-wrap: wrap;
