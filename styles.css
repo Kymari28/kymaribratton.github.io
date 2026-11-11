@@ -83,23 +83,15 @@
   --space-card: clamp(1.5rem, 2.4vw, 1.85rem);
   --header-h: 4.75rem;
 
-  /* Project-entry transition system (motion/responsive handoff §4.7). The
-     fixed ~80% shared choreography every case study's Match & Move entry
-     draws from: two families (interface-led = stays framed, media-led =
-     goes full-bleed), each with its own duration per breakpoint, its own
-     easing character, and its own reduced-motion crossfade length. See
-     script.js's ENTRY_TOKENS for how these are consumed. */
-  --entry-interface-led-duration-desktop: 760ms;
-  --entry-interface-led-duration-tablet: 650ms;
-  --entry-interface-led-duration-mobile: 450ms;
-  --entry-interface-led-ease: cubic-bezier(0.65, 0, 0.35, 1);
-  --entry-interface-led-reduced-duration: 130ms;
-
-  --entry-media-led-duration-desktop: 840ms;
-  --entry-media-led-duration-tablet: 720ms;
-  --entry-media-led-duration-mobile: 520ms;
-  --entry-media-led-ease: cubic-bezier(0.22, 1, 0.36, 1); /* = PROJECT_ZOOM_EASE */
-  --entry-media-led-reduced-duration: 150ms;
+  /* Motion. One editorial vocabulary sitewide: things settle in with a
+     soft deceleration and short travel, never bounce or loop for attention.
+     Change a value here and every reveal and page transition follows. */
+  --ease-editorial: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --reveal-duration: 720ms;
+  --page-exit-duration: 180ms;
+  --page-enter-duration: 420ms;
+  --page-morph-duration: 520ms;
 }
 
 /* ---------- 3. Base ------------------------------------------------------- */
@@ -601,13 +593,15 @@ ul {
   min-width: 13.5ch;
   text-align: center;
   transition:
-    opacity 220ms ease,
-    transform 220ms ease;
+    opacity 360ms var(--ease-editorial),
+    filter 360ms var(--ease-editorial),
+    transform 360ms var(--ease-editorial);
 }
 
 .hero-pill-word.is-swapping {
   opacity: 0;
-  transform: translateY(6px);
+  filter: blur(3px);
+  transform: translateY(-3px);
 }
 
 /* Hero visual: portrait, lily, floating note */
@@ -1880,11 +1874,10 @@ main[data-case] .button--primary {
    which is the only thing that hides it before it scrolls into view. */
 .reveal-ready [data-reveal] {
   opacity: 0;
-  transform: translateY(18px);
+  transform: translateY(14px);
   transition:
-    opacity 600ms ease,
-    transform 600ms ease;
-  will-change: opacity, transform;
+    opacity var(--reveal-duration) var(--ease-editorial),
+    transform var(--reveal-duration) var(--ease-editorial);
 }
 
 .reveal-ready [data-reveal].is-visible {
@@ -1892,50 +1885,95 @@ main[data-case] .button--primary {
   transform: none;
 }
 
-/* Project entry transition: a film-style camera push, created at runtime
-   by script.js. The clicked project thumbnail (#page-transition-image) is
-   sized/positioned once to its exact on-page rect, then only ever
-   animates via `transform` (scale + translate, GPU-friendly, no layout
-   thrash) toward filling the viewport, like a lens pushing into the
-   photo; #page-transition-wash is a soft color tint (the project's own
-   accent) behind it. See script.js for the full explanation and timing. */
-#page-transition-veil {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  opacity: 0;
+/* Already on screen when the page arrived slowly, or during a browser page
+   transition: show immediately rather than replaying the entrance. */
+.reveal-ready [data-reveal].is-instant,
+.reveal-ready [data-reveal-sequence].is-instant > * {
+  transition: none;
 }
 
-#page-transition-wash {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
+/* Homepage hero: the three blocks settle in a short, unhurried sequence
+   (copy first, portrait last) instead of arriving all at once. */
+.reveal-ready .hero [data-reveal].is-visible:not(.is-instant) {
+  transition-duration: 900ms;
 }
 
-#page-transition-image {
-  position: fixed;
-  background-size: cover;
-  background-position: center;
-  will-change: transform, opacity;
+.reveal-ready .hero .hero-details[data-reveal].is-visible:not(.is-instant) {
+  transition-delay: 120ms;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  #page-transition-veil {
-    display: none !important;
+.reveal-ready .hero .hero-visual[data-reveal].is-visible:not(.is-instant) {
+  transition-delay: 240ms;
+}
+
+/* Case-study titles stay typographic: the playful title hover (colour
+   sweep and particle burst) belongs to the About page only. */
+main[data-case] .hover-word:hover .hover-word-text {
+  animation: none;
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  color: currentColor;
+  text-shadow: none;
+}
+
+main[data-case] .hover-word .particle {
+  display: none;
+}
+
+/* ---------- Page transitions ----------------------------------------------
+   Browser-native cross-document View Transitions. Supported browsers
+   crossfade between pages, and the clicked project's image glides into the
+   case-study hero (script.js tags it on click). Nothing covers the page and
+   nothing delays navigation: on a slow connection, or in a browser without
+   support, the next page just loads normally. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
   }
 }
 
-/* Pre-hides the GRC/Mindfulness GSAP hero (copy + visual) the moment the
-   fast local script.js runs, well before the slower external GSAP CDN
-   scripts finish loading and case-immersion.js can take over. Without
-   this, the browser paints the hero fully visible by default first, so
-   GSAP's later gsap.set() snaps it to invisible and re-animates it,
-   an out-of-order flash. script.js removes this class outright if GSAP
-   never loads, so the hero is never stuck hidden. */
-.gsap-hero-ready [data-gsap-hero-copy] > *,
-.gsap-hero-ready [data-gsap-hero-visual] {
-  opacity: 0;
+.topbar {
+  view-transition-name: site-header;
+}
+
+main[data-case] .subpage-hero .subpage-frame {
+  view-transition-name: project-hero;
+}
+
+::view-transition-group(site-header) {
+  animation: none;
+}
+
+::view-transition-old(root) {
+  animation: page-fade-out var(--page-exit-duration) var(--ease-in) both;
+}
+
+::view-transition-new(root) {
+  animation: page-rise-in var(--page-enter-duration) var(--ease-editorial) 60ms both;
+}
+
+::view-transition-group(project-hero) {
+  animation-duration: var(--page-morph-duration);
+  animation-timing-function: var(--ease-editorial);
+}
+
+::view-transition-old(project-hero),
+::view-transition-new(project-hero) {
+  animation-duration: var(--page-morph-duration);
+  animation-timing-function: var(--ease-editorial);
+}
+
+@keyframes page-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes page-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
 }
 
 /* Sequential reveal: pair with data-reveal on the same element so the
@@ -3224,22 +3262,9 @@ main[data-case="mindfulness"] .case-hero--world .button--primary::before {
   inset: -0.5rem;
   border-radius: inherit;
   background: radial-gradient(circle, rgba(236, 220, 181, 0.55), transparent 72%);
-  opacity: 0.5;
-  animation: mindfulness-cta-breathe 4.8s ease-in-out infinite;
+  opacity: 0.45;
 }
 
-@keyframes mindfulness-cta-breathe {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 0.4;
-  }
-
-  50% {
-    transform: scale(1.16);
-    opacity: 0.7;
-  }
-}
 
 /* A full-bleed editorial break using the same sound-bowl photo as the hero,
    in a different crop, with the practice's own real tagline as a pull-quote.
@@ -3379,7 +3404,7 @@ main[data-case="mindfulness"] .case-hero--world .button--primary::before {
    challenge copy and drifts a few px slower than the text as the section
    scrolls — the one static section specifically approved for this subtle
    parallax. Restrained on purpose: typography never moves, only the photo,
-   and only by a handful of px (see case-immersion.js). */
+   and only by a handful of px (see script.js). */
 .mindfulness-challenge {
   display: grid;
   grid-template-columns: minmax(0, 0.4fr) minmax(0, 0.6fr);
@@ -3882,9 +3907,38 @@ main[data-case="mindfulness"] .mindfulness-motion .eyebrow {
   object-position: top center;
 }
 
+.mindfulness-path--lead .mindfulness-path-media img {
+  object-position: center 22%;
+}
+
+/* The four other paths are an editorial index rather than photo cards:
+   numbered after the lead program, separated by a single rule. */
+.mindfulness-path-list {
+  counter-reset: mindfulness-path 1;
+}
+
 .mindfulness-path--quiet {
-  padding-top: 0.4rem;
+  counter-increment: mindfulness-path;
+  padding-top: 1rem;
   border-top: 1px solid var(--case-line, var(--line));
+}
+
+.mindfulness-path--lead .mindfulness-path-copy::before {
+  content: "01";
+}
+
+.mindfulness-path--quiet .mindfulness-path-copy::before {
+  content: counter(mindfulness-path, decimal-leading-zero);
+}
+
+.mindfulness-path--lead .mindfulness-path-copy::before,
+.mindfulness-path--quiet .mindfulness-path-copy::before {
+  display: block;
+  margin-bottom: 0.85rem;
+  color: var(--sage-deep);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
 }
 
 .mindfulness-path-copy h3 {
@@ -4015,12 +4069,7 @@ main[data-case="mindfulness"] .mindfulness-motion .eyebrow {
   color: #fffaf0;
 }
 
-/* A real element (not ::before) so the signature scroll sequence in
-   case-immersion.js can drive it directly: density (blurred, dim, slightly
-   enlarged) easing open into clarity (sharp, lit, settled) as the section
-   scrolls through view, rather than snapping once on a single IntersectionObserver
-   trigger. Visible and sharp by default so the section is never broken if
-   GSAP fails to load. */
+/* A real element (not ::before), visible and sharp by default. */
 .mindfulness-editorial-photo {
   position: absolute;
   z-index: -1;
@@ -5391,11 +5440,6 @@ main[data-case="24seven"] .hover-word:hover .hover-word-text {
   --primary-active-transform: scale(1.01);
   --secondary-rest-transform: none;
   --secondary-active-transform: translateY(-6px);
-  --depth-primary-shift: 1.75;
-  --depth-secondary-shift: 3.25;
-  --depth-motif-shift: 1.25;
-  --depth-primary-tilt: 1;
-  --depth-secondary-tilt: 1.5;
   position: relative;
   display: flex;
   flex-direction: column;
@@ -5588,6 +5632,30 @@ main[data-case="24seven"] .hover-word:hover .hover-word-text {
   margin-top: 0.9rem;
 }
 
+/* A headline result on a project card. Only use real, published figures
+   from the case study, labelled the same way the case study labels them. */
+.project-result {
+  margin-top: 0.9rem;
+  padding: 0.7rem 0.9rem;
+  border-left: 3px solid var(--project-accent-deep, var(--sage-deep));
+  border-radius: 0 var(--radius-sm, 8px) var(--radius-sm, 8px) 0;
+  background: rgba(169, 198, 165, 0.16);
+  color: var(--ink);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.project-result-label {
+  display: block;
+  margin-bottom: 0.2rem;
+  color: var(--sage-deep);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 .project-actions {
   display: flex;
   flex-wrap: wrap;
@@ -5614,11 +5682,6 @@ main[data-case="24seven"] .hover-word:hover .hover-word-text {
   --primary-active-transform: translate(-2px, -2px) scale(1.018);
   --secondary-rest-transform: rotate(2deg);
   --secondary-active-transform: rotate(0.5deg) translate(-4px, -10px);
-  --depth-primary-shift: 2.25;
-  --depth-secondary-shift: 4.25;
-  --depth-motif-shift: 1.5;
-  --depth-primary-tilt: 1.2;
-  --depth-secondary-tilt: 1.75;
 }
 
 [data-project="gateway"] .project-media--primary {
@@ -5658,11 +5721,6 @@ main[data-case="24seven"] .hover-word:hover .hover-word-text {
   --primary-active-transform: scale(1.01);
   --secondary-rest-transform: rotate(-5deg);
   --secondary-active-transform: rotate(-3deg) translate(-2px, -8px);
-  --depth-primary-shift: 2.25;
-  --depth-secondary-shift: 4.5;
-  --depth-motif-shift: 1.5;
-  --depth-primary-tilt: 1.2;
-  --depth-secondary-tilt: 1.8;
 }
 
 [data-project="triptag"] .project-media--primary {
@@ -5701,11 +5759,6 @@ main[data-case="24seven"] .hover-word:hover .hover-word-text {
   --primary-active-transform: scale(1.01);
   --secondary-rest-transform: rotate(-2deg);
   --secondary-active-transform: rotate(-1deg) translate(2px, -6px);
-  --depth-primary-shift: 2;
-  --depth-secondary-shift: 4;
-  --depth-motif-shift: 1.5;
-  --depth-primary-tilt: 1.1;
-  --depth-secondary-tilt: 1.65;
 }
 
 [data-project="brightside"] .project-motif {
@@ -5749,11 +5802,6 @@ main[data-case="24seven"] .hover-word:hover .hover-word-text {
   --motif-touch: 0.14;
   --primary-active-transform: scale(1.008);
   --secondary-active-transform: translate(2px, -6px);
-  --depth-primary-shift: 1.5;
-  --depth-secondary-shift: 2.5;
-  --depth-motif-shift: 0.9;
-  --depth-primary-tilt: 0.8;
-  --depth-secondary-tilt: 1.2;
 }
 
 [data-project="immigrants-rising"] .project-media--primary {
@@ -5791,11 +5839,6 @@ main[data-case="24seven"] .hover-word:hover .hover-word-text {
   --primary-active-transform: scale(1.008);
   --secondary-rest-transform: rotate(3deg);
   --secondary-active-transform: rotate(2deg) translate(-2px, -7px);
-  --depth-primary-shift: 1.5;
-  --depth-secondary-shift: 3;
-  --depth-motif-shift: 1;
-  --depth-primary-tilt: 0.85;
-  --depth-secondary-tilt: 1.3;
 }
 
 [data-project="24seven"] .project-stage {
@@ -5841,11 +5884,6 @@ main[data-case="24seven"] .hover-word:hover .hover-word-text {
   --motif-touch: 0.13;
   --primary-active-transform: scale(1.008);
   --secondary-active-transform: translate(-2px, -6px);
-  --depth-primary-shift: 1.25;
-  --depth-secondary-shift: 2.25;
-  --depth-motif-shift: 0.75;
-  --depth-primary-tilt: 0.7;
-  --depth-secondary-tilt: 1;
 }
 
 [data-project="mindfulness"] .project-media--primary {
@@ -5884,11 +5922,6 @@ main[data-case="24seven"] .hover-word:hover .hover-word-text {
   --primary-active-transform: scale(1.009);
   --secondary-rest-transform: rotate(-3deg);
   --secondary-active-transform: rotate(-2deg) translate(2px, -6px);
-  --depth-primary-shift: 1.5;
-  --depth-secondary-shift: 2.75;
-  --depth-motif-shift: 1;
-  --depth-primary-tilt: 0.85;
-  --depth-secondary-tilt: 1.25;
 }
 
 [data-project="we-are-one"] .project-media--primary {
@@ -5913,29 +5946,6 @@ main[data-case="24seven"] .hover-word:hover .hover-word-text {
 /* Fine-pointer interaction: the card stays anchored while the stage blooms
    and each device follows its project-specific choreography. */
 @media (hover: hover) and (pointer: fine) {
-  .project-media--primary img {
-    transform: perspective(1000px)
-      translate3d(var(--depth-primary-x, 0), var(--depth-primary-y, 0), 0)
-      rotateX(var(--depth-primary-rx, 0deg))
-      rotateY(var(--depth-primary-ry, 0deg));
-  }
-
-  .project-media--secondary img {
-    transform: perspective(1000px)
-      translate3d(var(--depth-secondary-x, 0), var(--depth-secondary-y, 0), 0)
-      rotateX(var(--depth-secondary-rx, 0deg))
-      rotateY(var(--depth-secondary-ry, 0deg));
-  }
-
-  .project-motif {
-    transform: translate3d(var(--depth-motif-x, 0), var(--depth-motif-y, 0), 0);
-  }
-
-  .project-stage.is-depth-active .project-media img,
-  .project-stage.is-depth-active .project-motif {
-    will-change: transform;
-  }
-
   .project-card:hover {
     border-color: var(--project-border-hover);
     box-shadow: 0 5px 18px rgba(103, 86, 72, 0.08);
