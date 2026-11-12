@@ -12,7 +12,7 @@
    and calendar navigation should work identically for every visitor.
 
    Visual pass (Aug 2026): restyled to sit closer to the real Wix page's
-   look — colored category icons, a dark "today" cell and a distinct
+   look: colored category icons, a dark "today" cell and a distinct
    "has events" cell, a labeled Date/Time/Location layout, and a compact
    pagination header on the detail panel. Structure and logic below are
    unchanged; only what render*() outputs as markup has grown. */
@@ -26,7 +26,7 @@
      list and color-coding (confirmed from the project demo recording):
      Public Health, Housing, Equity & Economics, Social Justice, Art &
      Humanities, Research & Innovation. Each also gets a small line-icon,
-     used as a stand-in for the real page's event image/logo slot — this
+     used as a stand-in for the real page's event image/logo slot, this
      recreation doesn't fabricate photos for placeholder events, so an
      icon keyed to the real category system fills that visual role instead. */
   var FOCUS_AREAS = {
