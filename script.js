@@ -239,7 +239,7 @@
     }
   }
 
-  /* ---- Ornaments: spiral back-to-top and the "?" colophon ---- */
+  /* ---- Spiral back-to-top ---- */
   document.querySelectorAll("[data-back-to-top]").forEach((link) => {
     link.addEventListener("click", (event) => {
       event.preventDefault();
@@ -250,31 +250,24 @@
     });
   });
 
-  const ornaments = document.querySelector(".ornaments");
-  if (ornaments) {
-    const showAfter = () => (document.querySelector(".hero, .subpage-hero")?.offsetHeight || window.innerHeight) * 0.7;
-    const syncOrnaments = () => ornaments.classList.toggle("is-shown", window.scrollY > showAfter());
-    window.addEventListener("scroll", syncOrnaments, { passive: true });
-    syncOrnaments();
-  }
-
-  const colophonToggle = document.querySelector("[data-colophon-toggle]");
-  const colophon = document.getElementById("colophon");
-  if (colophonToggle && colophon) {
-    const setOpen = (open) => {
-      colophon.hidden = !open;
-      colophonToggle.setAttribute("aria-expanded", String(open));
-    };
-    colophonToggle.addEventListener("click", () => setOpen(colophon.hidden));
-    document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && !colophon.hidden) {
-        setOpen(false);
-        colophonToggle.focus();
-      }
-    });
-    document.addEventListener("click", (event) => {
-      if (!colophon.hidden && !event.target.closest(".ornament--colophon")) setOpen(false);
-    });
+  /* ---- Phone tab bar: on the homepage, "Work" lights up over the projects ---- */
+  const homeTab = document.querySelector('.tabbar-link[data-tab="home"][aria-current]');
+  const workTab = document.querySelector('.tabbar-link[data-tab="work"]');
+  const projectsSection = document.getElementById("projects");
+  if (homeTab && workTab && projectsSection && "IntersectionObserver" in window) {
+    new IntersectionObserver(
+      ([entry]) => {
+        const onWork = entry.isIntersecting;
+        if (onWork) {
+          homeTab.removeAttribute("aria-current");
+          workTab.setAttribute("aria-current", "location");
+        } else {
+          workTab.removeAttribute("aria-current");
+          homeTab.setAttribute("aria-current", "page");
+        }
+      },
+      { rootMargin: "-45% 0px -45% 0px" }
+    ).observe(projectsSection);
   }
 
   /* ---- Words that arrive gently ----

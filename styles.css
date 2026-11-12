@@ -2250,9 +2250,9 @@ main[data-case] .hover-word .particle {
 }
 
 /* ---- Hand-drawn ornaments ------------------------------------------------
-   Spiral: back-to-top in every footer. Envelope + "?": floating shortcuts on
-   the homepage and About only, larger screens only. */
+   Spiral: back-to-top in every footer. */
 .footer .footer-top {
+  align-self: center;
   gap: 0.55rem;
   align-items: center;
   font-size: 0.85rem;
@@ -2273,139 +2273,8 @@ main[data-case] .hover-word .particle {
   transform: rotate(-200deg) scale(1.08);
 }
 
-.ornaments {
-  display: none;
-}
-
-@media (min-width: 1200px) {
-  .ornaments {
-    display: block;
-  }
-
-  /* With JS they wait until the hero is passed, so they never sit on it. */
-  .js .ornament {
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(10px);
-    transition: opacity 0.6s var(--ease-figma-out), transform 0.6s var(--ease-figma-out), visibility 0s linear 0.6s;
-  }
-
-  .js .ornaments.is-shown .ornament {
-    opacity: 1;
-    visibility: visible;
-    transform: none;
-    transition-delay: 0s;
-  }
-
-  .ornament {
-    position: fixed;
-    bottom: 1.4rem;
-    z-index: 40;
-  }
-
-  .ornament--envelope {
-    left: 0.6rem;
-    display: grid;
-    justify-items: center;
-    gap: 0.2rem;
-    padding: 0.35rem 0.5rem 0.45rem;
-    border-radius: var(--radius-sm);
-    color: var(--rose-deep);
-    text-decoration: none;
-  }
-
-  .ornament--envelope .envelope {
-    display: block;
-    filter: drop-shadow(0 6px 10px rgba(120, 104, 92, 0.14));
-    transition: transform 0.6s var(--ease-words);
-  }
-
-  .ornament--envelope:hover .envelope,
-  .ornament--envelope:focus-visible .envelope {
-    transform: translateY(-4px) rotate(4deg);
-  }
-
-  .ornament-label {
-    font-size: 0.75rem;
-    font-weight: 600;
-    letter-spacing: 0.04em;
-    opacity: 0;
-    transform: translateY(-3px);
-    transition: opacity 0.3s ease, transform 0.3s ease;
-  }
-
-  .ornament--envelope:hover .ornament-label,
-  .ornament--envelope:focus-visible .ornament-label {
-    opacity: 1;
-    transform: none;
-  }
-
-  .ornament--colophon {
-    right: 1.4rem;
-  }
-
-  .ornament-q {
-    display: grid;
-    place-items: center;
-    width: 3rem;
-    height: 3rem;
-    border: 1px solid var(--line-strong);
-    border-radius: 50%;
-    background: var(--surface-veil);
-    backdrop-filter: blur(6px);
-    color: var(--rose-deep);
-    font-family: var(--font-display);
-    font-size: 1.7rem;
-    line-height: 1;
-    cursor: pointer;
-    box-shadow: var(--shadow-card);
-    transition: transform 0.4s var(--ease-words), border-color 0.3s ease;
-  }
-
-  .ornament-q:hover,
-  .ornament-q[aria-expanded="true"] {
-    transform: rotate(-12deg);
-    border-color: var(--rose-deep);
-  }
-
-  .colophon {
-    position: absolute;
-    right: 0;
-    bottom: calc(100% + 0.75rem);
-    width: 17.5rem;
-    padding: 1.1rem 1.2rem 0.4rem;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-md);
-    background: var(--surface);
-    box-shadow: var(--shadow-lift);
-    color: var(--muted);
-    font-size: 0.88rem;
-    line-height: 1.55;
-  }
-
-  .colophon p {
-    margin: 0 0 0.7rem;
-  }
-
-  .colophon-title {
-    font-family: var(--font-display);
-    font-size: 1.25rem;
-    color: var(--ink);
-  }
-}
-
-@media (min-width: 1200px) and (prefers-reduced-motion: no-preference) {
-  .colophon:not([hidden]) {
-    animation: hero-rise 0.3s var(--ease-figma-out) both;
-    --y: 6px;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .js .ornament,
-  .footer-top .spiral,
-  .ornament--envelope .envelope,
-  .ornament-q {
+  .footer-top .spiral {
     transition: none;
   }
 }
@@ -12667,5 +12536,180 @@ main[data-case="gateway"] .gateway-evidence-mark {
   main[data-case="gateway"] .gateway-demo-cal-cell--outside {
     min-height: 2.75rem;
     aspect-ratio: auto;
+  }
+}
+
+/* ==========================================================================
+   Editorial gallery: one neutral palette for every project card.
+   Overrides the per-project colour pairs above so the work itself (the
+   screenshots) carries the colour, not the frames around it.
+   ========================================================================== */
+
+#projects {
+  background: var(--cream);
+  border-block: 1px solid rgba(43, 41, 38, 0.06);
+}
+
+.project-card[data-project] {
+  --project-wash: #edece9;
+  --project-bloom-color: rgba(43, 41, 38, 0.05);
+  --project-border-hover: rgba(43, 41, 38, 0.22);
+  --project-accent: #8c8883;
+  --project-accent-deep: var(--muted);
+  border-color: rgba(43, 41, 38, 0.1);
+  border-radius: 14px;
+  background: #fffefc;
+  box-shadow: none;
+}
+
+.project-card[data-project] .project-stage {
+  background: var(--project-wash);
+}
+
+.project-card[data-project] .project-stage::after {
+  display: none;
+}
+
+.project-card[data-project] .project-body {
+  border-top-color: rgba(43, 41, 38, 0.08);
+  background: #fffefc;
+}
+
+.project-card[data-project] .project-meta,
+.project-card[data-project] .project-arrow {
+  color: var(--muted);
+}
+
+/* Result: a ruled line and plain type instead of a tinted callout. */
+.project-card .project-result {
+  padding: 0.8rem 0 0;
+  border-left: 0;
+  border-top: 1px solid rgba(43, 41, 38, 0.1);
+  border-radius: 0;
+  background: none;
+}
+
+.project-card .project-result-label {
+  color: var(--muted);
+}
+
+/* Status: one quiet outlined style on cards; the dot carries the meaning. */
+.project-card .status {
+  border-color: rgba(43, 41, 38, 0.16);
+  background: none;
+  color: var(--muted);
+}
+
+.project-card .status::before {
+  background: var(--sage-deep);
+}
+
+.project-card .status--progress::before {
+  background: var(--blush);
+}
+
+/* ==========================================================================
+   Phone tab bar (carried over from the Figma Sites version).
+   Below 640px the header keeps only the brand and "Work with me"; the
+   main pages move to a bottom bar within thumb reach.
+   ========================================================================== */
+
+.tabbar {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .nav a:not([href="/work-with-me/"]) {
+    display: none;
+  }
+
+  .topbar-inner {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+  }
+
+  .nav a[href="/work-with-me/"] {
+    padding: 0.4rem 0.85rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-pill);
+    font-size: 0.85rem;
+  }
+
+  .nav a[href="/work-with-me/"]::after {
+    display: none;
+  }
+
+  body {
+    padding-bottom: calc(4.1rem + env(safe-area-inset-bottom));
+  }
+
+  .tabbar {
+    position: fixed;
+    z-index: 60;
+    inset: auto 0 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    padding-bottom: env(safe-area-inset-bottom);
+    border-top: 1px solid rgba(232, 174, 183, 0.22);
+    background: rgba(248, 246, 242, 0.96);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  /* Hairline from the original: blush fading into sage. */
+  .tabbar::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto;
+    height: 2px;
+    background: linear-gradient(to right, transparent, rgba(232, 174, 183, 0.5) 30%, rgba(169, 198, 165, 0.4) 70%, transparent);
+    pointer-events: none;
+  }
+
+  .tabbar-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    min-height: 3.9rem;
+    color: var(--soft);
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: color 0.18s ease;
+  }
+
+  .tabbar-link::after {
+    content: "";
+    width: 3px;
+    height: 3px;
+    border-radius: 50%;
+    background: transparent;
+  }
+
+  .tabbar-link[aria-current] {
+    color: var(--sage-deep);
+    font-weight: 600;
+  }
+
+  .tabbar-link[aria-current] svg {
+    stroke-width: 2.4;
+  }
+
+  .tabbar-link[aria-current]::after {
+    background: var(--blush);
+  }
+
+  .tabbar-link:focus-visible {
+    outline: 2px solid var(--sage-deep);
+    outline-offset: -6px;
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 640px) and (prefers-reduced-motion: reduce) {
+  .tabbar-link {
+    transition: none;
   }
 }
