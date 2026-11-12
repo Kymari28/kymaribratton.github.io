@@ -208,32 +208,135 @@
     });
   });
 
-  /* ---- Motion WIP: rotating role pill (ported from the original site) ----
-     Static and fully readable if this never runs; only swaps text when
-     motion is allowed. */
-  var roleNode = document.querySelector("[data-role-rotator]");
+  /* ---- "Currently wearing the hat of": rotating role pill ----
+     Every role is already in the markup; only the first is visible, so the
+     pill reads correctly if this never runs. Timing matches the original
+     Figma site: a new role every 2.8s, a short soft crossfade. */
+  var rotator = document.querySelector("[data-role-rotator]");
 
-  if (roleNode && !prefersReducedMotion) {
-    var roles = (roleNode.dataset.roles || "")
-      .split("|")
-      .map(function (role) {
-        return role.trim();
-      })
-      .filter(Boolean);
+  if (rotator && !prefersReducedMotion) {
+    var hats = rotator.querySelectorAll(".hero-pill-word");
 
-    if (roles.length > 1) {
-      var roleIndex = 0;
+    if (hats.length > 1) {
+      var hatIndex = 0;
 
-      window.setInterval(function () {
-        roleNode.classList.add("is-swapping");
+      window.setTimeout(function () {
+        window.setInterval(function () {
+          var leaving = hats[hatIndex];
+          hatIndex = (hatIndex + 1) % hats.length;
+          var arriving = hats[hatIndex];
 
-        window.setTimeout(function () {
-          roleIndex = (roleIndex + 1) % roles.length;
-          roleNode.textContent = roles[roleIndex];
-          roleNode.classList.remove("is-swapping");
-        }, 220);
-      }, 4200);
+          leaving.classList.remove("is-active");
+          leaving.classList.add("is-leaving");
+          arriving.classList.remove("is-leaving");
+          arriving.classList.add("is-active");
+
+          window.setTimeout(function () {
+            leaving.classList.remove("is-leaving");
+          }, 400);
+        }, 2800);
+      }, 1200);
     }
+  }
+
+  /* ---- Ornaments: spiral back-to-top and the "?" colophon ---- */
+  document.querySelectorAll("[data-back-to-top]").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      window.scrollTo({ top: 0, behavior: prefersReducedMotion ? "auto" : "smooth" });
+      const target = document.querySelector("main") || document.body;
+      if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+      target.focus({ preventScroll: true });
+    });
+  });
+
+  const ornaments = document.querySelector(".ornaments");
+  if (ornaments) {
+    const showAfter = () => (document.querySelector(".hero, .subpage-hero")?.offsetHeight || window.innerHeight) * 0.7;
+    const syncOrnaments = () => ornaments.classList.toggle("is-shown", window.scrollY > showAfter());
+    window.addEventListener("scroll", syncOrnaments, { passive: true });
+    syncOrnaments();
+  }
+
+  const colophonToggle = document.querySelector("[data-colophon-toggle]");
+  const colophon = document.getElementById("colophon");
+  if (colophonToggle && colophon) {
+    const setOpen = (open) => {
+      colophon.hidden = !open;
+      colophonToggle.setAttribute("aria-expanded", String(open));
+    };
+    colophonToggle.addEventListener("click", () => setOpen(colophon.hidden));
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !colophon.hidden) {
+        setOpen(false);
+        colophonToggle.focus();
+      }
+    });
+    document.addEventListener("click", (event) => {
+      if (!colophon.hidden && !event.target.closest(".ornament--colophon")) setOpen(false);
+    });
+  }
+
+  /* ---- Words that arrive gently ----
+     [data-words] statements are split into words that fade up one after
+     another when they come into view. If this script arrives late (slow
+     connection) the text is left exactly as it is: the CSS fallback has
+     already shown it, and re-hiding readable text would be worse. */
+  var wordNodes = document.querySelectorAll("[data-words]");
+  var wordsTooLate = window.performance && performance.now() > 2300;
+
+  if (wordNodes.length && !prefersReducedMotion && !wordsTooLate && "IntersectionObserver" in window) {
+    var splitWords = function (node) {
+      var index = 0;
+      Array.prototype.slice.call(node.childNodes).forEach(function (child) {
+        if (child.nodeType === 3) {
+          var parts = child.textContent.split(/(\s+)/);
+          var fragment = document.createDocumentFragment();
+          parts.forEach(function (part) {
+            if (!part) return;
+            if (/^\s+$/.test(part)) {
+              fragment.appendChild(document.createTextNode(" "));
+            } else {
+              var word = document.createElement("span");
+              word.className = "word";
+              word.style.setProperty("--i", index++);
+              word.textContent = part;
+              fragment.appendChild(word);
+            }
+          });
+          node.replaceChild(fragment, child);
+        } else if (child.nodeType === 1) {
+          child.classList.add("word");
+          child.style.setProperty("--i", index++);
+        }
+      });
+      return index;
+    };
+
+    var wordObserver = new IntersectionObserver(
+      function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          var node = entry.target;
+          node.classList.add("words-play");
+          wordObserver.unobserve(node);
+        });
+      },
+      { threshold: 0, rootMargin: "0px 0px -10% 0px" }
+    );
+
+    wordNodes.forEach(function (node) {
+      var count = splitWords(node);
+      // Long statements keep the whole reveal under about two seconds.
+      if (count > 18) node.style.setProperty("--stagger", Math.round(1700 / count) + "ms");
+      if (node.dataset.wordsDelay) node.style.setProperty("--words-delay", node.dataset.wordsDelay + "s");
+      node.classList.add("words-split");
+      wordObserver.observe(node);
+    });
+  } else {
+    wordNodes.forEach(function (node) {
+      node.classList.add("words-done");
+    });
   }
 
   /* ---- Count-up on scroll: a single stat animates from 0 to its real

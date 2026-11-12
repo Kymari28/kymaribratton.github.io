@@ -92,6 +92,13 @@
   --page-exit-duration: 180ms;
   --page-enter-duration: 420ms;
   --page-morph-duration: 520ms;
+  /* Homepage hero load-in, timings taken from the original Figma site. */
+  --ease-figma-out: cubic-bezier(0, 0, 0.58, 1);
+  --ease-figma-soft: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  /* Statements that arrive word by word. */
+  --ease-words: cubic-bezier(0.22, 1, 0.36, 1);
+  --words-duration: 1.5s;
+  --words-stagger: 95ms;
 }
 
 /* ---------- 3. Base ------------------------------------------------------- */
@@ -694,7 +701,7 @@ ul {
 .credential-track {
   display: flex;
   width: max-content;
-  animation: marquee 46s linear infinite;
+  animation: marquee 28s linear infinite;
 }
 
 /* Spacing via margin, not gap: `gap` would add a trailing half-gap and make
@@ -2082,6 +2089,325 @@ main[data-case] .hover-word .particle {
 /* A labelled team-results block, kept separate from my own design work. */
 .case-team-results {
   margin-top: clamp(1.5rem, 3vw, 2rem);
+}
+
+/* ---------- Homepage hero ---------------------------------------------------
+   Load-in matches the original Figma site: each piece rises a few pixels and
+   fades in on its own delay (set inline as --delay/--dur/--y). Pure CSS, so
+   it never waits on JavaScript or the network, and always ends fully visible. */
+@media (prefers-reduced-motion: no-preference) {
+  .hero-enter {
+    animation: hero-rise var(--dur, 0.6s) var(--ease-figma-out) var(--delay, 0s) both;
+  }
+
+  .hero-enter--portrait {
+    --delay: 0.22s;
+    animation: hero-portrait-in 0.75s var(--ease-figma-soft) var(--delay) both;
+  }
+
+  .hero-enter--lily {
+    animation: hero-lily-in 1s var(--ease-figma-soft) 0.5s both;
+  }
+
+  .hero-enter--note {
+    animation: hero-note-in 0.6s var(--ease-figma-out) 0.95s both;
+  }
+
+  .hero-visual--circle::before {
+    animation: hero-fade 1s var(--ease-figma-soft) 0.3s both;
+  }
+}
+
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(var(--y, 16px)); }
+}
+
+@keyframes hero-portrait-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.93); }
+}
+
+@keyframes hero-lily-in {
+  from { opacity: 0; transform: translateY(12px) scale(0.94); }
+}
+
+@keyframes hero-note-in {
+  from { opacity: 0; transform: translate(-14px, 8px); }
+}
+
+@keyframes hero-fade {
+  from { opacity: 0; }
+}
+
+/* Layering, as on the Figma site: the circle, then the lily, then the
+   portrait. The circle's fill moves onto its own layer so the lily can sit
+   in front of it and behind Kymari, spilling past the right edge. */
+.hero {
+  overflow-x: clip;
+}
+
+.hero-visual--circle .portrait-stage {
+  position: relative;
+  width: min(27rem, 100%);
+  aspect-ratio: 1 / 1;
+}
+
+.hero-visual--circle .portrait-disc {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.96), transparent 70%),
+    linear-gradient(165deg, var(--blush-wash), var(--sage-wash));
+  box-shadow: 0 30px 70px rgba(168, 149, 134, 0.2);
+}
+
+.hero-visual--circle .portrait-stage .hero-bloom {
+  position: absolute;
+  z-index: 1;
+  top: 29%;
+  left: 47%;
+  right: auto;
+  bottom: auto;
+  width: 74%;
+  height: auto;
+  opacity: 0.82;
+  transform: none;
+  pointer-events: none;
+}
+
+.hero-visual--circle .portrait-stage .portrait-frame {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  background: none;
+  box-shadow: none;
+}
+
+/* "Currently wearing the hat of": every role sits in the same grid cell,
+   so the pill keeps the width of the longest one and never jumps. */
+.hero-pill[data-role-rotator] {
+  display: inline-grid;
+}
+
+.hero-pill[data-role-rotator] .hero-pill-word {
+  grid-area: 1 / 1;
+  min-width: 0;
+  text-align: center;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(5px);
+  filter: none;
+  transition:
+    opacity 0.36s ease-in-out,
+    transform 0.36s ease-in-out;
+}
+
+.hero-pill[data-role-rotator] .hero-pill-word.is-active {
+  opacity: 1;
+  transform: none;
+}
+
+.hero-pill[data-role-rotator] .hero-pill-word.is-leaving {
+  opacity: 0;
+  transform: translateY(-5px);
+}
+
+/* ---------- Words that arrive gently ------------------------------------------
+   [data-words] statements fade up word by word with a soft blur. Hidden only
+   while JavaScript is on its way, and a CSS fallback shows them after 2.5s
+   no matter what, so a slow or failed script can never leave text missing. */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-words]:not(.words-done) {
+    animation: words-fallback 0.6s ease 2.5s both;
+  }
+
+  .js [data-words].words-split {
+    animation: none;
+  }
+
+  [data-words].words-split .word {
+    display: inline-block;
+    opacity: 0;
+    filter: blur(10px);
+    transform: translateY(0.38em);
+  }
+
+  [data-words].words-split.words-play .word {
+    animation: word-in var(--words-duration) var(--ease-words) both;
+    animation-delay: calc(var(--words-delay, 0s) + var(--i) * var(--stagger, var(--words-stagger)));
+  }
+}
+
+@keyframes words-fallback {
+  from { opacity: 0; }
+}
+
+@keyframes word-in {
+  0% { opacity: 0; filter: blur(10px); transform: translateY(0.38em); }
+  60% { filter: blur(0); }
+  100% { opacity: 1; filter: blur(0); transform: none; }
+}
+
+/* ---- Hand-drawn ornaments ------------------------------------------------
+   Spiral: back-to-top in every footer. Envelope + "?": floating shortcuts on
+   the homepage and About only, larger screens only. */
+.footer .footer-top {
+  gap: 0.55rem;
+  align-items: center;
+  font-size: 0.85rem;
+  letter-spacing: 0.04em;
+  color: rgba(248, 246, 242, 0.72);
+}
+
+.footer-top .spiral {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  color: var(--blush);
+  transition: transform 0.9s var(--ease-words);
+}
+
+.footer-top:hover .spiral,
+.footer-top:focus-visible .spiral {
+  transform: rotate(-200deg) scale(1.08);
+}
+
+.ornaments {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .ornaments {
+    display: block;
+  }
+
+  /* With JS they wait until the hero is passed, so they never sit on it. */
+  .js .ornament {
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: opacity 0.6s var(--ease-figma-out), transform 0.6s var(--ease-figma-out), visibility 0s linear 0.6s;
+  }
+
+  .js .ornaments.is-shown .ornament {
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    transition-delay: 0s;
+  }
+
+  .ornament {
+    position: fixed;
+    bottom: 1.4rem;
+    z-index: 40;
+  }
+
+  .ornament--envelope {
+    left: 0.6rem;
+    display: grid;
+    justify-items: center;
+    gap: 0.2rem;
+    padding: 0.35rem 0.5rem 0.45rem;
+    border-radius: var(--radius-sm);
+    color: var(--rose-deep);
+    text-decoration: none;
+  }
+
+  .ornament--envelope .envelope {
+    display: block;
+    filter: drop-shadow(0 6px 10px rgba(120, 104, 92, 0.14));
+    transition: transform 0.6s var(--ease-words);
+  }
+
+  .ornament--envelope:hover .envelope,
+  .ornament--envelope:focus-visible .envelope {
+    transform: translateY(-4px) rotate(4deg);
+  }
+
+  .ornament-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    opacity: 0;
+    transform: translateY(-3px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .ornament--envelope:hover .ornament-label,
+  .ornament--envelope:focus-visible .ornament-label {
+    opacity: 1;
+    transform: none;
+  }
+
+  .ornament--colophon {
+    right: 1.4rem;
+  }
+
+  .ornament-q {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 50%;
+    background: var(--surface-veil);
+    backdrop-filter: blur(6px);
+    color: var(--rose-deep);
+    font-family: var(--font-display);
+    font-size: 1.7rem;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: var(--shadow-card);
+    transition: transform 0.4s var(--ease-words), border-color 0.3s ease;
+  }
+
+  .ornament-q:hover,
+  .ornament-q[aria-expanded="true"] {
+    transform: rotate(-12deg);
+    border-color: var(--rose-deep);
+  }
+
+  .colophon {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 0.75rem);
+    width: 17.5rem;
+    padding: 1.1rem 1.2rem 0.4rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    box-shadow: var(--shadow-lift);
+    color: var(--muted);
+    font-size: 0.88rem;
+    line-height: 1.55;
+  }
+
+  .colophon p {
+    margin: 0 0 0.7rem;
+  }
+
+  .colophon-title {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    color: var(--ink);
+  }
+}
+
+@media (min-width: 1200px) and (prefers-reduced-motion: no-preference) {
+  .colophon:not([hidden]) {
+    animation: hero-rise 0.3s var(--ease-figma-out) both;
+    --y: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .js .ornament,
+  .footer-top .spiral,
+  .ornament--envelope .envelope,
+  .ornament-q {
+    transition: none;
+  }
 }
 
 /* ---------- Page transitions ----------------------------------------------
