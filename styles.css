@@ -1808,12 +1808,12 @@ main[data-case] .button--primary {
 }
 
 /* ---------- 15b. Case-study motion components (§4.2-4.4 of the
-   motion/responsive handoff) — reusable across any future case study, not
+   motion/responsive handoff), reusable across any future case study, not
    just Gateway/Mindfulness. --------------------------------------------- */
 
-/* .skillnote — a quiet single-line annotation, thin left-border accent,
+/* .skillnote, a quiet single-line annotation, thin left-border accent,
    small muted text: "Skill: [x]. Decision: [x]. Resolves to: [x]." Not a
-   boxed/grid callout — deliberately lighter than .callout. */
+   boxed/grid callout, deliberately lighter than .callout. */
 .skillnote {
   margin-block: 0.85rem 0;
   padding-left: 0.9rem;
@@ -1828,7 +1828,7 @@ main[data-case] .button--primary {
   font-weight: 600;
 }
 
-/* .myfocus — plain uppercase, letter-spaced micro-label, no border,
+/* .myfocus, plain uppercase, letter-spaced micro-label, no border,
    background, or card treatment. Deliberately quieter than .skillnote;
    used once above Calm Before Complexity's mobile Contained phase. */
 .myfocus {
@@ -1841,7 +1841,7 @@ main[data-case] .button--primary {
   text-transform: uppercase;
 }
 
-/* .real-tag / .ph-tag — small provenance pills distinguishing real product
+/* .real-tag / .ph-tag, small provenance pills distinguishing real product
    assets from photography that's still pending. Reusable anywhere a future
    case study needs the same honesty convention. */
 .real-tag,
@@ -2017,6 +2017,66 @@ main[data-case] .hover-word .particle {
   .case-glance-item + .case-glance-item {
     border-top: 1px solid var(--case-line, var(--line));
   }
+}
+
+/* Immigrants Rising: the review decision beside a full-size close-up. */
+.immigrants-review-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: start;
+}
+
+.immigrants-review-decision {
+  margin-block: 1.25rem 0.5rem;
+  padding: 0.9rem 1.1rem;
+  border-left: 3px solid var(--case-accent, var(--sage-deep));
+  background: var(--case-accent-soft, var(--sage-wash));
+  color: var(--case-ink, var(--ink));
+  font-size: 1.02rem;
+  line-height: 1.55;
+}
+
+.immigrants-review-closeup,
+.case-walkthrough {
+  margin: 0;
+}
+
+.immigrants-review-closeup img {
+  display: block;
+  width: 100%;
+  max-width: 610px;
+  height: auto;
+  border: 1px solid var(--case-line, var(--line));
+  border-radius: var(--radius-sm);
+  box-shadow: 0 18px 40px -28px rgba(20, 40, 60, 0.45);
+}
+
+.immigrants-review-closeup figcaption,
+.case-walkthrough figcaption {
+  margin-top: 0.75rem;
+  color: var(--case-muted, var(--muted));
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .immigrants-review-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* A recorded walkthrough of a prototype. preload="none" + poster in the
+   markup, so nothing heavy downloads until someone presses play. */
+.case-walkthrough video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  border: 1px solid var(--case-line, var(--line));
+  border-radius: var(--radius-sm);
+  background: var(--case-surface, var(--cream));
+  box-shadow: 0 18px 40px -28px rgba(20, 40, 60, 0.45);
 }
 
 /* A labelled team-results block, kept separate from my own design work. */
@@ -3506,7 +3566,7 @@ main[data-case="mindfulness"] .case-hero--world .button--primary::before {
 
 /* Whimsy detail 1 (approved handoff §3.4): a real photo sits beside the
    challenge copy and drifts a few px slower than the text as the section
-   scrolls — the one static section specifically approved for this subtle
+   scrolls, the one static section specifically approved for this subtle
    parallax. Restrained on purpose: typography never moves, only the photo,
    and only by a handful of px (see script.js). */
 .mindfulness-challenge {
@@ -3551,13 +3611,13 @@ main[data-case="mindfulness"] .case-hero--world .button--primary::before {
   }
 }
 
-/* Calm Before Complexity — a real photo sits in its own column beside the
+/* Calm Before Complexity, a real photo sits in its own column beside the
    audit copy (not behind/overlapping it) and quietly breathes tighter-and-
    cooler to open-and-warmer as the section scrolls: one simple continuous
    read, not a multi-stage sequence. The photo carries the whole "contained
    -> opens" story on its own so the text next to it never has to move or
    dim to tell it. CSS default (no-JS / reduced motion) below already shows
-   the photo clear and settled — GSAP only pulls it slightly tighter/cooler
+   the photo clear and settled, GSAP only pulls it slightly tighter/cooler
    at scroll-start and eases back to this same resting state. */
 .mindfulness-calm-shell {
   display: grid;
@@ -3576,7 +3636,7 @@ main[data-case="mindfulness"] .case-hero--world .button--primary::before {
 }
 
 /* Whimsy detail 3 (approved handoff §3.4): on first entrance only, this
-   real close-up grows a few % and its shadow settles in — notice, then
+   real close-up grows a few % and its shadow settles in, notice, then
    settle, never repeating. Applied to the wrapper (not the img inside,
    which already has Calm Before Complexity's own continuous scroll-driven
    breathing) so the two never touch the same transform. */
@@ -3652,7 +3712,7 @@ main[data-case="mindfulness"] .case-hero--world .button--primary::before {
 }
 
 /* Real site screens: four real pages (programs, about, corporate, a real
-   client result) shown complete, not cropped — these are UI screenshots,
+   client result) shown complete, not cropped, these are UI screenshots,
    not photography, so object-fit:contain inside a shared aspect-ratio box
    is deliberate: every capture stays exactly as taken, just consistently
    sized and aligned next to its neighbors. */
@@ -3801,7 +3861,7 @@ main[data-case="mindfulness"] .mindfulness-motion .eyebrow {
 }
 
 /* Same brand, different decision-maker: no cards, no border boxes. Real
-   photography and its ratio to the text beside it IS the distinction —
+   photography and its ratio to the text beside it IS the distinction , 
    personal gets a large, spacious image and a short list; corporate gets a
    smaller image and a fuller, more structured list. Stacked (not
    side-by-side at equal width) so the two ratios are legible on their own
@@ -3968,11 +4028,11 @@ main[data-case="mindfulness"] .mindfulness-motion .eyebrow {
   }
 }
 
-/* Multiple Users, One Brand — an editorial spread with real hierarchy, not
+/* Multiple Users, One Brand, an editorial spread with real hierarchy, not
    five equal cards. The Regulated Woman (the strongest, widest-reaching
    real asset) leads full-width; the other four sit in a simpler row below,
    the two without real photography quieted to text only rather than an
-   empty placeholder box — the design idea should read first, not asset
+   empty placeholder box, the design idea should read first, not asset
    bookkeeping. */
 .mindfulness-path--lead {
   display: grid;
@@ -6718,7 +6778,7 @@ main[data-case="gateway"] .case-hero--gateway .button--secondary {
 
 /* Whimsy: a small real-fact chip (the actual implementation stack, already
    stated in the hero) slides in a few px from the right as the section
-   scrolls into view — a real detail entering, not decoration. */
+   scrolls into view, a real detail entering, not decoration. */
 .gateway-process-chip {
   display: inline-block;
   margin-top: 1.1rem;
@@ -7821,7 +7881,7 @@ main[data-case="gateway"] .gateway-ownership .section-title {
 
 /* Whimsy detail 4 (approved handoff): the real interface artifact crosses
    its own container's bottom boundary a few px into the section's own
-   whitespace below, via the negative margin above — the page feels less
+   whitespace below, via the negative margin above, the page feels less
    boxed into perfect rectangles. Static, always present, no animation.
    The technical section shows real production code rather than a device
    screenshot (it was rebuilt that way in an earlier session), so this
@@ -8006,7 +8066,7 @@ main[data-case="gateway"] .gateway-ownership .section-title {
   color: rgba(255, 253, 247, 0.82);
 }
 
-/* GRC Impact — "complexity becomes clarity" (motion/responsive handoff
+/* GRC Impact, "complexity becomes clarity" (motion/responsive handoff
    §3.2, the largest of GRC's five signature moments). Six real totals
    fade and settle into one row as the section scrolls; the real tabbed
    chart panel below is the one solid/settled element the motion resolves
@@ -8045,9 +8105,9 @@ main[data-case="gateway"] .gateway-ownership .section-title {
 }
 
 /* Each stat is deliberately one drawn-out line, not a big-number-plus-
-   caption pair — the visitor has to actually read it, the same density
+   caption pair, the visitor has to actually read it, the same density
    the section's own story is about. Movement lives on hover only (see
-   .gateway-impact-stat-inner below), not on scroll — scrolling settles
+   .gateway-impact-stat-inner below), not on scroll, scrolling settles
    the layout into place. One uniform rise, not six independent
    directions -- every stat arrives the same way, so it reads as one
    coordinated settle rather than six things doing their own thing. */
@@ -8095,7 +8155,7 @@ main[data-case="gateway"] .gateway-ownership .section-title {
   }
 }
 
-/* Mobile: the locked §3.6 version — a single-column stack, each stat
+/* Mobile: the locked §3.6 version, a single-column stack, each stat
    arriving once from alternating screen edges (not scattering along
    paths), color-coded bold serif type carrying the hierarchy motion
    carried on desktop. No SVG paths, no continuous scrub. */
@@ -8937,7 +8997,7 @@ main[data-case="triptag"] .triptag-context-card p {
 }
 
 .triptag-finance-snapshot {
-  grid-template-columns: 1.05fr 0.9fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.9rem;
 }
 
@@ -11033,16 +11093,16 @@ main[data-case="we-are-one"].case-study--showcase .case-hero--immersive::before 
   font-weight: 700;
 }
 
-/* GRC Events — "the problem, then the fix." Ten real representative event
+/* GRC Events, "the problem, then the fix." Ten real representative event
    fragments (the same data as the working demo below) start dense; as the
    section scrolls, most recede while two stay dominant, reading as
    information organizing itself. No search/filter replicas and no focus-
-   area colors here — those are the real solution, and they already exist,
+   area colors here, those are the real solution, and they already exist,
    fully real, in the working demo this resolves into. Duplicating them as
    fake controls above the real ones would read as broken, not narrative.
    This block is decorative (aria-hidden). CSS default (no-JS/reduced-
    motion) below is the resolved state, matching the site's "never hidden
-   without JS" pattern — GSAP only sets a denser starting point and scrubs
+   without JS" pattern, GSAP only sets a denser starting point and scrubs
    back to here. */
 .gateway-events-converge {
   --gp: 1;
