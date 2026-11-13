@@ -12843,123 +12843,35 @@ main[data-case="gateway"] .gateway-evidence-mark {
 }
 
 .work-index {
-  margin-bottom: clamp(3rem, 7vw, 5rem);
+  margin-bottom: clamp(2.25rem, 5vw, 3.5rem);
   text-align: center;
   scroll-margin-top: calc(var(--header-h) + 1.5rem);
 }
 
-/* One line of project tabs. Each tab starts quiet and "sharpens" in order
-   as the section scrolls up: script.js sets --t from 0 to 1 per tab. With
-   no script or reduced motion, --t stays 1 and every tab is finished. */
-.work-lineup {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  margin: 1.5rem 0 0;
-  padding: 0;
-  border: 1px solid rgba(43, 41, 38, 0.12);
-  border-radius: 14px;
-  overflow: hidden;
-  background: #fffefc;
-  list-style: none;
-  text-align: left;
+/* One editorial sentence. Each field underlines and darkens in order as
+   the section scrolls up: script.js sets --t from 0 to 1 per term. With no
+   script or reduced motion, --t stays 1 and the sentence is finished. */
+.work-across {
+  max-width: 44rem;
+  margin: 0 auto;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(1.45rem, 3vw, 2.15rem);
+  line-height: 1.4;
+  text-wrap: balance;
 }
 
-.work-lineup > li + li {
-  border-left: 1px solid rgba(43, 41, 38, 0.1);
-}
-
-.work-tab {
+.work-term {
   --t: 1;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  height: 100%;
-  padding: 1.1rem 1rem 1.15rem;
-  color: color-mix(in srgb, var(--ink) calc(var(--t) * 100%), #9b958f);
+  color: color-mix(in srgb, var(--ink) calc(var(--t) * 100%), #b4aea8);
   text-decoration: none;
-  transition: background-color 0.25s ease;
+  background: linear-gradient(var(--sage-deep), var(--sage-deep)) left 92% / calc(var(--t) * 100%) 1.5px no-repeat;
+  transition: color 0.25s ease;
 }
 
-/* The line that draws across each tab as it comes into its own. */
-.work-tab::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  height: 2px;
-  background: var(--sage-deep);
-  transform: scaleX(var(--t));
-  transform-origin: left center;
-}
-
-.work-tab:hover,
-.work-tab:focus-visible {
-  background: var(--sage-wash);
-}
-
-.work-tab-num {
-  display: grid;
-  place-items: center;
-  width: 1.9rem;
-  height: 1.9rem;
-  border: 1px solid color-mix(in srgb, transparent calc(var(--t) * 100%), rgba(43, 41, 38, 0.2));
-  border-radius: 50%;
-  background: color-mix(in srgb, var(--sage) calc(var(--t) * 100%), transparent);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-
-.work-tab-name {
-  font-family: var(--font-serif);
-  font-size: 1.08rem;
-  font-weight: 600;
-  line-height: 1.2;
-  transform: translateY(calc((1 - var(--t)) * 6px));
-}
-
-.work-tab-tag {
-  margin-top: auto;
-  color: color-mix(in srgb, var(--muted) calc(var(--t) * 100%), #b3ada7);
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
-
-@media (max-width: 1000px) {
-  .work-lineup {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .work-lineup > li + li {
-    border-left: 0;
-    border-top: 1px solid rgba(43, 41, 38, 0.1);
-  }
-
-  .work-tab {
-    flex-direction: row;
-    align-items: center;
-    gap: 0.85rem;
-    padding: 0.8rem 1rem;
-  }
-
-  .work-tab::before {
-    inset: 0 auto 0 0;
-    width: 2px;
-    height: auto;
-    transform: scaleY(var(--t));
-    transform-origin: center top;
-  }
-
-  .work-tab-name {
-    transform: translateX(calc((1 - var(--t)) * 6px));
-  }
-
-  .work-tab-tag {
-    margin: 0 0 0 auto;
-    text-align: right;
-  }
+.work-term:hover,
+.work-term:focus-visible {
+  color: var(--sage-deep);
 }
 
 .project-card[id] {
@@ -12999,7 +12911,4 @@ main[data-case="gateway"] .gateway-evidence-mark {
     margin-top: 1.75rem;
   }
 
-  .work-tab-tag {
-    font-size: 0.62rem;
-  }
 }

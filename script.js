@@ -288,26 +288,21 @@
     ).observe(projectsSection);
   }
 
-  /* ---- The work at a glance: one line of tabs that sharpen in order
-     (left to right, or top to bottom on narrow screens) as the section
-     scrolls up. Scroll-linked, so it never makes anyone wait. */
+  /* ---- "I've worked across ...": each field underlines and darkens in
+     order as the section scrolls up. Scroll-linked, so it never makes anyone wait. */
   const lineup = document.querySelector("[data-lineup]");
   if (lineup && !prefersReducedMotion) {
-    const tabs = [...lineup.querySelectorAll(".work-tab")];
+    const tabs = [...lineup.querySelectorAll(".work-term")];
     let ticking = false;
     const paint = () => {
       ticking = false;
       const vh = window.innerHeight;
       const clamp = (v) => Math.min(1, Math.max(0, v));
-      const stacked = tabs[1] && tabs[1].offsetTop > tabs[0].offsetTop;
-      // Row on wide screens: 0 when the line enters at 88% of the screen,
-      // 1 at 40%, handed along left to right. Stacked on narrow screens:
-      // each row sharpens as it passes from 80% to 62% of the screen.
-      const progress = clamp((vh * 0.88 - lineup.getBoundingClientRect().top) / (vh * 0.48));
+      // 0 when the line enters at 92% of the screen, 1 at 55%, handed
+      // along left to right.
+      const progress = clamp((vh * 0.92 - lineup.getBoundingClientRect().top) / (vh * 0.37));
       tabs.forEach((tab, i) => {
-        const t = stacked
-          ? clamp((vh * 0.8 - tab.getBoundingClientRect().top) / (vh * 0.18))
-          : clamp(progress * tabs.length - i);
+        const t = clamp(progress * tabs.length - i);
         tab.style.setProperty("--t", (t * t * (3 - 2 * t)).toFixed(3));
       });
     };
