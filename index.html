@@ -28,7 +28,7 @@
       rel="stylesheet"
     />
     <script>document.documentElement.classList.add("js")</script>
-    <link rel="stylesheet" href="/styles.css?v=20261112b" />
+    <link rel="stylesheet" href="/styles.css?v=20261112c" />
   </head>
 
   <body>
@@ -119,6 +119,10 @@
             </div>
           </div>
         </div>
+        <a class="scroll-cue hero-enter" href="#work-index" style="--delay: 1.3s; --dur: 0.6s; --y: 8px">
+          <span>Scroll to see the work</span>
+          <svg viewBox="0 0 16 28" width="14" height="24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 2v23M2.5 19.5 8 25l5.5-5.5"/></svg>
+        </a>
       </section>
 
       <div class="credentials credentials--blush" aria-label="Credentials">
@@ -138,6 +142,19 @@
 
       <section class="band band--sage" id="projects">
         <div class="shell">
+          <div class="work-index" id="work-index">
+            <p class="eyebrow eyebrow--rule">The work at a glance</p>
+            <ol class="work-pills" data-scatter>
+              <li><a class="work-pill" href="#work-immigrants-rising"><span class="work-pill-num">01</span> Immigrants Rising <span class="work-pill-tag">Social impact</span></a></li>
+              <li><a class="work-pill" href="#work-brightside"><span class="work-pill-num">02</span> Brightside Health <span class="work-pill-tag">Healthcare AI</span></a></li>
+              <li><a class="work-pill" href="#work-gateway"><span class="work-pill-num">03</span> Gateway Regional Council <span class="work-pill-tag">Community</span></a></li>
+              <li><a class="work-pill" href="#work-mindfulness"><span class="work-pill-num">04</span> Mindfulness with Desiree <span class="work-pill-tag">Wellness</span></a></li>
+              <li><a class="work-pill" href="#work-24seven"><span class="work-pill-num">05</span> 24Seven Escapes <span class="work-pill-tag">Travel</span></a></li>
+              <li><a class="work-pill" href="#work-triptag"><span class="work-pill-num">06</span> TripTag <span class="work-pill-tag">Earlier concept</span></a></li>
+              <li><a class="work-pill" href="#work-we-are-one"><span class="work-pill-num">07</span> We Are One Housing <span class="work-pill-tag">Earlier concept</span></a></li>
+            </ol>
+          </div>
+
           <div class="section-head section-head--center" data-reveal>
             <p class="eyebrow eyebrow--rule">Product &amp; client work</p>
             <h2 class="display-title display-title--sm">Selected Work</h2>
@@ -148,7 +165,7 @@
           </div>
 
           <ul class="project-grid">
-            <li class="project-card" data-project="immigrants-rising" data-reveal>
+            <li class="project-card" id="work-immigrants-rising" data-project="immigrants-rising" data-reveal>
               <a
                 class="project-stage-link"
                 href="/case-study/immigrants-rising/"
@@ -205,7 +222,7 @@
               </div>
             </li>
 
-            <li class="project-card" data-project="brightside" data-reveal>
+            <li class="project-card" id="work-brightside" data-project="brightside" data-reveal>
               <a
                 class="project-stage-link"
                 href="/case-study/brightside/"
@@ -258,7 +275,7 @@
               </div>
             </li>
 
-            <li class="project-card" data-project="gateway" data-reveal>
+            <li class="project-card" id="work-gateway" data-project="gateway" data-reveal>
               <a
                 class="project-stage-link"
                 href="/case-study/gateway-regional-council/"
@@ -311,7 +328,7 @@
               </div>
             </li>
 
-            <li class="project-card" data-project="mindfulness" data-reveal>
+            <li class="project-card" id="work-mindfulness" data-project="mindfulness" data-reveal>
               <a
                 class="project-stage-link"
                 href="/case-study/mindfulness-with-desiree/"
@@ -367,7 +384,7 @@
               </div>
             </li>
 
-            <li class="project-card" data-project="24seven" data-reveal>
+            <li class="project-card" id="work-24seven" data-project="24seven" data-reveal>
               <a
                 class="project-stage-link"
                 href="/case-study/24seven-escapes/"
@@ -437,7 +454,7 @@
         </div>
 
         <ul class="project-grid project-grid--earlier">
-          <li class="project-card" data-project="triptag" data-reveal>
+          <li class="project-card" id="work-triptag" data-project="triptag" data-reveal>
             <a class="project-stage-link" href="/case-study/triptag/" aria-label="View TripTag case study">
               <div class="project-stage">
                 <picture class="project-media project-media--primary">
@@ -486,7 +503,7 @@
             </div>
           </li>
 
-          <li class="project-card" data-project="we-are-one" data-reveal>
+          <li class="project-card" id="work-we-are-one" data-project="we-are-one" data-reveal>
             <a
               class="project-stage-link"
               href="/case-study/we-are-one/"
@@ -561,7 +578,7 @@
       </section>
     </main>
 
-    <nav class="tabbar" aria-label="Mobile"><a class="tabbar-link" href="/" data-tab="home" aria-current="page"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Home</span></a><a class="tabbar-link" href="/#projects" data-tab="work"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg><span>Work</span></a><a class="tabbar-link" href="/about/" data-tab="about"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>About</span></a><a class="tabbar-link" href="/contact/" data-tab="contact"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg><span>Contact</span></a></nav>
+    <nav class="tabbar" aria-label="Mobile"><a class="tabbar-link" href="/" data-tab="home" aria-current="page"><span class="tabbar-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></span><span>Home</span></a><a class="tabbar-link" href="/#projects" data-tab="work"><span class="tabbar-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg></span><span>Work</span></a><a class="tabbar-link" href="/about/" data-tab="about"><span class="tabbar-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span><span>About</span></a><a class="tabbar-link" href="/contact/" data-tab="contact"><span class="tabbar-icon"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg></span><span>Contact</span></a></nav>
     <footer class="footer footer--dark">
       <div class="shell footer-inner">
         <a class="footer-brand" href="/">Kymari Bratton <i class="sparkle">&#10022;</i></a>
@@ -579,6 +596,6 @@
       </div>
     </footer>
 
-    <script src="/script.js?v=20261112b" defer></script>
+    <script src="/script.js?v=20261112c" defer></script>
   </body>
 </html>

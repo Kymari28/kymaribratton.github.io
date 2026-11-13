@@ -82,6 +82,12 @@
     );
 
     revealNodes.forEach(function (node) {
+      /* A wrapper flattened with display: contents (phone hero reordering)
+         has no box to observe, so it is shown straight away. */
+      if (getComputedStyle(node).display === "contents") {
+        node.classList.add("is-visible");
+        return;
+      }
       if (!node.classList.contains("is-visible")) {
         observer.observe(node);
       }
@@ -250,6 +256,18 @@
     });
   });
 
+  /* ---- Phone tab bar: the tapped tab pops up at once, before the next
+     page arrives, so the tap always feels answered. ---- */
+  const tabLinks = document.querySelectorAll(".tabbar-link");
+  tabLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      tabLinks.forEach((other) => {
+        if (other !== link) other.removeAttribute("aria-current");
+      });
+      if (!link.hasAttribute("aria-current")) link.setAttribute("aria-current", "location");
+    });
+  });
+
   /* ---- Phone tab bar: on the homepage, "Work" lights up over the projects ---- */
   const homeTab = document.querySelector('.tabbar-link[data-tab="home"][aria-current]');
   const workTab = document.querySelector('.tabbar-link[data-tab="work"]');
@@ -268,6 +286,49 @@
       },
       { rootMargin: "-45% 0px -45% 0px" }
     ).observe(projectsSection);
+  }
+
+  /* ---- The work at a glance: pills start scattered and settle into order
+     as the section scrolls up. Scroll-linked, so it never makes anyone wait. */
+  const scatter = document.querySelector("[data-scatter]");
+  if (scatter && !prefersReducedMotion) {
+    const pills = [...scatter.querySelectorAll(".work-pill")];
+    // Fixed "random" spots so the jumble looks the same every visit.
+    const spots = [
+      [-0.42, 1.4, -16], [0.36, 2.2, 12], [-0.12, 3.1, 20], [0.44, 0.9, -10],
+      [-0.3, 2.6, 9], [0.16, 1.7, -22], [-0.04, 3.6, 14],
+    ];
+    const easeOutBack = (t) => 1 + 2.2 * Math.pow(t - 1, 3) + 1.2 * Math.pow(t - 1, 2);
+    let ticking = false;
+    const paint = () => {
+      ticking = false;
+      const vh = window.innerHeight;
+      const top = scatter.getBoundingClientRect().top;
+      const progress = (vh - top) / (vh * 0.7);
+      const spread = Math.min(scatter.offsetWidth, 640);
+      pills.forEach((pill, i) => {
+        const t = Math.min(1, Math.max(0, (progress - 0.12 - i * 0.05) / 0.62));
+        const left = 1 - easeOutBack(t);
+        const [x, y, r] = spots[i % spots.length];
+        pill.style.transform = left
+          ? `translate(${x * spread * left}px, ${y * 64 * left}px) rotate(${r * left}deg)`
+          : "";
+        pill.style.opacity = String(0.2 + 0.8 * Math.min(1, t * 1.6));
+      });
+      scatter.classList.toggle("is-scattering", progress < 1.4);
+    };
+    const onScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(paint);
+      }
+    };
+    new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) window.addEventListener("scroll", onScroll, { passive: true });
+      else window.removeEventListener("scroll", onScroll);
+      paint();
+    }, { rootMargin: "20% 0px 20% 0px" }).observe(scatter);
+    paint();
   }
 
   /* ---- Words that arrive gently ----
