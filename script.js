@@ -288,47 +288,6 @@
     ).observe(projectsSection);
   }
 
-  /* Jumping to a project card: settle that card first, so its rise-in
-     offset doesn't throw off where the jump lands. */
-  document.querySelectorAll('a[href^="#work-"]').forEach((link) => {
-    link.addEventListener("click", () => {
-      const card = document.querySelector(link.getAttribute("href"));
-      if (card) card.classList.add("is-visible", "is-instant");
-    });
-  });
-
-  /* ---- "I've worked across ...": each field underlines and darkens in
-     order as the section scrolls up. Scroll-linked, so it never makes anyone wait. */
-  const lineup = document.querySelector("[data-lineup]");
-  if (lineup && !prefersReducedMotion) {
-    const tabs = [...lineup.querySelectorAll(".work-term")];
-    let ticking = false;
-    const paint = () => {
-      ticking = false;
-      const vh = window.innerHeight;
-      const clamp = (v) => Math.min(1, Math.max(0, v));
-      // 0 when the line enters at 92% of the screen, 1 at 55%, handed
-      // along left to right.
-      const progress = clamp((vh * 0.92 - lineup.getBoundingClientRect().top) / (vh * 0.37));
-      tabs.forEach((tab, i) => {
-        const t = clamp(progress * tabs.length - i);
-        tab.style.setProperty("--t", (t * t * (3 - 2 * t)).toFixed(3));
-      });
-    };
-    const onScroll = () => {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(paint);
-      }
-    };
-    new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) window.addEventListener("scroll", onScroll, { passive: true });
-      else window.removeEventListener("scroll", onScroll);
-      paint();
-    }, { rootMargin: "20% 0px 20% 0px" }).observe(lineup);
-    paint();
-  }
-
   /* ---- Words that arrive gently ----
      [data-words] statements are split into words that fade up one after
      another when they come into view. If this script arrives late (slow
