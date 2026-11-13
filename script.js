@@ -288,6 +288,15 @@
     ).observe(projectsSection);
   }
 
+  /* Jumping to a project card: settle that card first, so its rise-in
+     offset doesn't throw off where the jump lands. */
+  document.querySelectorAll('a[href^="#work-"]').forEach((link) => {
+    link.addEventListener("click", () => {
+      const card = document.querySelector(link.getAttribute("href"));
+      if (card) card.classList.add("is-visible", "is-instant");
+    });
+  });
+
   /* ---- "I've worked across ...": each field underlines and darkens in
      order as the section scrolls up. Scroll-linked, so it never makes anyone wait. */
   const lineup = document.querySelector("[data-lineup]");
