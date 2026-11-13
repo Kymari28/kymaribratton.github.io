@@ -288,34 +288,28 @@
     ).observe(projectsSection);
   }
 
-  /* ---- The work at a glance: pills start scattered and settle into order
-     as the section scrolls up. Scroll-linked, so it never makes anyone wait. */
-  const scatter = document.querySelector("[data-scatter]");
-  if (scatter && !prefersReducedMotion) {
-    const pills = [...scatter.querySelectorAll(".work-pill")];
-    // Fixed "random" spots so the jumble looks the same every visit.
-    const spots = [
-      [-0.42, 1.4, -16], [0.36, 2.2, 12], [-0.12, 3.1, 20], [0.44, 0.9, -10],
-      [-0.3, 2.6, 9], [0.16, 1.7, -22], [-0.04, 3.6, 14],
-    ];
-    const easeOutBack = (t) => 1 + 2.2 * Math.pow(t - 1, 3) + 1.2 * Math.pow(t - 1, 2);
+  /* ---- The work at a glance: one line of tabs that sharpen in order
+     (left to right, or top to bottom on narrow screens) as the section
+     scrolls up. Scroll-linked, so it never makes anyone wait. */
+  const lineup = document.querySelector("[data-lineup]");
+  if (lineup && !prefersReducedMotion) {
+    const tabs = [...lineup.querySelectorAll(".work-tab")];
     let ticking = false;
     const paint = () => {
       ticking = false;
       const vh = window.innerHeight;
-      const top = scatter.getBoundingClientRect().top;
-      const progress = (vh - top) / (vh * 0.7);
-      const spread = Math.min(scatter.offsetWidth, 640);
-      pills.forEach((pill, i) => {
-        const t = Math.min(1, Math.max(0, (progress - 0.12 - i * 0.05) / 0.62));
-        const left = 1 - easeOutBack(t);
-        const [x, y, r] = spots[i % spots.length];
-        pill.style.transform = left
-          ? `translate(${x * spread * left}px, ${y * 64 * left}px) rotate(${r * left}deg)`
-          : "";
-        pill.style.opacity = String(0.2 + 0.8 * Math.min(1, t * 1.6));
+      const clamp = (v) => Math.min(1, Math.max(0, v));
+      const stacked = tabs[1] && tabs[1].offsetTop > tabs[0].offsetTop;
+      // Row on wide screens: 0 when the line enters at 88% of the screen,
+      // 1 at 40%, handed along left to right. Stacked on narrow screens:
+      // each row sharpens as it passes from 80% to 62% of the screen.
+      const progress = clamp((vh * 0.88 - lineup.getBoundingClientRect().top) / (vh * 0.48));
+      tabs.forEach((tab, i) => {
+        const t = stacked
+          ? clamp((vh * 0.8 - tab.getBoundingClientRect().top) / (vh * 0.18))
+          : clamp(progress * tabs.length - i);
+        tab.style.setProperty("--t", (t * t * (3 - 2 * t)).toFixed(3));
       });
-      scatter.classList.toggle("is-scattering", progress < 1.4);
     };
     const onScroll = () => {
       if (!ticking) {
@@ -327,7 +321,7 @@
       if (entry.isIntersecting) window.addEventListener("scroll", onScroll, { passive: true });
       else window.removeEventListener("scroll", onScroll);
       paint();
-    }, { rootMargin: "20% 0px 20% 0px" }).observe(scatter);
+    }, { rootMargin: "20% 0px 20% 0px" }).observe(lineup);
     paint();
   }
 
