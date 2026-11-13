@@ -12796,3 +12796,106 @@ main[data-case="gateway"] .gateway-evidence-mark {
     align-self: stretch;
   }
 }
+
+/* ==========================================================================
+   Soft focus: a few moments where things come into focus instead of just
+   fading. Entrance-only and short; nothing keeps moving or blurs text that
+   someone is trying to read.
+   ========================================================================== */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* "Hi, I'm Kymari." pulls into focus like a lens finding it. */
+  .hero h1.hero-enter {
+    animation: hero-focus-pull 1.25s var(--ease-words) var(--delay, 0s) backwards;
+  }
+
+  /* The four focus pills under the hero sharpen one after another. */
+  .hero-focus.hero-enter {
+    animation: none;
+  }
+
+  .hero-focus li {
+    animation: pill-focus 0.8s var(--ease-words) backwards;
+    animation-delay: calc(1.05s + var(--pill, 0) * 0.08s);
+  }
+
+  .hero-focus li:nth-child(2) { --pill: 1; }
+  .hero-focus li:nth-child(3) { --pill: 2; }
+  .hero-focus li:nth-child(4) { --pill: 3; }
+  .hero-focus li:nth-child(5) { --pill: 4; }
+
+  /* Pills in case studies and on project cards: the existing staggered
+     reveal, with a blur that clears as each one lands. */
+  .reveal-ready [data-reveal-sequence][data-blur] > * {
+    transition:
+      opacity 0.5s ease,
+      filter 0.75s var(--ease-words),
+      transform 0.75s var(--ease-words);
+  }
+
+  .reveal-ready [data-reveal-sequence][data-blur]:not(.is-visible) > * {
+    filter: blur(8px);
+    transform: translateY(8px) scale(0.96);
+  }
+
+  .reveal-ready [data-reveal-sequence][data-blur].is-instant > * {
+    transition: none;
+  }
+
+  /* On cards, the status pill lands just after its card. */
+  .reveal-ready .project-status[data-blur].is-visible > * {
+    transition-delay: 0.3s;
+  }
+}
+
+@keyframes hero-focus-pull {
+  from {
+    opacity: 0;
+    filter: blur(16px);
+    transform: translateY(10px) scale(1.02);
+  }
+
+  55% {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}
+
+@keyframes pill-focus {
+  from {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(6px) scale(0.96);
+  }
+
+  to {
+    opacity: 1;
+    filter: none;
+    transform: none;
+  }
+}
+
+/* The rotating role blurs out as the next one comes into focus. */
+.hero-pill[data-role-rotator] .hero-pill-word {
+  filter: blur(6px);
+  transition:
+    opacity 0.45s ease-in-out,
+    transform 0.45s ease-in-out,
+    filter 0.45s ease-in-out;
+}
+
+.hero-pill[data-role-rotator] .hero-pill-word.is-active {
+  filter: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-pill[data-role-rotator] .hero-pill-word {
+    filter: none;
+    transition: none;
+  }
+}
