@@ -13429,3 +13429,67 @@ main {
     justify-content: center;
   }
 }
+
+/* ---- Phones and tablets: menus step aside while reading ---------------------
+   script.js adds .nav-hidden on the way down and removes it on the way up.
+   The tab bar leaves a slim handle that brings it back with a tap. */
+@media (max-width: 899px) {
+  .topbar {
+    transition:
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 200ms ease,
+      border-color 200ms ease,
+      box-shadow 200ms ease;
+  }
+
+  .nav-hidden .topbar {
+    transform: translateY(-101%);
+  }
+}
+
+@media (max-width: 640px) {
+  .tabbar {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .tabbar-link {
+    transition: opacity 0.25s ease;
+  }
+
+  .tabbar::after {
+    content: "";
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    width: 2.25rem;
+    height: 4px;
+    margin-left: -1.125rem;
+    border-radius: 999px;
+    background: rgba(42, 42, 42, 0.24);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+  }
+
+  .nav-hidden .tabbar {
+    transform: translateY(calc(100% - 18px - env(safe-area-inset-bottom)));
+    cursor: pointer;
+  }
+
+  .nav-hidden .tabbar-link {
+    opacity: 0;
+  }
+
+  .nav-hidden .tabbar::after {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 899px) and (prefers-reduced-motion: reduce) {
+  .topbar,
+  .tabbar,
+  .tabbar-link,
+  .tabbar::after {
+    transition: none;
+  }
+}

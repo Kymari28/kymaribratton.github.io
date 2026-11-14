@@ -268,6 +268,60 @@
     });
   });
 
+  /* ---- Phones and tablets: the menus step aside while you read ----
+     Scrolling down slides the top bar up and the tab bar down to a slim
+     handle; scrolling up, reaching the end, tapping the handle or tabbing
+     into either menu brings them back. */
+  const navQuery = window.matchMedia("(max-width: 899px)");
+  const tabbar = document.querySelector(".tabbar");
+  let navHidden = false;
+  let navLastY = window.scrollY;
+  let navTicking = false;
+  const setNavHidden = (hide) => {
+    if (hide === navHidden) return;
+    navHidden = hide;
+    document.documentElement.classList.toggle("nav-hidden", hide);
+  };
+  const paintNav = () => {
+    navTicking = false;
+    const y = window.scrollY;
+    const dy = y - navLastY;
+    const atEnd = y + window.innerHeight >= document.documentElement.scrollHeight - 8;
+    if (!navQuery.matches || y < 90 || atEnd) {
+      setNavHidden(false);
+      navLastY = y;
+    } else if (Math.abs(dy) > 10) {
+      setNavHidden(dy > 0);
+      navLastY = y;
+    }
+  };
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (!navTicking) {
+        navTicking = true;
+        requestAnimationFrame(paintNav);
+      }
+    },
+    { passive: true }
+  );
+  if (tabbar) {
+    // While tucked away, a tap on the handle only brings the bar back.
+    tabbar.addEventListener(
+      "click",
+      (event) => {
+        if (!navHidden) return;
+        event.preventDefault();
+        event.stopPropagation();
+        setNavHidden(false);
+      },
+      true
+    );
+  }
+  document.addEventListener("focusin", (event) => {
+    if (navHidden && event.target.closest(".topbar, .tabbar")) setNavHidden(false);
+  });
+
   /* ---- Phone tab bar: on the homepage, "Work" lights up over the projects ---- */
   const homeTab = document.querySelector('.tabbar-link[data-tab="home"][aria-current]');
   const workTab = document.querySelector('.tabbar-link[data-tab="work"]');
