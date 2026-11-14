@@ -894,19 +894,8 @@
           steps.map(function (s, k) { return '<span style="--k:' + k + '"><i></i>' + s + "</span>"; }).join("") +
           "</div>";
       } else if (kind === "brightside") {
-        live.classList.add("live--panel", "live--bs");
-        var nodes = [[80, 50, 1], [36, 26, 0], [128, 22, 0], [140, 66, 0], [104, 86, 0], [46, 78, 0], [20, 52, 0], [64, 14, 0], [116, 46, 0]];
-        var edges = [[0, 1, 0], [0, 2, 1], [0, 3, 0], [0, 4, 1], [0, 5, 0], [1, 6, 0], [1, 7, 0], [2, 8, 0], [3, 8, 0], [5, 6, 0]];
-        var svg = '<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid meet">';
-        edges.forEach(function (e, k) {
-          var a = nodes[e[0]], b = nodes[e[1]];
-          svg += '<line class="bs-edge' + (e[2] ? " strong" : "") + '" style="--k:' + k + '" x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '"/>';
-        });
-        nodes.forEach(function (n, k) {
-          svg += '<circle class="bs-node' + (n[2] ? " bs-hub" : "") + '" style="--k:' + k + '" cx="' + n[0] + '" cy="' + n[1] + '" r="' + (n[2] ? 6 : 3.6) + '"/>';
-        });
-        svg += '<text class="bs-label" x="89" y="47">SSRIs</text></svg>';
-        live.innerHTML = svg;
+        live.classList.add("live--bs");
+        live.innerHTML = '<img src="/assets/brightside-graph.webp" alt="" width="724" height="363" decoding="async" />';
       } else if (kind === "gateway") {
         live.classList.add("live--panel", "live--gw");
         var data = [150000, 450000, 1500000, 875000, 350000, 490000];

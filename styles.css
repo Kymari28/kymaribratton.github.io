@@ -13147,63 +13147,25 @@ main {
   animation: live-pop 0.5s cubic-bezier(0.16, 1, 0.3, 1) 2s forwards;
 }
 
-/* Brightside: a knowledge graph draws itself */
-.live--bs svg {
+/* Brightside: the real graph, after it loads, drifting slowly */
+.live--bs {
+  overflow: hidden;
+  background: #f4fafa;
+}
+
+.live--bs img {
   position: absolute;
-  inset: 6% 5%;
-  width: 90%;
-  height: 88%;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 0% 45%;
+  transform-origin: 20% 45%;
+  scale: 1.04;
 }
 
-.bs-edge {
-  fill: none;
-  stroke: #a7c3c6;
-  stroke-width: 1.2;
-  stroke-dasharray: 60;
-  stroke-dashoffset: 60;
-}
-
-.bs-edge.strong {
-  stroke: #e7926b;
-}
-
-.bs-node {
-  fill: #8fd0cc;
-  opacity: 0;
-  transform-box: fill-box;
-  transform-origin: center;
-  scale: 0.4;
-}
-
-.bs-hub {
-  fill: #f08a5d;
-}
-
-.bs-label {
-  fill: #2a2a2a;
-  font: 600 7px var(--font-body);
-  opacity: 0;
-}
-
-.is-playing .bs-node {
-  animation: live-node 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  animation-delay: calc(0.15s + var(--k) * 0.07s);
-}
-
-.is-playing .bs-edge {
-  animation: live-draw 0.9s ease-out forwards;
-  animation-delay: calc(0.45s + var(--k) * 0.06s);
-}
-
-.is-playing .bs-edge.strong {
-  animation:
-    live-draw 0.9s ease-out forwards,
-    live-thicken 0.5s ease 1.9s forwards;
-  animation-delay: calc(0.45s + var(--k) * 0.06s), 1.9s;
-}
-
-.is-playing .bs-label {
-  animation: live-ink-in 0.5s ease 1.5s forwards;
+.is-playing .live--bs img {
+  animation: live-drift 14s ease-in-out infinite alternate;
 }
 
 /* Gateway: funding builds year by year */
@@ -13282,9 +13244,10 @@ main {
 @keyframes live-ink { to { color: #2a2a2a; } }
 @keyframes live-ink-in { to { opacity: 1; } }
 @keyframes live-pop { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-@keyframes live-node { to { opacity: 1; scale: 1; } }
-@keyframes live-draw { to { stroke-dashoffset: 0; } }
-@keyframes live-thicken { to { stroke-width: 2.6; } }
+@keyframes live-drift {
+  from { scale: 1.04; translate: 0 0; }
+  to { scale: 1.14; translate: 2% -3%; }
+}
 @keyframes live-grow { to { transform: scaleY(1); } }
 @keyframes live-hi { to { background: #5593bb; } }
 
