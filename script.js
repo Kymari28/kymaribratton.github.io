@@ -268,6 +268,60 @@
     });
   });
 
+  /* ---- Phones and tablets: the menus step aside while you read ----
+     Scrolling down slides the top bar up and the tab bar down to a slim
+     handle; scrolling up, reaching the end, tapping the handle or tabbing
+     into either menu brings them back. */
+  const navQuery = window.matchMedia("(max-width: 899px)");
+  const tabbar = document.querySelector(".tabbar");
+  let navHidden = false;
+  let navLastY = window.scrollY;
+  let navTicking = false;
+  const setNavHidden = (hide) => {
+    if (hide === navHidden) return;
+    navHidden = hide;
+    document.documentElement.classList.toggle("nav-hidden", hide);
+  };
+  const paintNav = () => {
+    navTicking = false;
+    const y = window.scrollY;
+    const dy = y - navLastY;
+    const atEnd = y + window.innerHeight >= document.documentElement.scrollHeight - 8;
+    if (!navQuery.matches || y < 90 || atEnd) {
+      setNavHidden(false);
+      navLastY = y;
+    } else if (Math.abs(dy) > 10) {
+      setNavHidden(dy > 0);
+      navLastY = y;
+    }
+  };
+  window.addEventListener(
+    "scroll",
+    () => {
+      if (!navTicking) {
+        navTicking = true;
+        requestAnimationFrame(paintNav);
+      }
+    },
+    { passive: true }
+  );
+  if (tabbar) {
+    // While tucked away, a tap on the handle only brings the bar back.
+    tabbar.addEventListener(
+      "click",
+      (event) => {
+        if (!navHidden) return;
+        event.preventDefault();
+        event.stopPropagation();
+        setNavHidden(false);
+      },
+      true
+    );
+  }
+  document.addEventListener("focusin", (event) => {
+    if (navHidden && event.target.closest(".topbar, .tabbar")) setNavHidden(false);
+  });
+
   /* ---- Phone tab bar: on the homepage, "Work" lights up over the projects ---- */
   const homeTab = document.querySelector('.tabbar-link[data-tab="home"][aria-current]');
   const workTab = document.querySelector('.tabbar-link[data-tab="work"]');
@@ -878,6 +932,149 @@
     var fCards = Array.prototype.slice.call(featured.querySelectorAll(".project-grid--featured > .project-card"));
     var svgNS = "http://www.w3.org/2000/svg";
     var counters = [];
+    var players = [];
+
+    /* Brightside: the real graph, same crop as before. One cluster is
+       rebuilt as vector over the screenshot (the cluster itself is erased
+       from brightside-graph-base.webp) so a cursor can drag its centre
+       node and switch its relationships off and back on. Coordinates are
+       in the screenshot's own pixels (724 x 363). */
+    var buildGraph = function (card, live) {
+      var el = function (name, attrs, parent) {
+        var n = document.createElementNS(svgNS, name);
+        for (var a in attrs) n.setAttribute(a, attrs[a]);
+        if (parent) parent.appendChild(n);
+        return n;
+      };
+      var H0 = [405.5, 85.8], H1 = [422.5, 104.8], G = [4, 5], R = 14;
+      // spoke: [x, y, stroke, opacity, width, arrow]
+      var spokes = [
+        [362.2, 24.8, "#d9749c", 0.8, 1.1, 1],
+        [422.8, 25.5, "#a3abab", 0.75, 0.8, 0],
+        [467.4, 58.8, "#d9749c", 0.7, 1.1, 1],
+        [470.4, 119.2, "#d0658f", 0.95, 1.2, 1],
+        [411.8, 147.4, "#c95a7c", 0.95, 1.2, 1],
+        [344.8, 85.0, "#d9749c", 0.5, 0.9, 0]
+      ];
+      var svg = el("svg", { viewBox: "4.5 6.3 558.5 349", preserveAspectRatio: "xMinYMid slice" });
+      el("image", { href: "/assets/brightside-graph-base.webp", width: 724, height: 363 }, svg);
+      // a touch of softness so the vector cluster matches the screenshot
+      var soft = el("filter", { id: "bs-soft", x: "-5%", y: "-5%", width: "110%", height: "110%" }, el("defs", {}, svg));
+      el("feGaussianBlur", { stdDeviation: 0.75 }, soft);
+      var layer = el("g", { filter: "url(#bs-soft)" }, svg);
+      var edges = spokes.map(function (s, k) {
+        var g = el("g", {}, layer);
+        var line = el("line", { stroke: s[2], "stroke-width": s[4], "stroke-opacity": s[3], "stroke-linecap": "round" }, g);
+        var arrow = s[5] ? el("path", { d: "M0 0L-5.2 -2.3L-5.2 2.3Z", fill: s[2], "fill-opacity": s[3] }, g) : null;
+        var label = el("g", {}, g);
+        var clip = el("svg", { x: -16, y: -6, width: 32, height: 12, viewBox: "0 " + k * 12 + " 32 12" }, label);
+        el("image", { href: "/assets/brightside-graph-labels.webp", width: 32, height: 72 }, clip);
+        return { s: s, line: line, arrow: arrow, label: label };
+      });
+      spokes.forEach(function (s) { el("circle", { cx: s[0], cy: s[1], r: R, fill: "#bce6e5" }, layer); });
+      var ring = el("circle", { r: 17.2, fill: "none", stroke: "#8fd0ce", "stroke-width": 2.2, opacity: 0 }, layer);
+      var hub = el("circle", { r: R, fill: "#bce6e5" }, layer);
+      var cursor = el("g", { opacity: 0 }, svg);
+      el("path", { d: "M0 0V15.5L4.1 11.8L6.9 18L9.3 16.9L6.6 10.9H11.6Z", fill: "#2a2a2a", stroke: "#fff", "stroke-width": 1.3, "stroke-linejoin": "round" }, cursor);
+      svg.setAttribute("class", "bs-wide");
+      live.appendChild(svg);
+
+      // The close-up: two real frames from the walkthrough (same layout,
+      // relationships on and filtered off) so the depression nodes read.
+      var close = document.createElement("div");
+      close.className = "bs-close";
+      close.innerHTML =
+        '<div class="bs-close-inner">' +
+        '<img src="/assets/brightside-graph-close-on.webp" alt="" width="520" height="325" decoding="async" />' +
+        '<img class="bs-off" src="/assets/brightside-graph-close-off.webp" alt="" width="520" height="325" decoding="async" />' +
+        "</div>" +
+        '<p class="bs-chip"><span>Relationships</span><i></i></p>';
+      live.appendChild(close);
+      var closeInner = close.firstChild;
+      var offImg = close.querySelector(".bs-off");
+      var chip = close.querySelector(".bs-chip");
+
+      var clamp = function (v) { return v < 0 ? 0 : v > 1 ? 1 : v; };
+      var seg = function (t, a, b) { return clamp((t - a) / (b - a)); };
+      var inOut = function (k) { return k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; };
+      var mix = function (a, b, k) { return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]; };
+      var lerp = function (a, b, k) { return a + (b - a) * k; };
+      // 0 to 1 while a press is held between a and b, eased at both ends
+      var held = function (t, a, b) { return seg(t, a, a + 150) * (1 - seg(t, b, b + 150)); };
+      var P = 10000;
+
+      var draw = function (t) {
+        // 1. Drag a node in the overview.
+        var h = t < 4000 ? mix(H0, H1, inOut(seg(t, 1150, 2500))) : H0;
+        var grab = [h[0] + G[0], h[1] + G[1]];
+        var cur = t < 1000
+          ? mix([470, 168], grab, inOut(seg(t, 300, 1000)))
+          : mix(grab, [grab[0] + 22, grab[1] + 20], inOut(seg(t, 2600, 3000)));
+        var cOp = seg(t, 300, 650) * (1 - seg(t, 2650, 3000));
+        var press = held(t, 1000, 2500);
+        cursor.setAttribute("transform", "translate(" + cur[0].toFixed(2) + " " + cur[1].toFixed(2) + ") scale(" + (1 - press * 0.14).toFixed(3) + ")");
+        cursor.setAttribute("opacity", cOp.toFixed(3));
+        hub.setAttribute("cx", h[0].toFixed(2));
+        hub.setAttribute("cy", h[1].toFixed(2));
+        ring.setAttribute("cx", h[0].toFixed(2));
+        ring.setAttribute("cy", h[1].toFixed(2));
+        ring.setAttribute("opacity", (press * 0.7).toFixed(3));
+        edges.forEach(function (e) {
+          var dx = e.s[0] - h[0], dy = e.s[1] - h[1];
+          var L = Math.sqrt(dx * dx + dy * dy), ux = dx / L, uy = dy / L;
+          var end = L - R - (e.arrow ? 1.5 : 0);
+          var ang = (Math.atan2(dy, dx) * 180 / Math.PI).toFixed(2);
+          e.line.setAttribute("x1", h[0].toFixed(2));
+          e.line.setAttribute("y1", h[1].toFixed(2));
+          e.line.setAttribute("x2", (h[0] + ux * end).toFixed(2));
+          e.line.setAttribute("y2", (h[1] + uy * end).toFixed(2));
+          if (e.arrow) e.arrow.setAttribute("transform", "translate(" + (h[0] + ux * end).toFixed(2) + " " + (h[1] + uy * end).toFixed(2) + ") rotate(" + ang + ")");
+          e.label.setAttribute("transform", "translate(" + (h[0] + ux * L / 2).toFixed(2) + " " + (h[1] + uy * L / 2).toFixed(2) + ") rotate(" + ang + ")");
+        });
+
+        // 2. Zoom into the labelled depression nodes, and back out.
+        var zin = inOut(seg(t, 3000, 4000));
+        var zout = inOut(seg(t, 8200, 9200));
+        var z = zin * (1 - zout);
+        svg.style.transform = "scale(" + lerp(1, 2.4, z).toFixed(4) + ")";
+        svg.style.opacity = (1 - clamp(seg(t, 3300, 4000) - seg(t, 8200, 8900))).toFixed(3);
+        close.style.transform = "scale(" + lerp(0.5, 1, z).toFixed(4) + ")";
+        close.style.opacity = clamp(seg(t, 3000, 3700) - seg(t, 8500, 9200)).toFixed(3);
+        closeInner.style.transform = "scale(" + (1 + 0.07 * inOut(seg(t, 3600, 8600))).toFixed(4) + ")";
+
+        // 3. Relationships switch off, then back on.
+        var off = inOut(seg(t, 5300, 5800)) * (1 - inOut(seg(t, 6900, 7400)));
+        offImg.style.opacity = off.toFixed(3);
+        chip.style.setProperty("--on", (1 - off).toFixed(3));
+        chip.style.opacity = clamp(seg(t, 4100, 4500) - seg(t, 8100, 8400)).toFixed(3);
+      };
+      draw(0);
+
+      var raf = 0, t0 = 0, stopAt = 0;
+      var tick = function (now) {
+        if (stopAt && now > stopAt) {
+          raf = 0;
+          stopAt = 0;
+          draw(0);
+          return;
+        }
+        draw((now - t0) % P);
+        raf = requestAnimationFrame(tick);
+      };
+      return {
+        card: card,
+        start: function () {
+          stopAt = 0;
+          if (raf) return;
+          t0 = performance.now();
+          raf = requestAnimationFrame(tick);
+        },
+        // keep moving while the layer fades out, then rest at frame 0
+        stop: function () {
+          if (raf && !stopAt) stopAt = performance.now() + 650;
+        }
+      };
+    };
 
     var buildLive = function (card) {
       var stage = card.querySelector(".project-stage");
@@ -895,7 +1092,7 @@
           "</div>";
       } else if (kind === "brightside") {
         live.classList.add("live--bs");
-        live.innerHTML = '<img src="/assets/brightside-graph.webp" alt="" width="724" height="363" decoding="async" />';
+        players.push(buildGraph(card, live));
       } else if (kind === "gateway") {
         live.classList.add("live--panel", "live--gw");
         var data = [150000, 450000, 1500000, 875000, 350000, 490000];
@@ -935,6 +1132,7 @@
         c.classList.toggle("is-playing", k === i);
       });
       counters.forEach(function (c) { if (c.card === fCards[i]) countUp(c.el); });
+      players.forEach(function (p) { if (p.card === fCards[i]) p.start(); else p.stop(); });
     };
 
     var desktopQuery = window.matchMedia("(min-width: 900px)");
@@ -1165,6 +1363,83 @@
         }
       }, { passive: true });
       paintRead();
+    }
+  }
+
+  /* ---- Selected Work, second row: the same living thumbnails ----
+     Mindfulness maps one discovery page into three clear paths to booking;
+     24Seven steps through its separate traveller journeys. One card plays at
+     a time: the one in the middle of the screen, or the one under the
+     pointer. */
+  var moreCards = Array.prototype.slice.call(document.querySelectorAll(".project-grid--more > .project-card"));
+  if (moreCards.length && !prefersReducedMotion && "IntersectionObserver" in window) {
+    var builtMore = moreCards.filter(function (card) {
+      var stage = card.querySelector(".project-stage");
+      var kind = card.dataset.project;
+      if (!stage) return false;
+      var live = document.createElement("div");
+      live.className = "live";
+      live.setAttribute("aria-hidden", "true");
+      if (kind === "mindfulness") {
+        live.classList.add("live--mfd");
+        var paths = ["1:1 sessions", "Group program", "Corporate"];
+        live.innerHTML =
+          '<div class="mfd-map">' +
+          '<svg viewBox="0 0 100 100" preserveAspectRatio="none">' +
+          [18, 50, 82].map(function (y, k) {
+            return '<path style="--k:' + k + '" pathLength="1" d="M22 50C29 50 29 ' + y + ' 35 ' + y + '"/>' +
+              '<path class="out" style="--k:' + k + '" pathLength="1" d="M65 ' + y + 'C71 ' + y + ' 71 50 78 50"/>';
+          }).join("") +
+          "</svg>" +
+          '<span class="mfd-start">Discover</span>' +
+          paths.map(function (p, k) { return '<span class="mfd-path" style="--k:' + k + ";--y:" + [18, 50, 82][k] + '%">' + p + "</span>"; }).join("") +
+          '<span class="mfd-end">Book</span>' +
+          "</div>";
+      } else if (kind === "24seven") {
+        live.classList.add("live--t24");
+        var trips = ["Solo", "Group", "First-time"];
+        live.innerHTML =
+          '<p class="live-chip live-chip--t24">A journey for each</p>' +
+          '<div class="t24-pick"><span class="t24-label">Planning for</span><div class="t24-seg"><i></i>' +
+          trips.map(function (t, k) { return '<span style="--k:' + k + '">' + t + "</span>"; }).join("") +
+          "</div></div>";
+      } else {
+        return false;
+      }
+      stage.appendChild(live);
+      return true;
+    }).length;
+
+    if (builtMore) {
+      var inView = [];
+      var hovered = null;
+      var morePlaying = null;
+      var pickMore = function () {
+        var next = hovered || inView[0] || null;
+        if (next === morePlaying) return;
+        moreCards.forEach(function (c) { c.classList.toggle("is-playing", c === next); });
+        morePlaying = next;
+      };
+      var moreObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          var at = inView.indexOf(entry.target);
+          if (entry.isIntersecting && at < 0) inView.push(entry.target);
+          if (!entry.isIntersecting && at >= 0) inView.splice(at, 1);
+        });
+        inView.sort(function (a, b) { return moreCards.indexOf(a) - moreCards.indexOf(b); });
+        pickMore();
+      }, { rootMargin: "-35% 0px -35% 0px" });
+      moreCards.forEach(function (card) {
+        moreObserver.observe(card);
+        card.addEventListener("pointerenter", function (e) {
+          if (e.pointerType === "mouse") { hovered = card; pickMore(); }
+        });
+        card.addEventListener("pointerleave", function () {
+          if (hovered === card) { hovered = null; pickMore(); }
+        });
+        card.addEventListener("focusin", function () { hovered = card; pickMore(); });
+        card.addEventListener("focusout", function () { if (hovered === card) { hovered = null; pickMore(); } });
+      });
     }
   }
 })();

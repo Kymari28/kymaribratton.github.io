@@ -13141,25 +13141,91 @@ main {
   animation: live-pop 0.5s cubic-bezier(0.16, 1, 0.3, 1) 2s forwards;
 }
 
-/* Brightside: the real graph, after it loads, drifting slowly */
+/* Brightside: the real graph, same crop; a node is dragged and its
+   relationships switch off and back on (drawn in script.js) */
 .live--bs {
   overflow: hidden;
-  background: #f4fafa;
+  background: #fff;
 }
 
-.live--bs img {
+.live--bs svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* zooms toward the dragged node */
+.live--bs .bs-wide {
+  transform-origin: 71.7% 22.8%;
+}
+
+.bs-close {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #fff;
+  opacity: 0;
+  transform-origin: 71.7% 22.8%;
+}
+
+.bs-close-inner {
+  position: absolute;
+  inset: 0;
+  transform-origin: 38% 54%;
+}
+
+.bs-close img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 0% 45%;
-  transform-origin: 20% 45%;
-  scale: 1.04;
 }
 
-.is-playing .live--bs img {
-  animation: live-drift 14s ease-in-out infinite alternate;
+.bs-close .bs-off {
+  opacity: 0;
+}
+
+/* a small filter switch, like the prototype's relationship filters */
+.bs-chip {
+  --on: 1;
+  position: absolute;
+  right: 4%;
+  bottom: 6%;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0.3rem 0.4rem 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 6px 16px -10px rgba(16, 54, 90, 0.45);
+  color: #10365a;
+  font-size: 0.62rem;
+  font-weight: 600;
+  opacity: 0;
+}
+
+.bs-chip i {
+  position: relative;
+  width: 1.55rem;
+  height: 0.9rem;
+  border-radius: 999px;
+  background: rgb(calc(200 - 140 * var(--on)) calc(205 - 40 * var(--on)) calc(205 - 10 * var(--on)));
+}
+
+.bs-chip i::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(0.9rem - 4px);
+  height: calc(0.9rem - 4px);
+  border-radius: 50%;
+  background: #fff;
+  transform: translateX(calc(var(--on) * (1.55rem - 0.9rem)));
 }
 
 /* Gateway: funding builds year by year */
@@ -13238,10 +13304,6 @@ main {
 @keyframes live-ink { to { color: #2a2a2a; } }
 @keyframes live-ink-in { to { opacity: 1; } }
 @keyframes live-pop { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-@keyframes live-drift {
-  from { scale: 1.04; translate: 0 0; }
-  to { scale: 1.14; translate: 2% -3%; }
-}
 @keyframes live-grow { to { transform: scaleY(1); } }
 @keyframes live-hi { to { background: #5593bb; } }
 
@@ -13414,4 +13476,273 @@ main {
 
   .hero-visual { margin-top: 1.1rem; }
   .hero-lead > .button-row { margin-top: 1.5rem; }
+}
+
+/* Case-study heroes, once stacked: the title, intro and buttons sit in one
+   centred column. Everything below the hero stays left aligned. */
+@media (max-width: 900px) {
+  main[data-case] .subpage-hero .subpage-copy {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  main[data-case] .subpage-hero .subpage-copy > :not(.button-row, .triptag-hero-footer) {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  main[data-case] .subpage-hero .subpage-copy > :is(.status-row, .button-row, .triptag-hero-footer) {
+    justify-content: center;
+  }
+}
+
+/* ---- Phones and tablets: menus step aside while reading ---------------------
+   script.js adds .nav-hidden on the way down and removes it on the way up.
+   The tab bar leaves a slim handle that brings it back with a tap. */
+@media (max-width: 899px) {
+  .topbar {
+    transition:
+      transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+      background-color 200ms ease,
+      border-color 200ms ease,
+      box-shadow 200ms ease;
+  }
+
+  .nav-hidden .topbar {
+    transform: translateY(-101%);
+  }
+}
+
+@media (max-width: 640px) {
+  .tabbar {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .tabbar-link {
+    transition: opacity 0.25s ease;
+  }
+
+  .tabbar::after {
+    content: "";
+    position: absolute;
+    top: 7px;
+    left: 50%;
+    width: 2.25rem;
+    height: 4px;
+    margin-left: -1.125rem;
+    border-radius: 999px;
+    background: rgba(42, 42, 42, 0.24);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+    pointer-events: none;
+  }
+
+  .nav-hidden .tabbar {
+    transform: translateY(calc(100% - 18px - env(safe-area-inset-bottom)));
+    cursor: pointer;
+  }
+
+  .nav-hidden .tabbar-link {
+    opacity: 0;
+  }
+
+  .nav-hidden .tabbar::after {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 899px) and (prefers-reduced-motion: reduce) {
+  .topbar,
+  .tabbar,
+  .tabbar-link,
+  .tabbar::after {
+    transition: none;
+  }
+}
+
+/* ---- Selected Work, second row: living thumbnails -------------------------
+   Built in script.js; only the card in the middle of the screen (or under
+   the pointer) plays. Hidden entirely for reduced motion via .live. */
+
+/* Mindfulness: one discovery page, three clear paths, one booking step */
+.live--mfd,
+.live--t24 {
+  display: grid;
+  align-content: end;
+}
+
+.mfd-map {
+  position: relative;
+  height: 5.4rem;
+  margin: 0 4% 4%;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 8px 20px -12px rgba(42, 42, 42, 0.4);
+}
+
+.mfd-map svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.mfd-map path {
+  fill: none;
+  stroke: rgba(85, 96, 63, 0.5);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.mfd-start,
+.mfd-path,
+.mfd-end {
+  position: absolute;
+  top: 50%;
+  padding: 0.22rem 0.45rem;
+  border: 1px solid rgba(85, 96, 63, 0.28);
+  border-radius: 999px;
+  background: #fff;
+  color: #2a2a2a;
+  font-size: 0.58rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(-50%);
+}
+
+.mfd-start { left: 3%; }
+.mfd-path { top: var(--y); left: 50%; transform: translate(-50%, -50%); }
+.mfd-end { right: 3%; }
+
+.is-playing .mfd-start {
+  animation: live-ink-in 0.35s ease 0.2s forwards;
+}
+
+.is-playing .mfd-map path {
+  animation: mfd-draw 0.4s ease-out forwards;
+  animation-delay: calc(0.45s + var(--k) * 0.12s);
+}
+
+.is-playing .mfd-map path.out {
+  animation-delay: calc(1.2s + var(--k) * 0.12s);
+}
+
+.is-playing .mfd-path {
+  animation: live-ink-in 0.35s ease forwards;
+  animation-delay: calc(0.65s + var(--k) * 0.15s);
+}
+
+.is-playing .mfd-end {
+  animation:
+    live-ink-in 0.35s ease 1.6s forwards,
+    mfd-book 0.4s ease 1.95s forwards;
+}
+
+@keyframes mfd-draw { to { stroke-dashoffset: 0; } }
+@keyframes mfd-book { to { background: #55603f; border-color: #55603f; color: #f8f6f2; } }
+
+/* 24Seven: one picker, a separate journey for each kind of traveller */
+.t24-pick {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0 4% 4%;
+  padding: 0.55rem 0.7rem 0.6rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 8px 20px -12px rgba(42, 42, 42, 0.4);
+}
+
+.t24-label {
+  color: rgba(42, 42, 42, 0.6);
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.t24-seg {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(42, 42, 42, 0.06);
+}
+
+.t24-seg i {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / 3);
+  border-radius: 999px;
+  background: #8e2a22;
+  opacity: 0;
+}
+
+.t24-seg span {
+  position: relative;
+  padding: 0.32rem 0;
+  color: rgba(42, 42, 42, 0.62);
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.live-chip--t24 {
+  background: #8e2a22;
+}
+
+.is-playing .t24-seg i {
+  animation: t24-slide 2s cubic-bezier(0.65, 0, 0.35, 1) 0.3s forwards;
+}
+
+.is-playing .t24-seg span:nth-of-type(1) { animation: t24-on 0.6s linear 0.4s; }
+.is-playing .t24-seg span:nth-of-type(2) { animation: t24-on 0.45s linear 1.2s; }
+.is-playing .t24-seg span:nth-of-type(3) { animation: t24-stay 0.2s ease 1.85s forwards; }
+
+.is-playing .live-chip--t24 {
+  animation-delay: 2.2s;
+}
+
+@keyframes t24-slide {
+  0% { opacity: 0; transform: translateX(0); }
+  10%, 35% { opacity: 1; transform: translateX(0); }
+  50%, 65% { opacity: 1; transform: translateX(100%); }
+  80%, 100% { opacity: 1; transform: translateX(200%); }
+}
+
+@keyframes t24-on {
+  0%, 100% { color: rgba(42, 42, 42, 0.62); }
+  12%, 88% { color: #fff; }
+}
+
+@keyframes t24-stay { to { color: #fff; } }
+
+/* Phones, About: intro first, then the photo, then the buttons. */
+@media (max-width: 640px) {
+  .subpage-hero:has(.subpage-visual--about) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .subpage-hero:has(.subpage-visual--about) .subpage-copy {
+    display: contents;
+  }
+
+  .subpage-hero:has(.subpage-visual--about) .subpage-copy > * { order: 1; }
+  .subpage-hero:has(.subpage-visual--about) .subpage-visual { order: 2; margin-top: 1.75rem; }
+
+  .subpage-hero:has(.subpage-visual--about) .subpage-copy > .button-row {
+    order: 3;
+    align-self: stretch;
+    margin-top: 1.5rem;
+  }
 }
