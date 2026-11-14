@@ -976,61 +976,77 @@
       var hub = el("circle", { r: R, fill: "#bce6e5" }, layer);
       var cursor = el("g", { opacity: 0 }, svg);
       el("path", { d: "M0 0V15.5L4.1 11.8L6.9 18L9.3 16.9L6.6 10.9H11.6Z", fill: "#2a2a2a", stroke: "#fff", "stroke-width": 1.3, "stroke-linejoin": "round" }, cursor);
+      svg.setAttribute("class", "bs-wide");
       live.appendChild(svg);
+
+      // The close-up: two real frames from the walkthrough (same layout,
+      // relationships on and filtered off) so the depression nodes read.
+      var close = document.createElement("div");
+      close.className = "bs-close";
+      close.innerHTML =
+        '<div class="bs-close-inner">' +
+        '<img src="/assets/brightside-graph-close-on.webp" alt="" width="520" height="325" decoding="async" />' +
+        '<img class="bs-off" src="/assets/brightside-graph-close-off.webp" alt="" width="520" height="325" decoding="async" />' +
+        "</div>" +
+        '<p class="bs-chip"><span>Relationships</span><i></i></p>';
+      live.appendChild(close);
+      var closeInner = close.firstChild;
+      var offImg = close.querySelector(".bs-off");
+      var chip = close.querySelector(".bs-chip");
 
       var clamp = function (v) { return v < 0 ? 0 : v > 1 ? 1 : v; };
       var seg = function (t, a, b) { return clamp((t - a) / (b - a)); };
       var inOut = function (k) { return k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; };
-      var out = function (k) { return 1 - Math.pow(1 - k, 3); };
       var mix = function (a, b, k) { return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]; };
+      var lerp = function (a, b, k) { return a + (b - a) * k; };
       // 0 to 1 while a press is held between a and b, eased at both ends
       var held = function (t, a, b) { return seg(t, a, a + 150) * (1 - seg(t, b, b + 150)); };
       var P = 10000;
 
       var draw = function (t) {
-        // Drag out, switch relationships off and on, drag home.
-        var h = t < 7450 ? mix(H0, H1, inOut(seg(t, 1500, 3100))) : mix(H1, H0, inOut(seg(t, 7450, 8950)));
+        // 1. Drag a node in the overview.
+        var h = t < 4000 ? mix(H0, H1, inOut(seg(t, 1150, 2500))) : H0;
         var grab = [h[0] + G[0], h[1] + G[1]];
-        var cur, cOp;
-        if (t < 1300) {
-          cur = mix([470, 168], grab, inOut(seg(t, 400, 1300)));
-          cOp = seg(t, 400, 800);
-        } else if (t < 9200) {
-          cur = grab;
-          cOp = 1;
-        } else {
-          cur = mix(grab, [grab[0] + 28, grab[1] + 24], inOut(seg(t, 9200, 9800)));
-          cOp = 1 - seg(t, 9300, 9800);
-        }
-        var press = Math.max(held(t, 1300, 3100), held(t, 3700, 3750), held(t, 5600, 5650), held(t, 7300, 8950));
+        var cur = t < 1000
+          ? mix([470, 168], grab, inOut(seg(t, 300, 1000)))
+          : mix(grab, [grab[0] + 22, grab[1] + 20], inOut(seg(t, 2600, 3000)));
+        var cOp = seg(t, 300, 650) * (1 - seg(t, 2650, 3000));
+        var press = held(t, 1000, 2500);
         cursor.setAttribute("transform", "translate(" + cur[0].toFixed(2) + " " + cur[1].toFixed(2) + ") scale(" + (1 - press * 0.14).toFixed(3) + ")");
         cursor.setAttribute("opacity", cOp.toFixed(3));
         hub.setAttribute("cx", h[0].toFixed(2));
         hub.setAttribute("cy", h[1].toFixed(2));
         ring.setAttribute("cx", h[0].toFixed(2));
         ring.setAttribute("cy", h[1].toFixed(2));
-        ring.setAttribute("opacity", (Math.max(held(t, 1300, 3100), held(t, 7300, 8950)) * 0.7).toFixed(3));
-
-        edges.forEach(function (e, k) {
-          var f = t < 5750
-            ? 1 - inOut(seg(t, 3850 + k * 90, 4370 + k * 90))
-            : out(seg(t, 5750 + k * 90, 6350 + k * 90));
+        ring.setAttribute("opacity", (press * 0.7).toFixed(3));
+        edges.forEach(function (e) {
           var dx = e.s[0] - h[0], dy = e.s[1] - h[1];
           var L = Math.sqrt(dx * dx + dy * dy), ux = dx / L, uy = dy / L;
           var end = L - R - (e.arrow ? 1.5 : 0);
-          var reach = R + (end - R) * f;
+          var ang = (Math.atan2(dy, dx) * 180 / Math.PI).toFixed(2);
           e.line.setAttribute("x1", h[0].toFixed(2));
           e.line.setAttribute("y1", h[1].toFixed(2));
-          e.line.setAttribute("x2", (h[0] + ux * reach).toFixed(2));
-          e.line.setAttribute("y2", (h[1] + uy * reach).toFixed(2));
-          var ang = (Math.atan2(dy, dx) * 180 / Math.PI).toFixed(2);
-          if (e.arrow) {
-            e.arrow.setAttribute("transform", "translate(" + (h[0] + ux * reach).toFixed(2) + " " + (h[1] + uy * reach).toFixed(2) + ") rotate(" + ang + ")");
-            e.arrow.setAttribute("opacity", clamp(f * 3).toFixed(3));
-          }
+          e.line.setAttribute("x2", (h[0] + ux * end).toFixed(2));
+          e.line.setAttribute("y2", (h[1] + uy * end).toFixed(2));
+          if (e.arrow) e.arrow.setAttribute("transform", "translate(" + (h[0] + ux * end).toFixed(2) + " " + (h[1] + uy * end).toFixed(2) + ") rotate(" + ang + ")");
           e.label.setAttribute("transform", "translate(" + (h[0] + ux * L / 2).toFixed(2) + " " + (h[1] + uy * L / 2).toFixed(2) + ") rotate(" + ang + ")");
-          e.label.setAttribute("opacity", clamp(f * 2 - 1).toFixed(3));
         });
+
+        // 2. Zoom into the labelled depression nodes, and back out.
+        var zin = inOut(seg(t, 3000, 4000));
+        var zout = inOut(seg(t, 8200, 9200));
+        var z = zin * (1 - zout);
+        svg.style.transform = "scale(" + lerp(1, 2.4, z).toFixed(4) + ")";
+        svg.style.opacity = (1 - clamp(seg(t, 3300, 4000) - seg(t, 8200, 8900))).toFixed(3);
+        close.style.transform = "scale(" + lerp(0.5, 1, z).toFixed(4) + ")";
+        close.style.opacity = clamp(seg(t, 3000, 3700) - seg(t, 8500, 9200)).toFixed(3);
+        closeInner.style.transform = "scale(" + (1 + 0.07 * inOut(seg(t, 3600, 8600))).toFixed(4) + ")";
+
+        // 3. Relationships switch off, then back on.
+        var off = inOut(seg(t, 5300, 5800)) * (1 - inOut(seg(t, 6900, 7400)));
+        offImg.style.opacity = off.toFixed(3);
+        chip.style.setProperty("--on", (1 - off).toFixed(3));
+        chip.style.opacity = clamp(seg(t, 4100, 4500) - seg(t, 8100, 8400)).toFixed(3);
       };
       draw(0);
 

@@ -13156,6 +13156,78 @@ main {
   display: block;
 }
 
+/* zooms toward the dragged node */
+.live--bs .bs-wide {
+  transform-origin: 71.7% 22.8%;
+}
+
+.bs-close {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: #fff;
+  opacity: 0;
+  transform-origin: 71.7% 22.8%;
+}
+
+.bs-close-inner {
+  position: absolute;
+  inset: 0;
+  transform-origin: 38% 54%;
+}
+
+.bs-close img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bs-close .bs-off {
+  opacity: 0;
+}
+
+/* a small filter switch, like the prototype's relationship filters */
+.bs-chip {
+  --on: 1;
+  position: absolute;
+  right: 4%;
+  bottom: 6%;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+  padding: 0.3rem 0.4rem 0.3rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 6px 16px -10px rgba(16, 54, 90, 0.45);
+  color: #10365a;
+  font-size: 0.62rem;
+  font-weight: 600;
+  opacity: 0;
+}
+
+.bs-chip i {
+  position: relative;
+  width: 1.55rem;
+  height: 0.9rem;
+  border-radius: 999px;
+  background: rgb(calc(200 - 140 * var(--on)) calc(205 - 40 * var(--on)) calc(205 - 10 * var(--on)));
+}
+
+.bs-chip i::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(0.9rem - 4px);
+  height: calc(0.9rem - 4px);
+  border-radius: 50%;
+  background: #fff;
+  transform: translateX(calc(var(--on) * (1.55rem - 0.9rem)));
+}
+
 /* Gateway: funding builds year by year */
 .live--gw {
   display: grid;
@@ -13653,3 +13725,24 @@ main {
 }
 
 @keyframes t24-stay { to { color: #fff; } }
+
+/* Phones, About: intro first, then the photo, then the buttons. */
+@media (max-width: 640px) {
+  .subpage-hero:has(.subpage-visual--about) {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .subpage-hero:has(.subpage-visual--about) .subpage-copy {
+    display: contents;
+  }
+
+  .subpage-hero:has(.subpage-visual--about) .subpage-copy > * { order: 1; }
+  .subpage-hero:has(.subpage-visual--about) .subpage-visual { order: 2; margin-top: 1.75rem; }
+
+  .subpage-hero:has(.subpage-visual--about) .subpage-copy > .button-row {
+    order: 3;
+    align-self: stretch;
+    margin-top: 1.5rem;
+  }
+}
