@@ -878,6 +878,133 @@
     var fCards = Array.prototype.slice.call(featured.querySelectorAll(".project-grid--featured > .project-card"));
     var svgNS = "http://www.w3.org/2000/svg";
     var counters = [];
+    var players = [];
+
+    /* Brightside: the real graph, same crop as before. One cluster is
+       rebuilt as vector over the screenshot (the cluster itself is erased
+       from brightside-graph-base.webp) so a cursor can drag its centre
+       node and switch its relationships off and back on. Coordinates are
+       in the screenshot's own pixels (724 x 363). */
+    var buildGraph = function (card, live) {
+      var el = function (name, attrs, parent) {
+        var n = document.createElementNS(svgNS, name);
+        for (var a in attrs) n.setAttribute(a, attrs[a]);
+        if (parent) parent.appendChild(n);
+        return n;
+      };
+      var H0 = [405.5, 85.8], H1 = [422.5, 104.8], G = [4, 5], R = 14;
+      // spoke: [x, y, stroke, opacity, width, arrow]
+      var spokes = [
+        [362.2, 24.8, "#d9749c", 0.8, 1.1, 1],
+        [422.8, 25.5, "#a3abab", 0.75, 0.8, 0],
+        [467.4, 58.8, "#d9749c", 0.7, 1.1, 1],
+        [470.4, 119.2, "#d0658f", 0.95, 1.2, 1],
+        [411.8, 147.4, "#c95a7c", 0.95, 1.2, 1],
+        [344.8, 85.0, "#d9749c", 0.5, 0.9, 0]
+      ];
+      var svg = el("svg", { viewBox: "4.5 6.3 558.5 349", preserveAspectRatio: "xMinYMid slice" });
+      el("image", { href: "/assets/brightside-graph-base.webp", width: 724, height: 363 }, svg);
+      // a touch of softness so the vector cluster matches the screenshot
+      var soft = el("filter", { id: "bs-soft", x: "-5%", y: "-5%", width: "110%", height: "110%" }, el("defs", {}, svg));
+      el("feGaussianBlur", { stdDeviation: 0.75 }, soft);
+      var layer = el("g", { filter: "url(#bs-soft)" }, svg);
+      var edges = spokes.map(function (s, k) {
+        var g = el("g", {}, layer);
+        var line = el("line", { stroke: s[2], "stroke-width": s[4], "stroke-opacity": s[3], "stroke-linecap": "round" }, g);
+        var arrow = s[5] ? el("path", { d: "M0 0L-5.2 -2.3L-5.2 2.3Z", fill: s[2], "fill-opacity": s[3] }, g) : null;
+        var label = el("g", {}, g);
+        var clip = el("svg", { x: -16, y: -6, width: 32, height: 12, viewBox: "0 " + k * 12 + " 32 12" }, label);
+        el("image", { href: "/assets/brightside-graph-labels.webp", width: 32, height: 72 }, clip);
+        return { s: s, line: line, arrow: arrow, label: label };
+      });
+      spokes.forEach(function (s) { el("circle", { cx: s[0], cy: s[1], r: R, fill: "#bce6e5" }, layer); });
+      var ring = el("circle", { r: 17.2, fill: "none", stroke: "#8fd0ce", "stroke-width": 2.2, opacity: 0 }, layer);
+      var hub = el("circle", { r: R, fill: "#bce6e5" }, layer);
+      var cursor = el("g", { opacity: 0 }, svg);
+      el("path", { d: "M0 0V15.5L4.1 11.8L6.9 18L9.3 16.9L6.6 10.9H11.6Z", fill: "#2a2a2a", stroke: "#fff", "stroke-width": 1.3, "stroke-linejoin": "round" }, cursor);
+      live.appendChild(svg);
+
+      var clamp = function (v) { return v < 0 ? 0 : v > 1 ? 1 : v; };
+      var seg = function (t, a, b) { return clamp((t - a) / (b - a)); };
+      var inOut = function (k) { return k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; };
+      var out = function (k) { return 1 - Math.pow(1 - k, 3); };
+      var mix = function (a, b, k) { return [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]; };
+      // 0 to 1 while a press is held between a and b, eased at both ends
+      var held = function (t, a, b) { return seg(t, a, a + 150) * (1 - seg(t, b, b + 150)); };
+      var P = 10000;
+
+      var draw = function (t) {
+        // Drag out, switch relationships off and on, drag home.
+        var h = t < 7450 ? mix(H0, H1, inOut(seg(t, 1500, 3100))) : mix(H1, H0, inOut(seg(t, 7450, 8950)));
+        var grab = [h[0] + G[0], h[1] + G[1]];
+        var cur, cOp;
+        if (t < 1300) {
+          cur = mix([470, 168], grab, inOut(seg(t, 400, 1300)));
+          cOp = seg(t, 400, 800);
+        } else if (t < 9200) {
+          cur = grab;
+          cOp = 1;
+        } else {
+          cur = mix(grab, [grab[0] + 28, grab[1] + 24], inOut(seg(t, 9200, 9800)));
+          cOp = 1 - seg(t, 9300, 9800);
+        }
+        var press = Math.max(held(t, 1300, 3100), held(t, 3700, 3750), held(t, 5600, 5650), held(t, 7300, 8950));
+        cursor.setAttribute("transform", "translate(" + cur[0].toFixed(2) + " " + cur[1].toFixed(2) + ") scale(" + (1 - press * 0.14).toFixed(3) + ")");
+        cursor.setAttribute("opacity", cOp.toFixed(3));
+        hub.setAttribute("cx", h[0].toFixed(2));
+        hub.setAttribute("cy", h[1].toFixed(2));
+        ring.setAttribute("cx", h[0].toFixed(2));
+        ring.setAttribute("cy", h[1].toFixed(2));
+        ring.setAttribute("opacity", (Math.max(held(t, 1300, 3100), held(t, 7300, 8950)) * 0.7).toFixed(3));
+
+        edges.forEach(function (e, k) {
+          var f = t < 5750
+            ? 1 - inOut(seg(t, 3850 + k * 90, 4370 + k * 90))
+            : out(seg(t, 5750 + k * 90, 6350 + k * 90));
+          var dx = e.s[0] - h[0], dy = e.s[1] - h[1];
+          var L = Math.sqrt(dx * dx + dy * dy), ux = dx / L, uy = dy / L;
+          var end = L - R - (e.arrow ? 1.5 : 0);
+          var reach = R + (end - R) * f;
+          e.line.setAttribute("x1", h[0].toFixed(2));
+          e.line.setAttribute("y1", h[1].toFixed(2));
+          e.line.setAttribute("x2", (h[0] + ux * reach).toFixed(2));
+          e.line.setAttribute("y2", (h[1] + uy * reach).toFixed(2));
+          var ang = (Math.atan2(dy, dx) * 180 / Math.PI).toFixed(2);
+          if (e.arrow) {
+            e.arrow.setAttribute("transform", "translate(" + (h[0] + ux * reach).toFixed(2) + " " + (h[1] + uy * reach).toFixed(2) + ") rotate(" + ang + ")");
+            e.arrow.setAttribute("opacity", clamp(f * 3).toFixed(3));
+          }
+          e.label.setAttribute("transform", "translate(" + (h[0] + ux * L / 2).toFixed(2) + " " + (h[1] + uy * L / 2).toFixed(2) + ") rotate(" + ang + ")");
+          e.label.setAttribute("opacity", clamp(f * 2 - 1).toFixed(3));
+        });
+      };
+      draw(0);
+
+      var raf = 0, t0 = 0, stopAt = 0;
+      var tick = function (now) {
+        if (stopAt && now > stopAt) {
+          raf = 0;
+          stopAt = 0;
+          draw(0);
+          return;
+        }
+        draw((now - t0) % P);
+        raf = requestAnimationFrame(tick);
+      };
+      return {
+        card: card,
+        start: function () {
+          stopAt = 0;
+          if (raf) return;
+          t0 = performance.now();
+          raf = requestAnimationFrame(tick);
+        },
+        // keep moving while the layer fades out, then rest at frame 0
+        stop: function () {
+          if (raf && !stopAt) stopAt = performance.now() + 650;
+        }
+      };
+    };
 
     var buildLive = function (card) {
       var stage = card.querySelector(".project-stage");
@@ -895,7 +1022,7 @@
           "</div>";
       } else if (kind === "brightside") {
         live.classList.add("live--bs");
-        live.innerHTML = '<img src="/assets/brightside-graph.webp" alt="" width="724" height="363" decoding="async" />';
+        players.push(buildGraph(card, live));
       } else if (kind === "gateway") {
         live.classList.add("live--panel", "live--gw");
         var data = [150000, 450000, 1500000, 875000, 350000, 490000];
@@ -935,6 +1062,7 @@
         c.classList.toggle("is-playing", k === i);
       });
       counters.forEach(function (c) { if (c.card === fCards[i]) countUp(c.el); });
+      players.forEach(function (p) { if (p.card === fCards[i]) p.start(); else p.stop(); });
     };
 
     var desktopQuery = window.matchMedia("(min-width: 900px)");
