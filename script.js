@@ -832,4 +832,198 @@
        correct and visible even if this script never runs. Tab clicks and
        arrow-key navigation, wired above, are what JS adds on top. */
   }
+
+  /* ==== Motion picks (Nov 2026) ====
+     All optional: each piece checks for its elements and for reduced
+     motion, and the page is complete without any of it. */
+
+  /* ---- Hero: --bloom follows how far the hero has scrolled away ---- */
+  var bloomHero = document.querySelector(".hero");
+  if (bloomHero && document.querySelector(".portrait-wash") && !prefersReducedMotion) {
+    var bloomTicking = false;
+    var lastBloom = -1;
+    var paintBloom = function () {
+      bloomTicking = false;
+      var span = bloomHero.offsetHeight * 0.85 || 1;
+      var b = Math.min(1, Math.max(0, window.scrollY / span));
+      b = Math.round(b * 1000) / 1000;
+      if (b !== lastBloom) {
+        lastBloom = b;
+        bloomHero.style.setProperty("--bloom", b);
+      }
+    };
+    window.addEventListener(
+      "scroll",
+      function () {
+        if (!bloomTicking && window.scrollY < bloomHero.offsetHeight * 1.2 + 200) {
+          bloomTicking = true;
+          requestAnimationFrame(paintBloom);
+        } else if (lastBloom < 1 && window.scrollY >= bloomHero.offsetHeight) {
+          bloomHero.style.setProperty("--bloom", 1);
+          lastBloom = 1;
+        }
+      },
+      { passive: true }
+    );
+    paintBloom();
+  }
+
+  /* ---- Headlines rise from behind a mask (case studies) ----
+     Wraps each line in a clipped span, plays the rise, then restores the
+     heading exactly as it was, so later resizes reflow normally and hover
+     effects inside the title keep working. */
+  var riseHeading = function (el, delay) {
+    if (el.classList.contains("mask-run") || el.classList.contains("mask-done")) return;
+    el.classList.add("mask-run");
+    var restore;
+    var inners = [];
+    if (!el.children.length) {
+      var original = el.textContent;
+      var words = original.trim().split(/\s+/);
+      el.textContent = "";
+      var spans = words.map(function (w, i) {
+        var s = document.createElement("span");
+        s.textContent = w + (i < words.length - 1 ? " " : "");
+        el.appendChild(s);
+        return s;
+      });
+      var lines = [];
+      var lastTop = null;
+      spans.forEach(function (s) {
+        var top = s.offsetTop;
+        if (lastTop === null || Math.abs(top - lastTop) > 4) {
+          lines.push([]);
+          lastTop = top;
+        }
+        lines[lines.length - 1].push(s.textContent);
+      });
+      el.textContent = "";
+      lines.forEach(function (words) {
+        var outer = document.createElement("span");
+        var inner = document.createElement("span");
+        outer.className = "mline";
+        inner.className = "mline-in";
+        inner.textContent = words.join("");
+        outer.appendChild(inner);
+        el.appendChild(outer);
+        inners.push(inner);
+      });
+      restore = function () {
+        el.textContent = original;
+      };
+    } else {
+      var outerBox = document.createElement("span");
+      var innerBox = document.createElement("span");
+      outerBox.className = "mline";
+      innerBox.className = "mline-in";
+      while (el.firstChild) innerBox.appendChild(el.firstChild);
+      outerBox.appendChild(innerBox);
+      el.appendChild(outerBox);
+      inners.push(innerBox);
+      restore = function () {
+        while (innerBox.firstChild) el.insertBefore(innerBox.firstChild, outerBox);
+        outerBox.remove();
+      };
+    }
+    var runs = inners.map(function (inner, i) {
+      return inner.animate(
+        [{ transform: "translateY(108%)" }, { transform: "translateY(0)" }],
+        { duration: 950, delay: delay + i * 110, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "backwards" }
+      ).finished;
+    });
+    Promise.all(runs)
+      .catch(function () {})
+      .then(function () {
+        restore();
+        el.classList.remove("mask-run");
+        el.classList.add("mask-done");
+      });
+  };
+
+  var caseMain = document.querySelector("main[data-case]");
+  if (caseMain) {
+    var heroTitle = caseMain.querySelector(".subpage-title");
+    if (heroTitle) {
+      if (prefersReducedMotion || performance.now() > 1600 || !heroTitle.animate) {
+        heroTitle.classList.add("mask-done");
+      } else {
+        /* Arriving from a project card, wait for the image glide so the
+           title rises as the image lands. */
+        var cameFromSite = false;
+        try {
+          cameFromSite = !!document.referrer && new URL(document.referrer).origin === window.location.origin;
+        } catch (e) {}
+        riseHeading(heroTitle, cameFromSite && "onpagereveal" in window ? 420 : 120);
+      }
+    }
+
+    var sectionTitles = caseMain.querySelectorAll(".section-title");
+    if (sectionTitles.length && !prefersReducedMotion && "IntersectionObserver" in window && document.body.animate) {
+      var titleObserver = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            titleObserver.unobserve(entry.target);
+            var holder = entry.target.closest("[data-reveal]");
+            if (holder && holder.classList.contains("is-instant")) return;
+            riseHeading(entry.target, 60);
+          });
+        },
+        { threshold: 0, rootMargin: "0px 0px -8% 0px" }
+      );
+      sectionTitles.forEach(function (t) {
+        var r = t.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0 && performance.now() > 900) return;
+        titleObserver.observe(t);
+      });
+    }
+
+    /* ---- Screens uncover as you reach them ---- */
+    var screens = caseMain.querySelectorAll(".case-screen-media, .immigrants-review-closeup");
+    if (screens.length) {
+      if (!document.documentElement.classList.contains("reveal-ready") || !("IntersectionObserver" in window)) {
+        screens.forEach(function (s) { s.classList.add("is-uncovered"); });
+      } else {
+        var screenObserver = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (!entry.isIntersecting) return;
+              screenObserver.unobserve(entry.target);
+              entry.target.classList.add("is-uncovered");
+            });
+          },
+          { threshold: 0, rootMargin: "0px 0px -12% 0px" }
+        );
+        screens.forEach(function (s) {
+          var r = s.getBoundingClientRect();
+          if (r.top < window.innerHeight && r.bottom > 0 && performance.now() > 900) {
+            s.classList.add("is-uncovered", "is-instant");
+          } else {
+            screenObserver.observe(s);
+          }
+        });
+      }
+    }
+
+    /* ---- Reading line ---- */
+    var readLine = document.createElement("div");
+    readLine.className = "read-line";
+    readLine.setAttribute("aria-hidden", "true");
+    document.body.appendChild(readLine);
+    if (!(window.CSS && CSS.supports && CSS.supports("animation-timeline: scroll()"))) {
+      var readTicking = false;
+      var paintRead = function () {
+        readTicking = false;
+        var max = document.documentElement.scrollHeight - window.innerHeight || 1;
+        readLine.style.setProperty("--read", Math.min(1, Math.max(0, window.scrollY / max)).toFixed(4));
+      };
+      window.addEventListener("scroll", function () {
+        if (!readTicking) {
+          readTicking = true;
+          requestAnimationFrame(paintRead);
+        }
+      }, { passive: true });
+      paintRead();
+    }
+  }
 })();

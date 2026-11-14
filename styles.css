@@ -12761,12 +12761,18 @@ main[data-case="gateway"] .gateway-evidence-mark {
   .hero-lead > .eyebrow { order: 1; }
   .hero-lead > h1 { order: 2; }
   .hero-lead > .hero-lede { order: 3; }
-  .hero-visual { order: 4; margin-top: 1.75rem; }
-  .hero-lead > .button-row { order: 5; margin-top: 1.9rem; }
-  .hero-details { order: 6; margin-top: 2rem; }
+  .hero-visual { order: 4; margin-top: 1.4rem; }
+
+  /* "Currently wearing the hat of" sits between the photo and the
+     buttons; the focus pills follow the buttons. */
+  .hero-details { display: contents; }
+  .hero-status { order: 5; margin-top: 1.15rem; gap: 0.5rem; position: relative; z-index: 2; }
+  .hero-status-label { white-space: nowrap; font-size: 0.8rem; }
+  .hero-lead > .button-row { order: 6; margin-top: 1.1rem; }
+  .hero-focus { order: 7; margin-top: 1.6rem; position: relative; z-index: 2; }
 
   .hero-visual--circle .portrait-stage {
-    width: min(16.5rem, 74%);
+    width: min(14.25rem, 66%);
   }
 
   /* Every case study: title and intro, then the image, then the
@@ -12896,6 +12902,202 @@ main[data-case="gateway"] .gateway-evidence-mark {
 @media (prefers-reduced-motion: reduce) {
   .hero-pill[data-role-rotator] .hero-pill-word {
     filter: none;
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   Motion picks (Nov 2026). Every effect here is optional decoration: the
+   page is complete without it, nothing waits on it, and each one is
+   skipped when the visitor asks for reduced motion.
+   ========================================================================== */
+
+/* ---- Hero: the lily blooms as you scroll -----------------------------------
+   script.js writes --bloom (0 at the top, 1 once the hero has scrolled
+   away). The lily itself only grows a little so the image stays sharp;
+   the large growth is a CSS sage wash, which is crisp at any size. */
+.hero {
+  overflow: clip;
+}
+
+.hero-lead > *,
+.hero-details {
+  position: relative;
+  z-index: 2;
+}
+
+.portrait-wash {
+  position: absolute;
+  z-index: 0;
+  inset: -12%;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(169, 198, 165, 0.5) 0%,
+    rgba(169, 198, 165, 0.26) 38%,
+    rgba(169, 198, 165, 0) 70%
+  );
+  opacity: 0;
+  pointer-events: none;
+}
+
+.portrait-stage picture {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  transform-origin: 70% 62%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .portrait-wash {
+    /* Blooms in, peaks halfway, then dissolves as the hero leaves. */
+    opacity: calc(var(--bloom, 0) * (1 - var(--bloom, 0)) * 3.4);
+    scale: calc(0.7 + var(--bloom, 0) * 1.9);
+  }
+
+  .portrait-stage picture {
+    scale: calc(1 + var(--bloom, 0) * 0.14);
+    rotate: calc(var(--bloom, 0) * 8deg);
+    translate: calc(var(--bloom, 0) * -3%) calc(var(--bloom, 0) * -5%);
+  }
+
+  .portrait-stage .portrait-frame {
+    translate: 0 calc(var(--bloom, 0) * -18px);
+  }
+}
+
+@media (max-width: 640px) and (prefers-reduced-motion: no-preference) {
+  .portrait-wash {
+    scale: calc(0.7 + var(--bloom, 0) * 1.5);
+  }
+
+  .portrait-stage picture {
+    rotate: calc(var(--bloom, 0) * 6deg);
+  }
+}
+
+/* ---- Card glides into its case study -----------------------------------------
+   The project image already carries into the case-study hero (script.js
+   tags it on click). A longer, eased glide lets the eye follow it. */
+::view-transition-group(project-hero),
+::view-transition-old(project-hero),
+::view-transition-new(project-hero) {
+  animation-duration: 820ms;
+  animation-timing-function: cubic-bezier(0.65, 0, 0.15, 1);
+}
+
+/* ---- Headlines rise from behind a mask (case studies) --------------------------
+   script.js wraps each line in a clipped span, plays the rise, then puts
+   the heading back exactly as it was. The hero title waits for the script
+   for up to 1.8s, then shows on its own no matter what. */
+.mline {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+
+.mline-in {
+  display: block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .js main[data-case] .subpage-title:not(.mask-run):not(.mask-done) {
+    animation: words-fallback 0.6s ease 1.8s both;
+  }
+}
+
+/* ---- Screens uncover as you reach them ------------------------------------------ */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-ready main[data-case] :is(.case-screen-media, .immigrants-review-closeup) {
+    transition:
+      clip-path 1.15s cubic-bezier(0.77, 0, 0.175, 1),
+      transform 650ms var(--motion-ease),
+      box-shadow 650ms ease;
+  }
+
+  .reveal-ready main[data-case] :is(.case-screen-media, .immigrants-review-closeup) img {
+    transition: scale 1.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal-ready main[data-case] :is(.case-screen-media, .immigrants-review-closeup):not(.is-uncovered) {
+    clip-path: inset(100% 0 0 0 round clamp(14px, 1.7vw, 22px));
+  }
+
+  .reveal-ready main[data-case] :is(.case-screen-media, .immigrants-review-closeup):not(.is-uncovered) img {
+    scale: 1.12;
+  }
+
+  .reveal-ready main[data-case] :is(.case-screen-media, .immigrants-review-closeup).is-uncovered {
+    clip-path: inset(0 0 0 0 round clamp(14px, 1.7vw, 22px));
+  }
+
+  /* The showcase cards already fade and lift their media; add the uncover
+     to that same transition so neither overrides the other. */
+  .reveal-ready .case-study--showcase .case-screen-card[data-reveal].is-visible .case-screen-media.is-uncovered {
+    transition:
+      clip-path 1.15s cubic-bezier(0.77, 0, 0.175, 1),
+      opacity 500ms ease,
+      transform 950ms var(--motion-ease),
+      box-shadow 650ms ease;
+  }
+
+  .reveal-ready main[data-case] .is-uncovered.is-instant,
+  .reveal-ready main[data-case] .is-uncovered.is-instant img {
+    transition: none;
+  }
+}
+
+/* ---- Reading line (case studies) ------------------------------------------------- */
+.read-line {
+  position: fixed;
+  z-index: 60;
+  top: env(safe-area-inset-top, 0px);
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--sage-deep);
+  transform: scaleX(var(--read, 0));
+  transform-origin: left center;
+  pointer-events: none;
+}
+
+@supports (animation-timeline: scroll()) {
+  .read-line {
+    transform: scaleX(0);
+    animation: read-grow linear both;
+    animation-timeline: scroll(root block);
+  }
+}
+
+@keyframes read-grow {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ---- Underlines that draw in and slide away ---------------------------------------- */
+.link,
+.footer-links a {
+  background: linear-gradient(currentColor, currentColor) no-repeat right calc(50% + 0.78em) / 0 1.5px;
+  transition:
+    background-size 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.25s ease;
+}
+
+.link:hover,
+.link:focus-visible,
+.footer-links a:hover,
+.footer-links a:focus-visible {
+  text-decoration: none;
+  background-position: left calc(50% + 0.78em);
+  background-size: 100% 1.5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link,
+  .footer-links a {
     transition: none;
   }
 }
