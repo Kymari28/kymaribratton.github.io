@@ -13405,9 +13405,27 @@ main {
   }
 
   .hero-lead > .hero-lede {
-    max-width: 30ch;
+    max-width: 34ch;
   }
 
   .hero-visual { margin-top: 1.1rem; }
   .hero-lead > .button-row { margin-top: 1.5rem; }
+}
+
+/* Case-study heroes, once stacked: the title, intro and buttons sit in one
+   centred column. Everything below the hero stays left aligned. */
+@media (max-width: 900px) {
+  main[data-case] .subpage-hero .subpage-copy {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  main[data-case] .subpage-hero .subpage-copy > :not(.button-row, .triptag-hero-footer) {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  main[data-case] .subpage-hero .subpage-copy > :is(.status-row, .button-row, .triptag-hero-footer) {
+    justify-content: center;
+  }
 }
