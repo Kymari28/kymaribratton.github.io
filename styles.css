@@ -12787,7 +12787,6 @@ main[data-case="gateway"] .gateway-evidence-mark {
   .hero-note-text strong {
     font-size: 0.78rem;
   }
-  .hero-focus { order: 7; margin-top: 1.6rem; position: relative; z-index: 2; }
 
   .hero-visual--circle .portrait-stage {
     width: min(15.5rem, 72%);
@@ -13386,4 +13385,21 @@ main {
   .credentials--blush {
     display: none;
   }
+}
+
+/* Phones: the hero reads as one centred column and stays short. */
+@media (max-width: 640px) {
+  .hero-lead > .eyebrow,
+  .hero-lead > h1,
+  .hero-lead > .hero-lede {
+    text-align: center;
+    margin-inline: auto;
+  }
+
+  .hero-lead > .hero-lede {
+    max-width: 30ch;
+  }
+
+  .hero-visual { margin-top: 1.1rem; }
+  .hero-lead > .button-row { margin-top: 1.5rem; }
 }
