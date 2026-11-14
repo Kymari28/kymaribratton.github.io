@@ -13368,13 +13368,15 @@ main {
 }
 
 /* ---- Phones and touch screens: calm hero scroll ------------------------------
-   The copy stays sharp and still (blurring text caused a magenta rendering
-   glitch in iOS Safari). Only the photo, availability note and buttons soften,
-   and only once they are near the top of the screen on their way out. */
+   The copy, availability pill and portrait ring stay sharp and still
+   (blurring text caused a magenta rendering glitch in iOS Safari). Only the
+   photo and buttons soften, once they are near the top on their way out. */
 @media (max-width: 640px), (hover: none) {
   .hero-lead > *,
   .hero-details > *,
-  .portrait-stage .portrait-frame {
+  .portrait-stage .portrait-frame,
+  .portrait-stage .portrait-disc,
+  .hero .hero-visual .hero-note {
     filter: none !important;
     translate: none !important;
   }
@@ -13382,20 +13384,12 @@ main {
 
 @media (max-width: 640px) and (prefers-reduced-motion: no-preference), (hover: none) and (prefers-reduced-motion: no-preference) {
   .hero .hero-lead > .button-row,
-  .hero .portrait-stage .portrait-frame,
-  .hero .hero-visual .hero-note {
+  .hero .portrait-stage .portrait-frame {
     filter: blur(calc(max(0, var(--bloom, 0) - 0.72) * 11px)) !important;
   }
 }
 
-/* No pink credentials strip between the hero and the work on phones. */
-@media (max-width: 640px) {
-  .credentials--blush {
-    display: none;
-  }
-}
-
-/* Phones: the hero reads as one centred column and stays short. */
+/* Phones: the hero reads as one centred column. */
 @media (max-width: 640px) {
   .hero-lead > .eyebrow,
   .hero-lead > h1,
