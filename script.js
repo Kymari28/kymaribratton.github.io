@@ -307,10 +307,15 @@
   );
   if (tabbar) {
     // While tucked away, a tap on the handle only brings the bar back.
+    // Remember the state at pointerdown: the tap's own focus or a tiny
+    // scroll can reveal the bar before the click arrives.
+    let tappedWhileHidden = false;
+    tabbar.addEventListener("pointerdown", () => { tappedWhileHidden = navHidden; }, true);
     tabbar.addEventListener(
       "click",
       (event) => {
-        if (!navHidden) return;
+        if (!navHidden && !tappedWhileHidden) return;
+        tappedWhileHidden = false;
         event.preventDefault();
         event.stopPropagation();
         setNavHidden(false);
@@ -318,8 +323,12 @@
       true
     );
   }
+  // Keyboard users tabbing into a menu bring it back.
   document.addEventListener("focusin", (event) => {
-    if (navHidden && event.target.closest(".topbar, .tabbar")) setNavHidden(false);
+    if (!navHidden || !event.target.closest(".topbar, .tabbar")) return;
+    let keyboard = true;
+    try { keyboard = event.target.matches(":focus-visible"); } catch (e) {}
+    if (keyboard) setNavHidden(false);
   });
 
   /* ---- Phone tab bar: on the homepage, "Work" lights up over the projects ---- */
