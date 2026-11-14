@@ -991,7 +991,11 @@
         if (p > 1.02) featured.classList.remove("has-focus");
         return;
       }
-      setPlaying(Math.min(fCards.length - 1, Math.floor(Math.max(0, p) * fCards.length * 0.999)), true);
+      // A little hysteresis so the focus never flickers at a hand-off.
+      var raw = Math.max(0, p) * fCards.length;
+      var next = Math.min(fCards.length - 1, Math.floor(raw * 0.999));
+      if (playing >= 0 && next !== playing && Math.abs(raw - Math.max(next, playing)) < 0.08) next = playing;
+      setPlaying(next, true);
     };
 
     window.addEventListener("scroll", function () {

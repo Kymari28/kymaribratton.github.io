@@ -12962,8 +12962,8 @@ main {
 @media (prefers-reduced-motion: no-preference) {
   .hero-lead > *,
   .hero-details > * {
-    translate: 0 calc(var(--bloom, 0) * -70px);
-    filter: blur(calc(var(--bloom, 0) * 6px));
+    translate: 0 calc(var(--bloom, 0) * -64px);
+    filter: blur(calc(var(--bloom, 0) * 4px));
   }
 
   .portrait-stage .portrait-frame,
@@ -12973,7 +12973,7 @@ main {
   }
 
   .portrait-stage .portrait-frame {
-    filter: blur(calc(var(--bloom, 0) * 5px));
+    filter: blur(calc(var(--bloom, 0) * 3.5px));
   }
 
   .portrait-stage picture {
@@ -13033,22 +13033,22 @@ main {
 
   .featured.has-focus .project-grid--featured > .project-card {
     transition:
-      opacity 0.5s ease,
-      filter 0.5s ease,
+      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      filter 0.6s cubic-bezier(0.16, 1, 0.3, 1),
       scale 0.7s cubic-bezier(0.16, 1, 0.3, 1),
-      box-shadow 0.5s ease,
+      box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1),
       border-color var(--motion-duration) var(--motion-ease);
   }
 
   .featured.has-focus .project-grid--featured > .project-card:not(.is-focus) {
-    opacity: 0.6;
-    filter: saturate(0.55);
-    scale: 0.97;
+    opacity: 0.72;
+    filter: saturate(0.7);
+    scale: 0.985;
   }
 
   .featured.has-focus .project-grid--featured > .project-card.is-focus {
-    scale: 1.02;
-    box-shadow: 0 18px 40px -22px rgba(42, 42, 42, 0.38);
+    scale: 1.015;
+    box-shadow: 0 18px 40px -24px rgba(42, 42, 42, 0.32);
   }
 }
 
@@ -13060,7 +13060,7 @@ main {
   inset: 0;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.45s ease;
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .project-card.is-playing .live {
@@ -13338,6 +13338,7 @@ main {
   right: 0;
   height: 2px;
   background: var(--sage-deep);
+  opacity: 0.75;
   transform: scaleX(var(--read, 0));
   transform-origin: left center;
   pointer-events: none;
