@@ -832,4 +832,339 @@
        correct and visible even if this script never runs. Tab clicks and
        arrow-key navigation, wired above, are what JS adds on top. */
   }
+
+  /* ==== Motion picks (Nov 2026) ====
+     All optional: each piece checks for its elements and for reduced
+     motion, and the page is complete without any of it. */
+
+  /* ---- Hero: --bloom follows how far the hero has scrolled away ---- */
+  var bloomHero = document.querySelector(".hero");
+  if (bloomHero && document.querySelector(".portrait-stage") && !prefersReducedMotion) {
+    var bloomTicking = false;
+    var lastBloom = -1;
+    var paintBloom = function () {
+      bloomTicking = false;
+      var span = bloomHero.offsetHeight * 0.85 || 1;
+      var b = Math.min(1, Math.max(0, window.scrollY / span));
+      b = Math.round(b * 1000) / 1000;
+      if (b !== lastBloom) {
+        lastBloom = b;
+        bloomHero.style.setProperty("--bloom", b);
+      }
+    };
+    window.addEventListener(
+      "scroll",
+      function () {
+        if (!bloomTicking && window.scrollY < bloomHero.offsetHeight * 1.2 + 200) {
+          bloomTicking = true;
+          requestAnimationFrame(paintBloom);
+        } else if (lastBloom < 1 && window.scrollY >= bloomHero.offsetHeight) {
+          bloomHero.style.setProperty("--bloom", 1);
+          lastBloom = 1;
+        }
+      },
+      { passive: true }
+    );
+    paintBloom();
+  }
+
+  /* ---- Selected Work: the featured three, one in focus ----
+     Builds a short "living thumbnail" inside each featured card, then:
+     desktop holds the row for a short scroll while the focus walks across
+     it (the cards rise to meet you first); phones play whichever card
+     reaches the middle of the screen. Only the focused card plays. */
+  var featured = document.querySelector("[data-featured]");
+  if (featured && !prefersReducedMotion) {
+    var fCards = Array.prototype.slice.call(featured.querySelectorAll(".project-grid--featured > .project-card"));
+    var svgNS = "http://www.w3.org/2000/svg";
+    var counters = [];
+
+    var buildLive = function (card) {
+      var stage = card.querySelector(".project-stage");
+      if (!stage) return;
+      var kind = card.dataset.project;
+      var live = document.createElement("div");
+      live.className = "live";
+      live.setAttribute("aria-hidden", "true");
+      if (kind === "immigrants-rising") {
+        live.classList.add("live--ir");
+        var steps = ["Instructions", "Info", "Eligibility", "Review", "Results"];
+        live.innerHTML =
+          '<p class="live-chip">15% higher completion</p><div class="live-steps">' +
+          steps.map(function (s, k) { return '<span style="--k:' + k + '"><i></i>' + s + "</span>"; }).join("") +
+          "</div>";
+      } else if (kind === "brightside") {
+        live.classList.add("live--bs");
+        live.innerHTML = '<img src="/assets/brightside-graph.webp" alt="" width="724" height="363" decoding="async" />';
+      } else if (kind === "gateway") {
+        live.classList.add("live--panel", "live--gw");
+        var data = [150000, 450000, 1500000, 875000, 350000, 490000];
+        var years = ["2020", "2021", "2022", "2023", "2024", "2025"];
+        live.innerHTML =
+          '<div class="gw-live-total"><strong>$0M</strong><span>Funding secured for clients, 2020 to 2025</span></div>' +
+          '<div class="gw-live-chart"><div class="gw-live-bars">' +
+          data.map(function (v, k) { return '<i class="' + (k === 2 ? "hi" : "") + '" style="--k:' + k + ";--h:" + (v / 1500000 * 100).toFixed(1) + '%"></i>'; }).join("") +
+          '</div><div class="gw-live-years">' + years.map(function (y) { return "<span>" + y.slice(2) + "</span>"; }).join("") + "</div></div>";
+        counters.push({ card: card, el: live.querySelector("strong") });
+      } else {
+        return;
+      }
+      stage.appendChild(live);
+    };
+    fCards.forEach(buildLive);
+
+    var countUp = function (el) {
+      var t0 = performance.now() + 300;
+      var tick = function (now) {
+        var k = Math.min(1, Math.max(0, (now - t0) / 1600));
+        var e = 1 - Math.pow(1 - k, 3);
+        el.textContent = "$" + (3.815 * e).toFixed(3) + "M";
+        if (k < 1) requestAnimationFrame(tick);
+      };
+      el.textContent = "$0.000M";
+      requestAnimationFrame(tick);
+    };
+
+    var playing = -1;
+    var setPlaying = function (i, withFocus) {
+      featured.classList.toggle("has-focus", !!withFocus && i >= 0);
+      if (i === playing) return;
+      playing = i;
+      fCards.forEach(function (c, k) {
+        c.classList.toggle("is-focus", k === i);
+        c.classList.toggle("is-playing", k === i);
+      });
+      counters.forEach(function (c) { if (c.card === fCards[i]) countUp(c.el); });
+    };
+
+    var desktopQuery = window.matchMedia("(min-width: 900px)");
+    var headerEl = document.querySelector(".topbar");
+    var pinned = false;
+    var cardObserver = null;
+
+    var layoutFeatured = function () {
+      featured.classList.remove("is-pinned");
+      featured.style.removeProperty("--featured-h");
+      pinned = false;
+      if (desktopQuery.matches) {
+        var headerH = headerEl ? headerEl.offsetHeight : 76;
+        var room = window.innerHeight - headerH;
+        var sticky = featured.querySelector(".featured-sticky");
+        if (sticky && sticky.offsetHeight + 24 <= room) {
+          // Short hold: about a third of a screen of scrolling per card.
+          featured.style.setProperty("--featured-h", Math.round(room + window.innerHeight * 0.95) + "px");
+          featured.classList.add("is-pinned");
+          pinned = true;
+        }
+      }
+      if (cardObserver) { cardObserver.disconnect(); cardObserver = null; }
+      if (!pinned && "IntersectionObserver" in window) {
+        cardObserver = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) setPlaying(fCards.indexOf(entry.target), false);
+          });
+        }, { rootMargin: "-42% 0px -42% 0px" });
+        fCards.forEach(function (c) { cardObserver.observe(c); });
+        fCards.forEach(function (c) { c.style.removeProperty("--rise"); });
+      }
+      paintFeatured();
+    };
+
+    var featuredTicking = false;
+    var paintFeatured = function () {
+      featuredTicking = false;
+      if (!pinned) return;
+      var headerH = headerEl ? headerEl.offsetHeight : 76;
+      var rect = featured.getBoundingClientRect();
+      var vh = window.innerHeight;
+      // Rise to meet you as the section arrives.
+      var arrive = Math.min(1, Math.max(0, (vh - rect.top) / (vh * 0.75)));
+      fCards.forEach(function (c, k) {
+        var r = Math.min(1, Math.max(0, arrive * 1.35 - k * 0.17));
+        c.style.setProperty("--rise", (r * r * (3 - 2 * r)).toFixed(3));
+      });
+      // Focus walks across once the row is held.
+      var run = featured.offsetHeight - (vh - headerH);
+      var p = (headerH - rect.top) / Math.max(1, run);
+      if (rect.top > headerH + 2 || p > 1.02) {
+        setPlaying(p > 1.02 ? fCards.length - 1 : -1, p <= 1.02 ? false : true);
+        if (p > 1.02) featured.classList.remove("has-focus");
+        return;
+      }
+      // A little hysteresis so the focus never flickers at a hand-off.
+      var raw = Math.max(0, p) * fCards.length;
+      var next = Math.min(fCards.length - 1, Math.floor(raw * 0.999));
+      if (playing >= 0 && next !== playing && Math.abs(raw - Math.max(next, playing)) < 0.08) next = playing;
+      setPlaying(next, true);
+    };
+
+    window.addEventListener("scroll", function () {
+      if (!featuredTicking) {
+        featuredTicking = true;
+        requestAnimationFrame(paintFeatured);
+      }
+    }, { passive: true });
+    window.addEventListener("resize", layoutFeatured);
+    window.addEventListener("load", layoutFeatured);
+    layoutFeatured();
+  }
+
+  /* ---- Headlines rise from behind a mask (case studies) ----
+     Wraps each line in a clipped span, plays the rise, then restores the
+     heading exactly as it was, so later resizes reflow normally and hover
+     effects inside the title keep working. */
+  var riseHeading = function (el, delay) {
+    if (el.classList.contains("mask-run") || el.classList.contains("mask-done")) return;
+    el.classList.add("mask-run");
+    var restore;
+    var inners = [];
+    if (!el.children.length) {
+      var original = el.textContent;
+      var words = original.trim().split(/\s+/);
+      el.textContent = "";
+      var spans = words.map(function (w, i) {
+        var s = document.createElement("span");
+        s.textContent = w + (i < words.length - 1 ? " " : "");
+        el.appendChild(s);
+        return s;
+      });
+      var lines = [];
+      var lastTop = null;
+      spans.forEach(function (s) {
+        var top = s.offsetTop;
+        if (lastTop === null || Math.abs(top - lastTop) > 4) {
+          lines.push([]);
+          lastTop = top;
+        }
+        lines[lines.length - 1].push(s.textContent);
+      });
+      el.textContent = "";
+      lines.forEach(function (words) {
+        var outer = document.createElement("span");
+        var inner = document.createElement("span");
+        outer.className = "mline";
+        inner.className = "mline-in";
+        inner.textContent = words.join("");
+        outer.appendChild(inner);
+        el.appendChild(outer);
+        inners.push(inner);
+      });
+      restore = function () {
+        el.textContent = original;
+      };
+    } else {
+      var outerBox = document.createElement("span");
+      var innerBox = document.createElement("span");
+      outerBox.className = "mline";
+      innerBox.className = "mline-in";
+      while (el.firstChild) innerBox.appendChild(el.firstChild);
+      outerBox.appendChild(innerBox);
+      el.appendChild(outerBox);
+      inners.push(innerBox);
+      restore = function () {
+        while (innerBox.firstChild) el.insertBefore(innerBox.firstChild, outerBox);
+        outerBox.remove();
+      };
+    }
+    var runs = inners.map(function (inner, i) {
+      return inner.animate(
+        [{ transform: "translateY(108%)" }, { transform: "translateY(0)" }],
+        { duration: 950, delay: delay + i * 110, easing: "cubic-bezier(0.16, 1, 0.3, 1)", fill: "backwards" }
+      ).finished;
+    });
+    Promise.all(runs)
+      .catch(function () {})
+      .then(function () {
+        restore();
+        el.classList.remove("mask-run");
+        el.classList.add("mask-done");
+      });
+  };
+
+  var caseMain = document.querySelector("main[data-case]");
+  if (caseMain) {
+    var heroTitle = caseMain.querySelector(".subpage-title");
+    if (heroTitle) {
+      if (prefersReducedMotion || performance.now() > 1600 || !heroTitle.animate) {
+        heroTitle.classList.add("mask-done");
+      } else {
+        /* Arriving from a project card, wait for the image glide so the
+           title rises as the image lands. */
+        var cameFromSite = false;
+        try {
+          cameFromSite = !!document.referrer && new URL(document.referrer).origin === window.location.origin;
+        } catch (e) {}
+        riseHeading(heroTitle, cameFromSite && "onpagereveal" in window ? 420 : 120);
+      }
+    }
+
+    var sectionTitles = caseMain.querySelectorAll(".section-title");
+    if (sectionTitles.length && !prefersReducedMotion && "IntersectionObserver" in window && document.body.animate) {
+      var titleObserver = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            titleObserver.unobserve(entry.target);
+            var holder = entry.target.closest("[data-reveal]");
+            if (holder && holder.classList.contains("is-instant")) return;
+            riseHeading(entry.target, 60);
+          });
+        },
+        { threshold: 0, rootMargin: "0px 0px -8% 0px" }
+      );
+      sectionTitles.forEach(function (t) {
+        var r = t.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0 && performance.now() > 900) return;
+        titleObserver.observe(t);
+      });
+    }
+
+    /* ---- Screens uncover as you reach them ---- */
+    var screens = caseMain.querySelectorAll(".case-screen-media, .immigrants-review-closeup");
+    if (screens.length) {
+      if (!document.documentElement.classList.contains("reveal-ready") || !("IntersectionObserver" in window)) {
+        screens.forEach(function (s) { s.classList.add("is-uncovered"); });
+      } else {
+        var screenObserver = new IntersectionObserver(
+          function (entries) {
+            entries.forEach(function (entry) {
+              if (!entry.isIntersecting) return;
+              screenObserver.unobserve(entry.target);
+              entry.target.classList.add("is-uncovered");
+            });
+          },
+          { threshold: 0, rootMargin: "0px 0px -12% 0px" }
+        );
+        screens.forEach(function (s) {
+          var r = s.getBoundingClientRect();
+          if (r.top < window.innerHeight && r.bottom > 0 && performance.now() > 900) {
+            s.classList.add("is-uncovered", "is-instant");
+          } else {
+            screenObserver.observe(s);
+          }
+        });
+      }
+    }
+
+    /* ---- Reading line ---- */
+    var readLine = document.createElement("div");
+    readLine.className = "read-line";
+    readLine.setAttribute("aria-hidden", "true");
+    document.body.appendChild(readLine);
+    if (!(window.CSS && CSS.supports && CSS.supports("animation-timeline: scroll()"))) {
+      var readTicking = false;
+      var paintRead = function () {
+        readTicking = false;
+        var max = document.documentElement.scrollHeight - window.innerHeight || 1;
+        readLine.style.setProperty("--read", Math.min(1, Math.max(0, window.scrollY / max)).toFixed(4));
+      };
+      window.addEventListener("scroll", function () {
+        if (!readTicking) {
+          readTicking = true;
+          requestAnimationFrame(paintRead);
+        }
+      }, { passive: true });
+      paintRead();
+    }
+  }
 })();

@@ -2141,10 +2141,6 @@ main[data-case] .hover-word .particle {
 /* Layering, as on the Figma site: the circle, then the lily, then the
    portrait. The circle's fill moves onto its own layer so the lily can sit
    in front of it and behind Kymari, spilling past the right edge. */
-.hero {
-  overflow-x: clip;
-}
-
 .hero-visual--circle .portrait-stage {
   position: relative;
   width: min(27rem, 100%);
@@ -12761,12 +12757,45 @@ main[data-case="gateway"] .gateway-evidence-mark {
   .hero-lead > .eyebrow { order: 1; }
   .hero-lead > h1 { order: 2; }
   .hero-lead > .hero-lede { order: 3; }
-  .hero-visual { order: 4; margin-top: 1.75rem; }
-  .hero-lead > .button-row { order: 5; margin-top: 1.9rem; }
-  .hero-details { order: 6; margin-top: 2rem; }
+  .hero-visual { order: 4; margin-top: 1.4rem; }
+
+  /* "Currently wearing the hat of" sits between the photo and the
+     buttons; the focus pills follow the buttons. */
+  .hero-details { display: contents; }
+  /* The rotating "hat" line is a desktop flourish; phones skip it. */
+  .hero-status { display: none; }
+  .hero-lead > .button-row { order: 6; margin-top: 1.9rem; }
+
+  /* Availability becomes one slim pill on the portrait's edge. */
+  .hero-note {
+    gap: 0.45rem;
+    padding: 0.42rem 0.9rem 0.42rem 0.45rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .hero-note-mark {
+    width: 1.35rem;
+    height: 1.35rem;
+    font-size: 0.7rem;
+  }
+
+  .hero-note-text span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .hero-note-text strong {
+    font-size: 0.78rem;
+  }
+  .hero-focus { order: 7; margin-top: 1.6rem; position: relative; z-index: 2; }
 
   .hero-visual--circle .portrait-stage {
-    width: min(16.5rem, 74%);
+    width: min(15.5rem, 72%);
   }
 
   /* Every case study: title and intro, then the image, then the
@@ -12896,6 +12925,460 @@ main[data-case="gateway"] .gateway-evidence-mark {
 @media (prefers-reduced-motion: reduce) {
   .hero-pill[data-role-rotator] .hero-pill-word {
     filter: none;
+    transition: none;
+  }
+}
+
+/* ==========================================================================
+   Motion picks (Nov 2026). Every effect here is optional decoration: the
+   page is complete without it, nothing waits on it, and each one is
+   skipped when the visitor asks for reduced motion.
+   ========================================================================== */
+
+/* ---- Hero B: the hero drifts apart and softens as you scroll ---------------
+   script.js writes --bloom (0 at the top, 1 once the hero has scrolled
+   away). Each layer leaves at its own speed and blurs a little: the words
+   linger, the photo rises faster, the lily drifts and turns. Uses the
+   separate translate and filter properties, so it never fights the load-in
+   animations. <main> clips sideways overflow so the lily can drift freely. */
+main {
+  overflow-x: clip;
+}
+
+.hero-lead > *,
+.hero-details {
+  position: relative;
+  z-index: 2;
+}
+
+.portrait-stage picture {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  pointer-events: none;
+  transform-origin: 70% 62%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-lead > *,
+  .hero-details > * {
+    translate: 0 calc(var(--bloom, 0) * -64px);
+    filter: blur(calc(var(--bloom, 0) * 4px));
+  }
+
+  .portrait-stage .portrait-frame,
+  .portrait-stage .portrait-disc,
+  .hero-visual .hero-note {
+    translate: 0 calc(var(--bloom, 0) * -150px);
+  }
+
+  .portrait-stage .portrait-frame {
+    filter: blur(calc(var(--bloom, 0) * 3.5px));
+  }
+
+  .portrait-stage picture {
+    translate: calc(var(--bloom, 0) * 18%) calc(var(--bloom, 0) * -30%);
+    rotate: calc(var(--bloom, 0) * 22deg);
+  }
+}
+
+/* ---- Selected Work: the featured three, one in focus ------------------------
+   Desktop: the three featured projects sit in one row. As the section
+   arrives they rise to meet you (Hero B's hand-off), then the row holds for
+   a short scroll while the focus walks across it. The focused card plays a
+   two-second animation of its project; the other two rest.
+   Phones: nothing holds; the card that reaches the middle of the screen
+   plays once. Without the script, or with reduced motion, it's a plain
+   grid with every card at rest. */
+#projects .project-grid .project-card:last-child {
+  grid-column: auto;
+  justify-self: stretch;
+  width: auto;
+}
+
+.project-grid--more {
+  margin-top: var(--project-grid-gap);
+}
+
+@media (min-width: 900px) {
+  .project-grid--featured {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .project-grid--featured .project-title {
+    font-size: 1.4rem;
+  }
+}
+
+.featured.is-pinned {
+  height: var(--featured-h);
+}
+
+.featured.is-pinned .featured-sticky {
+  position: sticky;
+  top: var(--header-h);
+  display: grid;
+  align-content: center;
+  min-height: calc(100vh - var(--header-h));
+  padding-block: 1.25rem;
+}
+
+.project-grid--featured > .project-card:nth-child(2) { --i: 1; }
+.project-grid--featured > .project-card:nth-child(3) { --i: 2; }
+
+@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+  .project-grid--featured > .project-card {
+    translate: 0 calc((1 - var(--rise, 1)) * (70px + var(--i, 0) * 45px));
+  }
+
+  .featured.has-focus .project-grid--featured > .project-card {
+    transition:
+      opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      filter 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      scale 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+      border-color var(--motion-duration) var(--motion-ease);
+  }
+
+  .featured.has-focus .project-grid--featured > .project-card:not(.is-focus) {
+    opacity: 0.72;
+    filter: saturate(0.7);
+    scale: 0.985;
+  }
+
+  .featured.has-focus .project-grid--featured > .project-card.is-focus {
+    scale: 1.015;
+    box-shadow: 0 18px 40px -24px rgba(42, 42, 42, 0.32);
+  }
+}
+
+/* Living thumbnails: built by script.js inside each featured card's image,
+   shown only while that card is playing. Calm, about two seconds, no loops. */
+.live {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.project-card.is-playing .live {
+  opacity: 1;
+}
+
+.live--panel {
+  background: rgba(251, 250, 247, 0.93);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+/* Immigrants Rising: the five steps fill in, then the team result */
+.live--ir {
+  display: grid;
+  align-content: end;
+}
+
+.live-steps {
+  display: flex;
+  gap: 6px;
+  margin: 0 4% 4%;
+  padding: 0.6rem 0.7rem 0.55rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 8px 20px -12px rgba(42, 42, 42, 0.4);
+}
+
+.live-steps span {
+  flex: 1;
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  overflow: hidden;
+  color: rgba(42, 42, 42, 0.45);
+  font-size: 0.6rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.live-steps i {
+  position: relative;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(42, 42, 42, 0.12);
+}
+
+.live-steps i::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #10365a;
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+.live-chip {
+  position: absolute;
+  top: 6%;
+  right: 4%;
+  margin: 0;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: #10365a;
+  color: #f8f6f2;
+  font-size: 0.68rem;
+  font-weight: 600;
+  opacity: 0;
+}
+
+.is-playing .live-steps span {
+  animation: live-ink 0.3s ease forwards;
+  animation-delay: calc(0.3s + var(--k) * 0.32s);
+}
+
+.is-playing .live-steps i::after {
+  animation: live-fill 0.32s ease-out forwards;
+  animation-delay: calc(0.3s + var(--k) * 0.32s);
+}
+
+.is-playing .live-chip {
+  animation: live-pop 0.5s cubic-bezier(0.16, 1, 0.3, 1) 2s forwards;
+}
+
+/* Brightside: the real graph, after it loads, drifting slowly */
+.live--bs {
+  overflow: hidden;
+  background: #f4fafa;
+}
+
+.live--bs img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 0% 45%;
+  transform-origin: 20% 45%;
+  scale: 1.04;
+}
+
+.is-playing .live--bs img {
+  animation: live-drift 14s ease-in-out infinite alternate;
+}
+
+/* Gateway: funding builds year by year */
+.live--gw {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  align-items: center;
+  gap: 5%;
+  padding: 7% 7% 6%;
+}
+
+.gw-live-total {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.gw-live-total strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.6vw, 2rem);
+  font-weight: 400;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.gw-live-total span {
+  color: var(--soft);
+  font-size: 0.66rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.gw-live-chart {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 0.35rem;
+  height: 82%;
+}
+
+.gw-live-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 7%;
+  border-bottom: 1px solid rgba(42, 42, 42, 0.2);
+}
+
+.gw-live-bars i {
+  flex: 1;
+  height: var(--h);
+  border-radius: 3px 3px 0 0;
+  background: rgba(85, 147, 187, 0.34);
+  transform: scaleY(0);
+  transform-origin: bottom;
+}
+
+.gw-live-years {
+  display: flex;
+  justify-content: space-between;
+  color: var(--soft);
+  font-size: 0.56rem;
+  font-weight: 600;
+}
+
+.is-playing .gw-live-bars i {
+  animation: live-grow 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: calc(0.3s + var(--k) * 0.15s);
+}
+
+.is-playing .gw-live-bars i.hi {
+  animation:
+    live-grow 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+    live-hi 0.4s ease 1.8s forwards;
+  animation-delay: calc(0.3s + var(--k) * 0.15s), 1.8s;
+}
+
+@keyframes live-fill { to { transform: scaleX(1); } }
+@keyframes live-ink { to { color: #2a2a2a; } }
+@keyframes live-ink-in { to { opacity: 1; } }
+@keyframes live-pop { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes live-drift {
+  from { scale: 1.04; translate: 0 0; }
+  to { scale: 1.14; translate: 2% -3%; }
+}
+@keyframes live-grow { to { transform: scaleY(1); } }
+@keyframes live-hi { to { background: #5593bb; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .live {
+    display: none;
+  }
+}
+
+/* ---- Card glides into its case study -----------------------------------------
+   The project image already carries into the case-study hero (script.js
+   tags it on click). A longer, eased glide lets the eye follow it. */
+::view-transition-group(project-hero),
+::view-transition-old(project-hero),
+::view-transition-new(project-hero) {
+  animation-duration: 820ms;
+  animation-timing-function: cubic-bezier(0.65, 0, 0.15, 1);
+}
+
+/* ---- Headlines rise from behind a mask (case studies) --------------------------
+   script.js wraps each line in a clipped span, plays the rise, then puts
+   the heading back exactly as it was. The hero title waits for the script
+   for up to 1.8s, then shows on its own no matter what. */
+.mline {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+}
+
+.mline-in {
+  display: block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .js main[data-case] .subpage-title:not(.mask-run):not(.mask-done) {
+    animation: words-fallback 0.6s ease 1.8s both;
+  }
+}
+
+/* ---- Screens uncover as you reach them ------------------------------------------ */
+@media (prefers-reduced-motion: no-preference) {
+  .reveal-ready main[data-case] :is(.case-screen-media, .immigrants-review-closeup) {
+    transition:
+      clip-path 1.15s cubic-bezier(0.77, 0, 0.175, 1),
+      transform 650ms var(--motion-ease),
+      box-shadow 650ms ease;
+  }
+
+  .reveal-ready main[data-case] :is(.case-screen-media, .immigrants-review-closeup) img {
+    transition: scale 1.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal-ready main[data-case] :is(.case-screen-media, .immigrants-review-closeup):not(.is-uncovered) {
+    clip-path: inset(100% 0 0 0 round clamp(14px, 1.7vw, 22px));
+  }
+
+  .reveal-ready main[data-case] :is(.case-screen-media, .immigrants-review-closeup):not(.is-uncovered) img {
+    scale: 1.12;
+  }
+
+  .reveal-ready main[data-case] :is(.case-screen-media, .immigrants-review-closeup).is-uncovered {
+    clip-path: inset(0 0 0 0 round clamp(14px, 1.7vw, 22px));
+  }
+
+  /* The showcase cards already fade and lift their media; add the uncover
+     to that same transition so neither overrides the other. */
+  .reveal-ready .case-study--showcase .case-screen-card[data-reveal].is-visible .case-screen-media.is-uncovered {
+    transition:
+      clip-path 1.15s cubic-bezier(0.77, 0, 0.175, 1),
+      opacity 500ms ease,
+      transform 950ms var(--motion-ease),
+      box-shadow 650ms ease;
+  }
+
+  .reveal-ready main[data-case] .is-uncovered.is-instant,
+  .reveal-ready main[data-case] .is-uncovered.is-instant img {
+    transition: none;
+  }
+}
+
+/* ---- Reading line (case studies) ------------------------------------------------- */
+.read-line {
+  position: fixed;
+  z-index: 60;
+  top: env(safe-area-inset-top, 0px);
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--sage-deep);
+  opacity: 0.75;
+  transform: scaleX(var(--read, 0));
+  transform-origin: left center;
+  pointer-events: none;
+}
+
+@supports (animation-timeline: scroll()) {
+  .read-line {
+    transform: scaleX(0);
+    animation: read-grow linear both;
+    animation-timeline: scroll(root block);
+  }
+}
+
+@keyframes read-grow {
+  to {
+    transform: scaleX(1);
+  }
+}
+
+/* ---- Underlines that draw in and slide away ---------------------------------------- */
+.link,
+.footer-links a {
+  background: linear-gradient(currentColor, currentColor) no-repeat right calc(50% + 0.78em) / 0 1.5px;
+  transition:
+    background-size 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+    color 0.25s ease;
+}
+
+.link:hover,
+.link:focus-visible,
+.footer-links a:hover,
+.footer-links a:focus-visible {
+  text-decoration: none;
+  background-position: left calc(50% + 0.78em);
+  background-size: 100% 1.5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link,
+  .footer-links a {
     transition: none;
   }
 }
