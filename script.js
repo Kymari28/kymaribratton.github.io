@@ -868,53 +868,152 @@
     paintBloom();
   }
 
-  /* ---- Scroll scene: sage floods out from behind the portrait ----
-     Grows with scroll from just below the top until Selected Work's top
-     reaches 20% of the screen. The circle is centred on the portrait and
-     grows until it covers the screen, so the green hands straight over to
-     the sage Selected Work section. Hidden at rest and once Selected Work
-     covers the top of the screen. */
-  var floodStage = document.querySelector(".hero .portrait-stage");
-  var floodTarget = document.getElementById("projects");
-  if (floodStage && floodTarget && !prefersReducedMotion) {
-    var flood = document.createElement("div");
-    flood.className = "flood";
-    flood.setAttribute("aria-hidden", "true");
-    document.body.insertBefore(flood, document.body.firstChild);
-    var floodTicking = false;
-    var paintFlood = function () {
-      floodTicking = false;
-      var vw = window.innerWidth;
-      var vh = window.innerHeight;
-      var target = floodTarget.getBoundingClientRect();
-      // Scroll-based, so the page at rest is untouched: 0 at the top,
-      // 1 once Selected Work's top has risen to 20% of the screen.
-      var endAt = target.top + window.scrollY - vh * 0.2;
-      var startAt = Math.min(endAt * 0.25, vh * 0.15);
-      var f = Math.min(1, Math.max(0, (window.scrollY - startAt) / Math.max(1, endAt - startAt)));
-      if (f <= 0 || target.top < -2) {
-        flood.style.visibility = "hidden";
+  /* ---- Selected Work: the featured three, one in focus ----
+     Builds a short "living thumbnail" inside each featured card, then:
+     desktop holds the row for a short scroll while the focus walks across
+     it (the cards rise to meet you first); phones play whichever card
+     reaches the middle of the screen. Only the focused card plays. */
+  var featured = document.querySelector("[data-featured]");
+  if (featured && !prefersReducedMotion) {
+    var fCards = Array.prototype.slice.call(featured.querySelectorAll(".project-grid--featured > .project-card"));
+    var svgNS = "http://www.w3.org/2000/svg";
+    var counters = [];
+
+    var buildLive = function (card) {
+      var stage = card.querySelector(".project-stage");
+      if (!stage) return;
+      var kind = card.dataset.project;
+      var live = document.createElement("div");
+      live.className = "live";
+      live.setAttribute("aria-hidden", "true");
+      if (kind === "immigrants-rising") {
+        live.classList.add("live--ir");
+        var steps = ["Instructions", "Info", "Eligibility", "Review", "Results"];
+        live.innerHTML =
+          '<p class="live-chip">15% higher completion</p><div class="live-steps">' +
+          steps.map(function (s, k) { return '<span style="--k:' + k + '"><i></i>' + s + "</span>"; }).join("") +
+          "</div>";
+      } else if (kind === "brightside") {
+        live.classList.add("live--panel", "live--bs");
+        var nodes = [[80, 50, 1], [36, 26, 0], [128, 22, 0], [140, 66, 0], [104, 86, 0], [46, 78, 0], [20, 52, 0], [64, 14, 0], [116, 46, 0]];
+        var edges = [[0, 1, 0], [0, 2, 1], [0, 3, 0], [0, 4, 1], [0, 5, 0], [1, 6, 0], [1, 7, 0], [2, 8, 0], [3, 8, 0], [5, 6, 0]];
+        var svg = '<svg viewBox="0 0 160 100" preserveAspectRatio="xMidYMid meet">';
+        edges.forEach(function (e, k) {
+          var a = nodes[e[0]], b = nodes[e[1]];
+          svg += '<line class="bs-edge' + (e[2] ? " strong" : "") + '" style="--k:' + k + '" x1="' + a[0] + '" y1="' + a[1] + '" x2="' + b[0] + '" y2="' + b[1] + '"/>';
+        });
+        nodes.forEach(function (n, k) {
+          svg += '<circle class="bs-node' + (n[2] ? " bs-hub" : "") + '" style="--k:' + k + '" cx="' + n[0] + '" cy="' + n[1] + '" r="' + (n[2] ? 6 : 3.6) + '"/>';
+        });
+        svg += '<text class="bs-label" x="89" y="47">SSRIs</text></svg>';
+        live.innerHTML = svg;
+      } else if (kind === "gateway") {
+        live.classList.add("live--panel", "live--gw");
+        var data = [150000, 450000, 1500000, 875000, 350000, 490000];
+        var years = ["2020", "2021", "2022", "2023", "2024", "2025"];
+        live.innerHTML =
+          '<div class="gw-live-total"><strong>$0M</strong><span>Funding secured for clients, 2020 to 2025</span></div>' +
+          '<div class="gw-live-chart"><div class="gw-live-bars">' +
+          data.map(function (v, k) { return '<i class="' + (k === 2 ? "hi" : "") + '" style="--k:' + k + ";--h:" + (v / 1500000 * 100).toFixed(1) + '%"></i>'; }).join("") +
+          '</div><div class="gw-live-years">' + years.map(function (y) { return "<span>" + y.slice(2) + "</span>"; }).join("") + "</div></div>";
+        counters.push({ card: card, el: live.querySelector("strong") });
+      } else {
         return;
       }
-      var e = f * f * (3 - 2 * f);
-      var s = floodStage.getBoundingClientRect();
-      var cx = s.left + s.width / 2;
-      var cy = s.top + s.height / 2;
-      var r0 = s.width * 0.46;
-      var far = Math.hypot(Math.max(cx, vw - cx), Math.max(cy, vh - cy)) + 40;
-      var r = r0 + e * (far - r0);
-      flood.style.clipPath = "circle(" + r.toFixed(1) + "px at " + cx.toFixed(1) + "px " + cy.toFixed(1) + "px)";
-      flood.style.visibility = "visible";
+      stage.appendChild(live);
     };
-    var queueFlood = function () {
-      if (!floodTicking) {
-        floodTicking = true;
-        requestAnimationFrame(paintFlood);
+    fCards.forEach(buildLive);
+
+    var countUp = function (el) {
+      var t0 = performance.now() + 300;
+      var tick = function (now) {
+        var k = Math.min(1, Math.max(0, (now - t0) / 1600));
+        var e = 1 - Math.pow(1 - k, 3);
+        el.textContent = "$" + (3.815 * e).toFixed(3) + "M";
+        if (k < 1) requestAnimationFrame(tick);
+      };
+      el.textContent = "$0.000M";
+      requestAnimationFrame(tick);
+    };
+
+    var playing = -1;
+    var setPlaying = function (i, withFocus) {
+      featured.classList.toggle("has-focus", !!withFocus && i >= 0);
+      if (i === playing) return;
+      playing = i;
+      fCards.forEach(function (c, k) {
+        c.classList.toggle("is-focus", k === i);
+        c.classList.toggle("is-playing", k === i);
+      });
+      counters.forEach(function (c) { if (c.card === fCards[i]) countUp(c.el); });
+    };
+
+    var desktopQuery = window.matchMedia("(min-width: 900px)");
+    var headerEl = document.querySelector(".topbar");
+    var pinned = false;
+    var cardObserver = null;
+
+    var layoutFeatured = function () {
+      featured.classList.remove("is-pinned");
+      featured.style.removeProperty("--featured-h");
+      pinned = false;
+      if (desktopQuery.matches) {
+        var headerH = headerEl ? headerEl.offsetHeight : 76;
+        var room = window.innerHeight - headerH;
+        var sticky = featured.querySelector(".featured-sticky");
+        if (sticky && sticky.offsetHeight + 24 <= room) {
+          // Short hold: about a third of a screen of scrolling per card.
+          featured.style.setProperty("--featured-h", Math.round(room + window.innerHeight * 0.95) + "px");
+          featured.classList.add("is-pinned");
+          pinned = true;
+        }
       }
+      if (cardObserver) { cardObserver.disconnect(); cardObserver = null; }
+      if (!pinned && "IntersectionObserver" in window) {
+        cardObserver = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) setPlaying(fCards.indexOf(entry.target), false);
+          });
+        }, { rootMargin: "-42% 0px -42% 0px" });
+        fCards.forEach(function (c) { cardObserver.observe(c); });
+        fCards.forEach(function (c) { c.style.removeProperty("--rise"); });
+      }
+      paintFeatured();
     };
-    window.addEventListener("scroll", queueFlood, { passive: true });
-    window.addEventListener("resize", queueFlood);
-    paintFlood();
+
+    var featuredTicking = false;
+    var paintFeatured = function () {
+      featuredTicking = false;
+      if (!pinned) return;
+      var headerH = headerEl ? headerEl.offsetHeight : 76;
+      var rect = featured.getBoundingClientRect();
+      var vh = window.innerHeight;
+      // Rise to meet you as the section arrives.
+      var arrive = Math.min(1, Math.max(0, (vh - rect.top) / (vh * 0.75)));
+      fCards.forEach(function (c, k) {
+        var r = Math.min(1, Math.max(0, arrive * 1.35 - k * 0.17));
+        c.style.setProperty("--rise", (r * r * (3 - 2 * r)).toFixed(3));
+      });
+      // Focus walks across once the row is held.
+      var run = featured.offsetHeight - (vh - headerH);
+      var p = (headerH - rect.top) / Math.max(1, run);
+      if (rect.top > headerH + 2 || p > 1.02) {
+        setPlaying(p > 1.02 ? fCards.length - 1 : -1, p <= 1.02 ? false : true);
+        if (p > 1.02) featured.classList.remove("has-focus");
+        return;
+      }
+      setPlaying(Math.min(fCards.length - 1, Math.floor(Math.max(0, p) * fCards.length * 0.999)), true);
+    };
+
+    window.addEventListener("scroll", function () {
+      if (!featuredTicking) {
+        featuredTicking = true;
+        requestAnimationFrame(paintFeatured);
+      }
+    }, { passive: true });
+    window.addEventListener("resize", layoutFeatured);
+    window.addEventListener("load", layoutFeatured);
+    layoutFeatured();
   }
 
   /* ---- Headlines rise from behind a mask (case studies) ----

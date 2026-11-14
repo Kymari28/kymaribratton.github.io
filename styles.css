@@ -12935,10 +12935,12 @@ main[data-case="gateway"] .gateway-evidence-mark {
    skipped when the visitor asks for reduced motion.
    ========================================================================== */
 
-/* ---- Hero: the lily blooms as you scroll -----------------------------------
+/* ---- Hero B: the hero drifts apart and softens as you scroll ---------------
    script.js writes --bloom (0 at the top, 1 once the hero has scrolled
-   away). The lily only grows a little so the image stays sharp. <main>
-   clips sideways overflow, so the lily can spill past the content edge. */
+   away). Each layer leaves at its own speed and blurs a little: the words
+   linger, the photo rises faster, the lily drifts and turns. Uses the
+   separate translate and filter properties, so it never fights the load-in
+   animations. <main> clips sideways overflow so the lily can drift freely. */
 main {
   overflow-x: clip;
 }
@@ -12958,61 +12960,338 @@ main {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .portrait-stage picture {
-    scale: calc(1 + var(--bloom, 0) * 0.14);
-    rotate: calc(var(--bloom, 0) * 8deg);
-    translate: calc(var(--bloom, 0) * -3%) calc(var(--bloom, 0) * -5%);
+  .hero-lead > *,
+  .hero-details > * {
+    translate: 0 calc(var(--bloom, 0) * -70px);
+    filter: blur(calc(var(--bloom, 0) * 6px));
+  }
+
+  .portrait-stage .portrait-frame,
+  .portrait-stage .portrait-disc,
+  .hero-visual .hero-note {
+    translate: 0 calc(var(--bloom, 0) * -150px);
   }
 
   .portrait-stage .portrait-frame {
-    translate: 0 calc(var(--bloom, 0) * -18px);
+    filter: blur(calc(var(--bloom, 0) * 5px));
   }
-}
 
-@media (max-width: 640px) and (prefers-reduced-motion: no-preference) {
   .portrait-stage picture {
-    rotate: calc(var(--bloom, 0) * 6deg);
+    translate: calc(var(--bloom, 0) * 18%) calc(var(--bloom, 0) * -30%);
+    rotate: calc(var(--bloom, 0) * 22deg);
   }
 }
 
-/* ---- Scroll scene: sage floods out from behind the portrait ------------------
-   A fixed sage layer sits behind the hero (the hero, banner and Selected
-   Work are each stacked above it). script.js grows its circle from the
-   portrait until the screen is green, just as Selected Work, which is sage
-   itself, arrives. Without the script, or with reduced motion, Selected
-   Work is simply sage. */
-.flood {
-  position: fixed;
-  z-index: 0;
+/* ---- Selected Work: the featured three, one in focus ------------------------
+   Desktop: the three featured projects sit in one row. As the section
+   arrives they rise to meet you (Hero B's hand-off), then the row holds for
+   a short scroll while the focus walks across it. The focused card plays a
+   two-second animation of its project; the other two rest.
+   Phones: nothing holds; the card that reaches the middle of the screen
+   plays once. Without the script, or with reduced motion, it's a plain
+   grid with every card at rest. */
+#projects .project-grid .project-card:last-child {
+  grid-column: auto;
+  justify-self: stretch;
+  width: auto;
+}
+
+.project-grid--more {
+  margin-top: var(--project-grid-gap);
+}
+
+@media (min-width: 900px) {
+  .project-grid--featured {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .project-grid--featured .project-title {
+    font-size: 1.4rem;
+  }
+}
+
+.featured.is-pinned {
+  height: var(--featured-h);
+}
+
+.featured.is-pinned .featured-sticky {
+  position: sticky;
+  top: var(--header-h);
+  display: grid;
+  align-content: center;
+  min-height: calc(100vh - var(--header-h));
+  padding-block: 1.25rem;
+}
+
+.project-grid--featured > .project-card:nth-child(2) { --i: 1; }
+.project-grid--featured > .project-card:nth-child(3) { --i: 2; }
+
+@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+  .project-grid--featured > .project-card {
+    translate: 0 calc((1 - var(--rise, 1)) * (70px + var(--i, 0) * 45px));
+  }
+
+  .featured.has-focus .project-grid--featured > .project-card {
+    transition:
+      opacity 0.5s ease,
+      filter 0.5s ease,
+      scale 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+      box-shadow 0.5s ease,
+      border-color var(--motion-duration) var(--motion-ease);
+  }
+
+  .featured.has-focus .project-grid--featured > .project-card:not(.is-focus) {
+    opacity: 0.6;
+    filter: saturate(0.55);
+    scale: 0.97;
+  }
+
+  .featured.has-focus .project-grid--featured > .project-card.is-focus {
+    scale: 1.02;
+    box-shadow: 0 18px 40px -22px rgba(42, 42, 42, 0.38);
+  }
+}
+
+/* Living thumbnails: built by script.js inside each featured card's image,
+   shown only while that card is playing. Calm, about two seconds, no loops. */
+.live {
+  position: absolute;
+  z-index: 4;
   inset: 0;
-  background: var(--sage);
-  clip-path: circle(0 at 50% 50%);
-  visibility: hidden;
+  opacity: 0;
   pointer-events: none;
+  transition: opacity 0.45s ease;
 }
 
-#projects {
+.project-card.is-playing .live {
+  opacity: 1;
+}
+
+.live--panel {
+  background: rgba(251, 250, 247, 0.93);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+/* Immigrants Rising: the five steps fill in, then the team result */
+.live--ir {
+  display: grid;
+  align-content: end;
+}
+
+.live-steps {
+  display: flex;
+  gap: 6px;
+  margin: 0 4% 4%;
+  padding: 0.6rem 0.7rem 0.55rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 8px 20px -12px rgba(42, 42, 42, 0.4);
+}
+
+.live-steps span {
+  flex: 1;
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+  overflow: hidden;
+  color: rgba(42, 42, 42, 0.45);
+  font-size: 0.6rem;
+  font-weight: 600;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.live-steps i {
   position: relative;
-  z-index: 1;
-  background: var(--sage);
-  border-block: 0;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: rgba(42, 42, 42, 0.12);
 }
 
-#projects .section-head .eyebrow {
-  color: #24361f;
+.live-steps i::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #10365a;
+  transform: scaleX(0);
+  transform-origin: left center;
 }
 
-#projects .section-head .eyebrow--rule::before,
-#projects .section-head .eyebrow--rule::after {
-  background: #24361f;
+.live-chip {
+  position: absolute;
+  top: 6%;
+  right: 4%;
+  margin: 0;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  background: #10365a;
+  color: #f8f6f2;
+  font-size: 0.68rem;
+  font-weight: 600;
+  opacity: 0;
 }
 
-#projects .section-head .section-intro {
-  color: #2c3328;
+.is-playing .live-steps span {
+  animation: live-ink 0.3s ease forwards;
+  animation-delay: calc(0.3s + var(--k) * 0.32s);
 }
 
-#projects .project-card[data-project] {
-  border-color: rgba(36, 54, 31, 0.14);
+.is-playing .live-steps i::after {
+  animation: live-fill 0.32s ease-out forwards;
+  animation-delay: calc(0.3s + var(--k) * 0.32s);
+}
+
+.is-playing .live-chip {
+  animation: live-pop 0.5s cubic-bezier(0.16, 1, 0.3, 1) 2s forwards;
+}
+
+/* Brightside: a knowledge graph draws itself */
+.live--bs svg {
+  position: absolute;
+  inset: 6% 5%;
+  width: 90%;
+  height: 88%;
+}
+
+.bs-edge {
+  fill: none;
+  stroke: #a7c3c6;
+  stroke-width: 1.2;
+  stroke-dasharray: 60;
+  stroke-dashoffset: 60;
+}
+
+.bs-edge.strong {
+  stroke: #e7926b;
+}
+
+.bs-node {
+  fill: #8fd0cc;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+  scale: 0.4;
+}
+
+.bs-hub {
+  fill: #f08a5d;
+}
+
+.bs-label {
+  fill: #2a2a2a;
+  font: 600 7px var(--font-body);
+  opacity: 0;
+}
+
+.is-playing .bs-node {
+  animation: live-node 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: calc(0.15s + var(--k) * 0.07s);
+}
+
+.is-playing .bs-edge {
+  animation: live-draw 0.9s ease-out forwards;
+  animation-delay: calc(0.45s + var(--k) * 0.06s);
+}
+
+.is-playing .bs-edge.strong {
+  animation:
+    live-draw 0.9s ease-out forwards,
+    live-thicken 0.5s ease 1.9s forwards;
+  animation-delay: calc(0.45s + var(--k) * 0.06s), 1.9s;
+}
+
+.is-playing .bs-label {
+  animation: live-ink-in 0.5s ease 1.5s forwards;
+}
+
+/* Gateway: funding builds year by year */
+.live--gw {
+  display: grid;
+  grid-template-columns: 0.85fr 1.15fr;
+  align-items: center;
+  gap: 5%;
+  padding: 7% 7% 6%;
+}
+
+.gw-live-total {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.gw-live-total strong {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.6vw, 2rem);
+  font-weight: 400;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.gw-live-total span {
+  color: var(--soft);
+  font-size: 0.66rem;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.gw-live-chart {
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 0.35rem;
+  height: 82%;
+}
+
+.gw-live-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 7%;
+  border-bottom: 1px solid rgba(42, 42, 42, 0.2);
+}
+
+.gw-live-bars i {
+  flex: 1;
+  height: var(--h);
+  border-radius: 3px 3px 0 0;
+  background: rgba(85, 147, 187, 0.34);
+  transform: scaleY(0);
+  transform-origin: bottom;
+}
+
+.gw-live-years {
+  display: flex;
+  justify-content: space-between;
+  color: var(--soft);
+  font-size: 0.56rem;
+  font-weight: 600;
+}
+
+.is-playing .gw-live-bars i {
+  animation: live-grow 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: calc(0.3s + var(--k) * 0.15s);
+}
+
+.is-playing .gw-live-bars i.hi {
+  animation:
+    live-grow 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards,
+    live-hi 0.4s ease 1.8s forwards;
+  animation-delay: calc(0.3s + var(--k) * 0.15s), 1.8s;
+}
+
+@keyframes live-fill { to { transform: scaleX(1); } }
+@keyframes live-ink { to { color: #2a2a2a; } }
+@keyframes live-ink-in { to { opacity: 1; } }
+@keyframes live-pop { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes live-node { to { opacity: 1; scale: 1; } }
+@keyframes live-draw { to { stroke-dashoffset: 0; } }
+@keyframes live-thicken { to { stroke-width: 2.6; } }
+@keyframes live-grow { to { transform: scaleY(1); } }
+@keyframes live-hi { to { background: #5593bb; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .live {
+    display: none;
+  }
 }
 
 /* ---- Card glides into its case study -----------------------------------------
