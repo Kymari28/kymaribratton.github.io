@@ -1349,4 +1349,81 @@
       paintRead();
     }
   }
+
+  /* ---- Selected Work, second row: the same living thumbnails ----
+     Mindfulness maps one discovery page into three clear paths to booking;
+     24Seven steps through its separate traveller journeys. One card plays at
+     a time: the one in the middle of the screen, or the one under the
+     pointer. */
+  var moreCards = Array.prototype.slice.call(document.querySelectorAll(".project-grid--more > .project-card"));
+  if (moreCards.length && !prefersReducedMotion && "IntersectionObserver" in window) {
+    var builtMore = moreCards.filter(function (card) {
+      var stage = card.querySelector(".project-stage");
+      var kind = card.dataset.project;
+      if (!stage) return false;
+      var live = document.createElement("div");
+      live.className = "live";
+      live.setAttribute("aria-hidden", "true");
+      if (kind === "mindfulness") {
+        live.classList.add("live--mfd");
+        var paths = ["1:1 sessions", "Group program", "Corporate"];
+        live.innerHTML =
+          '<div class="mfd-map">' +
+          '<svg viewBox="0 0 100 100" preserveAspectRatio="none">' +
+          [18, 50, 82].map(function (y, k) {
+            return '<path style="--k:' + k + '" pathLength="1" d="M22 50C29 50 29 ' + y + ' 35 ' + y + '"/>' +
+              '<path class="out" style="--k:' + k + '" pathLength="1" d="M65 ' + y + 'C71 ' + y + ' 71 50 78 50"/>';
+          }).join("") +
+          "</svg>" +
+          '<span class="mfd-start">Discover</span>' +
+          paths.map(function (p, k) { return '<span class="mfd-path" style="--k:' + k + ";--y:" + [18, 50, 82][k] + '%">' + p + "</span>"; }).join("") +
+          '<span class="mfd-end">Book</span>' +
+          "</div>";
+      } else if (kind === "24seven") {
+        live.classList.add("live--t24");
+        var trips = ["Solo", "Group", "First-time"];
+        live.innerHTML =
+          '<p class="live-chip live-chip--t24">A journey for each</p>' +
+          '<div class="t24-pick"><span class="t24-label">Planning for</span><div class="t24-seg"><i></i>' +
+          trips.map(function (t, k) { return '<span style="--k:' + k + '">' + t + "</span>"; }).join("") +
+          "</div></div>";
+      } else {
+        return false;
+      }
+      stage.appendChild(live);
+      return true;
+    }).length;
+
+    if (builtMore) {
+      var inView = [];
+      var hovered = null;
+      var morePlaying = null;
+      var pickMore = function () {
+        var next = hovered || inView[0] || null;
+        if (next === morePlaying) return;
+        moreCards.forEach(function (c) { c.classList.toggle("is-playing", c === next); });
+        morePlaying = next;
+      };
+      var moreObserver = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          var at = inView.indexOf(entry.target);
+          if (entry.isIntersecting && at < 0) inView.push(entry.target);
+          if (!entry.isIntersecting && at >= 0) inView.splice(at, 1);
+        });
+        inView.sort(function (a, b) { return moreCards.indexOf(a) - moreCards.indexOf(b); });
+        pickMore();
+      }, { rootMargin: "-35% 0px -35% 0px" });
+      moreCards.forEach(function (card) {
+        moreObserver.observe(card);
+        card.addEventListener("pointerenter", function (e) {
+          if (e.pointerType === "mouse") { hovered = card; pickMore(); }
+        });
+        card.addEventListener("pointerleave", function () {
+          if (hovered === card) { hovered = null; pickMore(); }
+        });
+        card.addEventListener("focusin", function () { hovered = card; pickMore(); });
+        card.addEventListener("focusout", function () { if (hovered === card) { hovered = null; pickMore(); } });
+      });
+    }
+  }
 })();

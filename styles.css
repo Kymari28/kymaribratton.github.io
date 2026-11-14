@@ -13493,3 +13493,169 @@ main {
     transition: none;
   }
 }
+
+/* ---- Selected Work, second row: living thumbnails -------------------------
+   Built in script.js; only the card in the middle of the screen (or under
+   the pointer) plays. Hidden entirely for reduced motion via .live. */
+
+/* Mindfulness: one discovery page, three clear paths, one booking step */
+.live--mfd,
+.live--t24 {
+  display: grid;
+  align-content: end;
+}
+
+.mfd-map {
+  position: relative;
+  height: 5.4rem;
+  margin: 0 4% 4%;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 8px 20px -12px rgba(42, 42, 42, 0.4);
+}
+
+.mfd-map svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.mfd-map path {
+  fill: none;
+  stroke: rgba(85, 96, 63, 0.5);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.mfd-start,
+.mfd-path,
+.mfd-end {
+  position: absolute;
+  top: 50%;
+  padding: 0.22rem 0.45rem;
+  border: 1px solid rgba(85, 96, 63, 0.28);
+  border-radius: 999px;
+  background: #fff;
+  color: #2a2a2a;
+  font-size: 0.58rem;
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+  text-align: center;
+  opacity: 0;
+  transform: translateY(-50%);
+}
+
+.mfd-start { left: 3%; }
+.mfd-path { top: var(--y); left: 50%; transform: translate(-50%, -50%); }
+.mfd-end { right: 3%; }
+
+.is-playing .mfd-start {
+  animation: live-ink-in 0.35s ease 0.2s forwards;
+}
+
+.is-playing .mfd-map path {
+  animation: mfd-draw 0.4s ease-out forwards;
+  animation-delay: calc(0.45s + var(--k) * 0.12s);
+}
+
+.is-playing .mfd-map path.out {
+  animation-delay: calc(1.2s + var(--k) * 0.12s);
+}
+
+.is-playing .mfd-path {
+  animation: live-ink-in 0.35s ease forwards;
+  animation-delay: calc(0.65s + var(--k) * 0.15s);
+}
+
+.is-playing .mfd-end {
+  animation:
+    live-ink-in 0.35s ease 1.6s forwards,
+    mfd-book 0.4s ease 1.95s forwards;
+}
+
+@keyframes mfd-draw { to { stroke-dashoffset: 0; } }
+@keyframes mfd-book { to { background: #55603f; border-color: #55603f; color: #f8f6f2; } }
+
+/* 24Seven: one picker, a separate journey for each kind of traveller */
+.t24-pick {
+  display: grid;
+  gap: 0.35rem;
+  margin: 0 4% 4%;
+  padding: 0.55rem 0.7rem 0.6rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 8px 20px -12px rgba(42, 42, 42, 0.4);
+}
+
+.t24-label {
+  color: rgba(42, 42, 42, 0.6);
+  font-size: 0.56rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.t24-seg {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 3px;
+  border-radius: 999px;
+  background: rgba(42, 42, 42, 0.06);
+}
+
+.t24-seg i {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc((100% - 6px) / 3);
+  border-radius: 999px;
+  background: #8e2a22;
+  opacity: 0;
+}
+
+.t24-seg span {
+  position: relative;
+  padding: 0.32rem 0;
+  color: rgba(42, 42, 42, 0.62);
+  font-size: 0.62rem;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.live-chip--t24 {
+  background: #8e2a22;
+}
+
+.is-playing .t24-seg i {
+  animation: t24-slide 2s cubic-bezier(0.65, 0, 0.35, 1) 0.3s forwards;
+}
+
+.is-playing .t24-seg span:nth-of-type(1) { animation: t24-on 0.6s linear 0.4s; }
+.is-playing .t24-seg span:nth-of-type(2) { animation: t24-on 0.45s linear 1.2s; }
+.is-playing .t24-seg span:nth-of-type(3) { animation: t24-stay 0.2s ease 1.85s forwards; }
+
+.is-playing .live-chip--t24 {
+  animation-delay: 2.2s;
+}
+
+@keyframes t24-slide {
+  0% { opacity: 0; transform: translateX(0); }
+  10%, 35% { opacity: 1; transform: translateX(0); }
+  50%, 65% { opacity: 1; transform: translateX(100%); }
+  80%, 100% { opacity: 1; transform: translateX(200%); }
+}
+
+@keyframes t24-on {
+  0%, 100% { color: rgba(42, 42, 42, 0.62); }
+  12%, 88% { color: #fff; }
+}
+
+@keyframes t24-stay { to { color: #fff; } }
