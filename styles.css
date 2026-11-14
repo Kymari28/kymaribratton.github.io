@@ -12646,20 +12646,15 @@ main[data-case="gateway"] .gateway-evidence-mark {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     padding-bottom: env(safe-area-inset-bottom);
-    border-top: 1px solid rgba(232, 174, 183, 0.22);
+    border-top: 1px solid rgba(42, 42, 42, 0.08);
     background: rgba(248, 246, 242, 0.96);
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
   }
 
-  /* Hairline from the original: blush fading into sage. */
+  /* A plain hairline (border-top) keeps the bar quiet and editorial. */
   .tabbar::before {
-    content: "";
-    position: absolute;
-    inset: 0 0 auto;
-    height: 2px;
-    background: linear-gradient(to right, transparent, rgba(232, 174, 183, 0.5) 30%, rgba(169, 198, 165, 0.4) 70%, transparent);
-    pointer-events: none;
+    content: none;
   }
 
   .tabbar-link {
@@ -13380,5 +13375,25 @@ main {
   .link,
   .footer-links a {
     transition: none;
+  }
+}
+
+/* ---- Phones and touch screens: calm hero scroll ------------------------------
+   No blur or drift on the hero copy and buttons, so they stay readable as you
+   scroll. Blur filters on text also caused a magenta rendering glitch in
+   iOS Safari, so touch devices skip them entirely. */
+@media (max-width: 640px), (hover: none) {
+  .hero-lead > *,
+  .hero-details > *,
+  .portrait-stage .portrait-frame {
+    filter: none !important;
+    translate: none !important;
+  }
+}
+
+/* No pink credentials strip between the hero and the work on phones. */
+@media (max-width: 640px) {
+  .credentials--blush {
+    display: none;
   }
 }
