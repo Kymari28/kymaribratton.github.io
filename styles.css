@@ -13764,13 +13764,55 @@ main {
 .about-hero .subpage-copy > .trait-list { order: 5; justify-content: center; }
 .about-hero .subpage-copy > .button-row { order: 6; justify-content: center; margin-top: 1.75rem; }
 
+/* Oval frame with a fine outer ring, as on the original Figma About page,
+   kept small so the photo heads the page without taking it over. */
+.about-hero .subpage-visual--about {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+}
+
 .about-hero .about-photo-frame {
-  width: min(22rem, 78%);
+  position: relative;
+  width: min(17rem, 62%);
+  aspect-ratio: 496 / 642;
+  border: 0;
+  border-radius: 50% / 40%;
+  overflow: visible;
+  background: none;
+  box-shadow: none;
+}
+
+.about-hero .about-photo-frame img {
+  height: auto;
+  aspect-ratio: 496 / 642;
+  object-position: 50% 30%;
+  border-radius: 50% / 40%;
+  box-shadow: 0 24px 50px -28px rgba(42, 42, 42, 0.35);
+}
+
+.about-hero .about-photo-frame::before {
+  content: "";
+  position: absolute;
+  inset: -6%;
+  border: 1px solid rgba(232, 174, 183, 0.45);
+  border-radius: 50% / 40%;
+  pointer-events: none;
+}
+
+@media (max-width: 640px) {
+  .about-hero .about-photo-frame {
+    width: min(13.5rem, 56%);
+  }
 }
 
 .about-hero .subpage-visual--about .hero-note {
   width: auto;
-  margin-top: -2.4rem;
+  align-self: center;
+  inset: auto;
+  margin: -2.4rem auto 0;
   position: relative;
   z-index: 2;
 }
