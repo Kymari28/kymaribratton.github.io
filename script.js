@@ -839,7 +839,7 @@
 
   /* ---- Hero: --bloom follows how far the hero has scrolled away ---- */
   var bloomHero = document.querySelector(".hero");
-  if (bloomHero && document.querySelector(".portrait-wash") && !prefersReducedMotion) {
+  if (bloomHero && document.querySelector(".portrait-stage") && !prefersReducedMotion) {
     var bloomTicking = false;
     var lastBloom = -1;
     var paintBloom = function () {
@@ -866,6 +866,55 @@
       { passive: true }
     );
     paintBloom();
+  }
+
+  /* ---- Scroll scene: sage floods out from behind the portrait ----
+     Grows with scroll from just below the top until Selected Work's top
+     reaches 20% of the screen. The circle is centred on the portrait and
+     grows until it covers the screen, so the green hands straight over to
+     the sage Selected Work section. Hidden at rest and once Selected Work
+     covers the top of the screen. */
+  var floodStage = document.querySelector(".hero .portrait-stage");
+  var floodTarget = document.getElementById("projects");
+  if (floodStage && floodTarget && !prefersReducedMotion) {
+    var flood = document.createElement("div");
+    flood.className = "flood";
+    flood.setAttribute("aria-hidden", "true");
+    document.body.insertBefore(flood, document.body.firstChild);
+    var floodTicking = false;
+    var paintFlood = function () {
+      floodTicking = false;
+      var vw = window.innerWidth;
+      var vh = window.innerHeight;
+      var target = floodTarget.getBoundingClientRect();
+      // Scroll-based, so the page at rest is untouched: 0 at the top,
+      // 1 once Selected Work's top has risen to 20% of the screen.
+      var endAt = target.top + window.scrollY - vh * 0.2;
+      var startAt = Math.min(endAt * 0.25, vh * 0.15);
+      var f = Math.min(1, Math.max(0, (window.scrollY - startAt) / Math.max(1, endAt - startAt)));
+      if (f <= 0 || target.top < -2) {
+        flood.style.visibility = "hidden";
+        return;
+      }
+      var e = f * f * (3 - 2 * f);
+      var s = floodStage.getBoundingClientRect();
+      var cx = s.left + s.width / 2;
+      var cy = s.top + s.height / 2;
+      var r0 = s.width * 0.46;
+      var far = Math.hypot(Math.max(cx, vw - cx), Math.max(cy, vh - cy)) + 40;
+      var r = r0 + e * (far - r0);
+      flood.style.clipPath = "circle(" + r.toFixed(1) + "px at " + cx.toFixed(1) + "px " + cy.toFixed(1) + "px)";
+      flood.style.visibility = "visible";
+    };
+    var queueFlood = function () {
+      if (!floodTicking) {
+        floodTicking = true;
+        requestAnimationFrame(paintFlood);
+      }
+    };
+    window.addEventListener("scroll", queueFlood, { passive: true });
+    window.addEventListener("resize", queueFlood);
+    paintFlood();
   }
 
   /* ---- Headlines rise from behind a mask (case studies) ----

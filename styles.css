@@ -2141,10 +2141,6 @@ main[data-case] .hover-word .particle {
 /* Layering, as on the Figma site: the circle, then the lily, then the
    portrait. The circle's fill moves onto its own layer so the lily can sit
    in front of it and behind Kymari, spilling past the right edge. */
-.hero {
-  overflow-x: clip;
-}
-
 .hero-visual--circle .portrait-stage {
   position: relative;
   width: min(27rem, 100%);
@@ -12766,13 +12762,40 @@ main[data-case="gateway"] .gateway-evidence-mark {
   /* "Currently wearing the hat of" sits between the photo and the
      buttons; the focus pills follow the buttons. */
   .hero-details { display: contents; }
-  .hero-status { order: 5; margin-top: 1.15rem; gap: 0.5rem; position: relative; z-index: 2; }
-  .hero-status-label { white-space: nowrap; font-size: 0.8rem; }
-  .hero-lead > .button-row { order: 6; margin-top: 1.1rem; }
+  /* The rotating "hat" line is a desktop flourish; phones skip it. */
+  .hero-status { display: none; }
+  .hero-lead > .button-row { order: 6; margin-top: 1.9rem; }
+
+  /* Availability becomes one slim pill on the portrait's edge. */
+  .hero-note {
+    gap: 0.45rem;
+    padding: 0.42rem 0.9rem 0.42rem 0.45rem;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .hero-note-mark {
+    width: 1.35rem;
+    height: 1.35rem;
+    font-size: 0.7rem;
+  }
+
+  .hero-note-text span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .hero-note-text strong {
+    font-size: 0.78rem;
+  }
   .hero-focus { order: 7; margin-top: 1.6rem; position: relative; z-index: 2; }
 
   .hero-visual--circle .portrait-stage {
-    width: min(14.25rem, 66%);
+    width: min(15.5rem, 72%);
   }
 
   /* Every case study: title and intro, then the image, then the
@@ -12914,31 +12937,16 @@ main[data-case="gateway"] .gateway-evidence-mark {
 
 /* ---- Hero: the lily blooms as you scroll -----------------------------------
    script.js writes --bloom (0 at the top, 1 once the hero has scrolled
-   away). The lily itself only grows a little so the image stays sharp;
-   the large growth is a CSS sage wash, which is crisp at any size. */
-.hero {
-  overflow: clip;
+   away). The lily only grows a little so the image stays sharp. <main>
+   clips sideways overflow, so the lily can spill past the content edge. */
+main {
+  overflow-x: clip;
 }
 
 .hero-lead > *,
 .hero-details {
   position: relative;
   z-index: 2;
-}
-
-.portrait-wash {
-  position: absolute;
-  z-index: 0;
-  inset: -12%;
-  border-radius: 50%;
-  background: radial-gradient(
-    circle,
-    rgba(169, 198, 165, 0.5) 0%,
-    rgba(169, 198, 165, 0.26) 38%,
-    rgba(169, 198, 165, 0) 70%
-  );
-  opacity: 0;
-  pointer-events: none;
 }
 
 .portrait-stage picture {
@@ -12950,12 +12958,6 @@ main[data-case="gateway"] .gateway-evidence-mark {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .portrait-wash {
-    /* Blooms in, peaks halfway, then dissolves as the hero leaves. */
-    opacity: calc(var(--bloom, 0) * (1 - var(--bloom, 0)) * 3.4);
-    scale: calc(0.7 + var(--bloom, 0) * 1.9);
-  }
-
   .portrait-stage picture {
     scale: calc(1 + var(--bloom, 0) * 0.14);
     rotate: calc(var(--bloom, 0) * 8deg);
@@ -12968,13 +12970,49 @@ main[data-case="gateway"] .gateway-evidence-mark {
 }
 
 @media (max-width: 640px) and (prefers-reduced-motion: no-preference) {
-  .portrait-wash {
-    scale: calc(0.7 + var(--bloom, 0) * 1.5);
-  }
-
   .portrait-stage picture {
     rotate: calc(var(--bloom, 0) * 6deg);
   }
+}
+
+/* ---- Scroll scene: sage floods out from behind the portrait ------------------
+   A fixed sage layer sits behind the hero (the hero, banner and Selected
+   Work are each stacked above it). script.js grows its circle from the
+   portrait until the screen is green, just as Selected Work, which is sage
+   itself, arrives. Without the script, or with reduced motion, Selected
+   Work is simply sage. */
+.flood {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  background: var(--sage);
+  clip-path: circle(0 at 50% 50%);
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#projects {
+  position: relative;
+  z-index: 1;
+  background: var(--sage);
+  border-block: 0;
+}
+
+#projects .section-head .eyebrow {
+  color: #24361f;
+}
+
+#projects .section-head .eyebrow--rule::before,
+#projects .section-head .eyebrow--rule::after {
+  background: #24361f;
+}
+
+#projects .section-head .section-intro {
+  color: #2c3328;
+}
+
+#projects .project-card[data-project] {
+  border-color: rgba(36, 54, 31, 0.14);
 }
 
 /* ---- Card glides into its case study -----------------------------------------
